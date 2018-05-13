@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"runtime"
 	"strings"
 	"time"
 )
@@ -95,7 +96,7 @@ func (cl *Client) do(ctx context.Context, method, path string,
 		return err
 	}
 	httpReq = httpReq.WithContext(ctx)
-	httpReq.Header.Set("User-Agent", "luno-go")
+	httpReq.Header.Set("User-Agent", makeUserAgent())
 	if contentType != "" {
 		httpReq.Header.Set("Content-Type", contentType)
 	}
@@ -125,4 +126,9 @@ func (cl *Client) do(ctx context.Context, method, path string,
 	}
 
 	return json.NewDecoder(httpRes.Body).Decode(res)
+}
+
+func makeUserAgent() string {
+	return fmt.Sprintf("LunoGoSDK/%s %s %s %s",
+		Version, runtime.Version(), runtime.GOOS, runtime.GOARCH)
 }
