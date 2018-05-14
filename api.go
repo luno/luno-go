@@ -8,13 +8,13 @@ type CancelWithdrawalRequest struct {
 }
 
 type CancelWithdrawalResponse struct {
-	Amount    string `json:"amount"`
-	CreatedAt int64  `json:"created_at"`
-	Currency  string `json:"currency"`
-	Fee       string `json:"fee"`
-	Id        string `json:"id"`
-	Status    string `json:"status"`
-	Type      string `json:"type"`
+	Amount    float64 `json:"amount,string"`
+	CreatedAt int64   `json:"created_at"`
+	Currency  string  `json:"currency"`
+	Fee       float64 `json:"fee,string"`
+	Id        string  `json:"id"`
+	Status    string  `json:"status"`
+	Type      string  `json:"type"`
 }
 
 // CancelWithdrawal makes a call to DELETE /api/1/withdrawals/{id}.
@@ -79,14 +79,14 @@ type CreateFundingAddressRequest struct {
 }
 
 type CreateFundingAddressResponse struct {
-	AccountId        string `json:"account_id"`
-	Address          string `json:"address"`
-	Asset            string `json:"asset"`
-	AssignedAt       int64  `json:"assigned_at"`
-	Name             string `json:"name"`
-	ReceiveFee       string `json:"receive_fee"`
-	TotalReceived    string `json:"total_received"`
-	TotalUnconfirmed string `json:"total_unconfirmed"`
+	AccountId        string  `json:"account_id"`
+	Address          string  `json:"address"`
+	Asset            string  `json:"asset"`
+	AssignedAt       int64   `json:"assigned_at"`
+	Name             string  `json:"name"`
+	ReceiveFee       float64 `json:"receive_fee,string"`
+	TotalReceived    float64 `json:"total_received,string"`
+	TotalUnconfirmed float64 `json:"total_unconfirmed,string"`
 }
 
 // CreateFundingAddress makes a call to POST /api/1/funding_address.
@@ -124,15 +124,15 @@ type CreateQuoteRequest struct {
 }
 
 type CreateQuoteResponse struct {
-	BaseAmount    string `json:"base_amount"`
-	CounterAmount string `json:"counter_amount"`
-	CreatedAt     int64  `json:"created_at"`
-	Discarded     bool   `json:"discarded"`
-	Exercised     bool   `json:"exercised"`
-	ExpiresAt     int64  `json:"expires_at"`
-	Id            string `json:"id"`
-	Pair          string `json:"pair"`
-	Type          string `json:"type"`
+	BaseAmount    float64 `json:"base_amount,string"`
+	CounterAmount float64 `json:"counter_amount,string"`
+	CreatedAt     int64   `json:"created_at"`
+	Discarded     bool    `json:"discarded"`
+	Exercised     bool    `json:"exercised"`
+	ExpiresAt     int64   `json:"expires_at"`
+	Id            string  `json:"id"`
+	Pair          string  `json:"pair"`
+	Type          string  `json:"type"`
 }
 
 // CreateQuote makes a call to POST /api/1/quotes.
@@ -180,13 +180,13 @@ type CreateWithdrawalRequest struct {
 }
 
 type CreateWithdrawalResponse struct {
-	Amount    string `json:"amount"`
-	CreatedAt int64  `json:"created_at"`
-	Currency  string `json:"currency"`
-	Fee       string `json:"fee"`
-	Id        string `json:"id"`
-	Status    string `json:"status"`
-	Type      string `json:"type"`
+	Amount    float64 `json:"amount,string"`
+	CreatedAt int64   `json:"created_at"`
+	Currency  string  `json:"currency"`
+	Fee       float64 `json:"fee,string"`
+	Id        string  `json:"id"`
+	Status    string  `json:"status"`
+	Type      string  `json:"type"`
 }
 
 // CreateWithdrawal makes a call to POST /api/1/withdrawals.
@@ -209,15 +209,15 @@ type DiscardQuoteRequest struct {
 }
 
 type DiscardQuoteResponse struct {
-	BaseAmount    string `json:"base_amount"`
-	CounterAmount string `json:"counter_amount"`
-	CreatedAt     int64  `json:"created_at"`
-	Discarded     bool   `json:"discarded"`
-	Exercised     bool   `json:"exercised"`
-	ExpiresAt     int64  `json:"expires_at"`
-	Id            string `json:"id"`
-	Pair          string `json:"pair"`
-	Type          string `json:"type"`
+	BaseAmount    float64 `json:"base_amount,string"`
+	CounterAmount float64 `json:"counter_amount,string"`
+	CreatedAt     int64   `json:"created_at"`
+	Discarded     bool    `json:"discarded"`
+	Exercised     bool    `json:"exercised"`
+	ExpiresAt     int64   `json:"expires_at"`
+	Id            string  `json:"id"`
+	Pair          string  `json:"pair"`
+	Type          string  `json:"type"`
 }
 
 // DiscardQuote makes a call to DELETE /api/1/quotes/{id}.
@@ -241,15 +241,15 @@ type ExerciseQuoteRequest struct {
 }
 
 type ExerciseQuoteResponse struct {
-	BaseAmount    string `json:"base_amount"`
-	CounterAmount string `json:"counter_amount"`
-	CreatedAt     int64  `json:"created_at"`
-	Discarded     bool   `json:"discarded"`
-	Exercised     bool   `json:"exercised"`
-	ExpiresAt     int64  `json:"expires_at"`
-	Id            string `json:"id"`
-	Pair          string `json:"pair"`
-	Type          string `json:"type"`
+	BaseAmount    float64 `json:"base_amount,string"`
+	CounterAmount float64 `json:"counter_amount,string"`
+	CreatedAt     int64   `json:"created_at"`
+	Discarded     bool    `json:"discarded"`
+	Exercised     bool    `json:"exercised"`
+	ExpiresAt     int64   `json:"expires_at"`
+	Id            string  `json:"id"`
+	Pair          string  `json:"pair"`
+	Type          string  `json:"type"`
 }
 
 // ExerciseQuote makes a call to PUT /api/1/quotes/{id}.
@@ -278,6 +278,7 @@ type GetBalancesRequest struct {
 }
 
 type GetBalancesResponse struct {
+	Balance []AccountBalance `json:"balance"`
 }
 
 // GetBalances makes a call to GET /api/1/balance.
@@ -330,14 +331,14 @@ type GetFundingAddressRequest struct {
 }
 
 type GetFundingAddressResponse struct {
-	AccountId        string `json:"account_id"`
-	Address          string `json:"address"`
-	Asset            string `json:"asset"`
-	AssignedAt       int64  `json:"assigned_at"`
-	Name             string `json:"name"`
-	ReceiveFee       string `json:"receive_fee"`
-	TotalReceived    string `json:"total_received"`
-	TotalUnconfirmed string `json:"total_unconfirmed"`
+	AccountId        string  `json:"account_id"`
+	Address          string  `json:"address"`
+	Asset            string  `json:"asset"`
+	AssignedAt       int64   `json:"assigned_at"`
+	Name             string  `json:"name"`
+	ReceiveFee       float64 `json:"receive_fee,string"`
+	TotalReceived    float64 `json:"total_received,string"`
+	TotalUnconfirmed float64 `json:"total_unconfirmed,string"`
 }
 
 // GetFundingAddress makes a call to GET /api/1/funding_address.
@@ -365,19 +366,19 @@ type GetOrderRequest struct {
 }
 
 type GetOrderResponse struct {
-	Base                string `json:"base"`
-	Btc                 string `json:"btc"`
-	CompletedTimestamp  int64  `json:"completed_timestamp"`
-	Counter             string `json:"counter"`
-	CreationTimestamp   int64  `json:"creation_timestamp"`
-	ExpirationTimestamp int64  `json:"expiration_timestamp"`
-	FeeBase             string `json:"fee_base"`
-	FeeBtc              string `json:"fee_btc"`
-	FeeCounter          string `json:"fee_counter"`
-	FeeZar              string `json:"fee_zar"`
-	LimitPrice          string `json:"limit_price"`
-	LimitVolume         string `json:"limit_volume"`
-	OrderId             string `json:"order_id"`
+	Base                float64 `json:"base,string"`
+	Btc                 string  `json:"btc"`
+	CompletedTimestamp  int64   `json:"completed_timestamp"`
+	Counter             float64 `json:"counter,string"`
+	CreationTimestamp   int64   `json:"creation_timestamp"`
+	ExpirationTimestamp int64   `json:"expiration_timestamp"`
+	FeeBase             float64 `json:"fee_base,string"`
+	FeeBtc              string  `json:"fee_btc"`
+	FeeCounter          float64 `json:"fee_counter,string"`
+	FeeZar              string  `json:"fee_zar"`
+	LimitPrice          float64 `json:"limit_price,string"`
+	LimitVolume         float64 `json:"limit_volume,string"`
+	OrderId             string  `json:"order_id"`
 
 	// Specifies the market.
 	Pair string `json:"pair"`
@@ -421,8 +422,8 @@ type GetOrderBookResponse struct {
 }
 
 type OrderBookEntry struct {
-	Price  string `json:"price"`
-	Volume string `json:"volume"`
+	Price  float64 `json:"price,string"`
+	Volume float64 `json:"volume,string"`
 }
 
 // GetOrderBook makes a call to GET /api/1/orderbook.
@@ -445,15 +446,15 @@ type GetQuoteRequest struct {
 }
 
 type GetQuoteResponse struct {
-	BaseAmount    string `json:"base_amount"`
-	CounterAmount string `json:"counter_amount"`
-	CreatedAt     int64  `json:"created_at"`
-	Discarded     bool   `json:"discarded"`
-	Exercised     bool   `json:"exercised"`
-	ExpiresAt     int64  `json:"expires_at"`
-	Id            string `json:"id"`
-	Pair          string `json:"pair"`
-	Type          string `json:"type"`
+	BaseAmount    float64 `json:"base_amount,string"`
+	CounterAmount float64 `json:"counter_amount,string"`
+	CreatedAt     int64   `json:"created_at"`
+	Discarded     bool    `json:"discarded"`
+	Exercised     bool    `json:"exercised"`
+	ExpiresAt     int64   `json:"expires_at"`
+	Id            string  `json:"id"`
+	Pair          string  `json:"pair"`
+	Type          string  `json:"type"`
 }
 
 // GetQuote makes a call to GET /api/1/quotes/{id}.
@@ -476,12 +477,12 @@ type GetTickerRequest struct {
 }
 
 type GetTickerResponse struct {
-	Ask                 string `json:"ask"`
-	Bid                 string `json:"bid"`
-	LastTrade           string `json:"last_trade"`
-	Pair                string `json:"pair"`
-	Rolling24HourVolume string `json:"rolling_24_hour_volume"`
-	Timestamp           int64  `json:"timestamp"`
+	Ask                 float64 `json:"ask,string"`
+	Bid                 float64 `json:"bid,string"`
+	LastTrade           float64 `json:"last_trade,string"`
+	Pair                string  `json:"pair"`
+	Rolling24HourVolume float64 `json:"rolling_24_hour_volume,string"`
+	Timestamp           int64   `json:"timestamp"`
 }
 
 // GetTicker makes a call to GET /api/1/ticker.
@@ -504,12 +505,12 @@ type GetTickersResponse struct {
 }
 
 type Ticker struct {
-	Ask                 string `json:"ask"`
-	Bid                 string `json:"bid"`
-	LastTrade           string `json:"last_trade"`
-	Pair                string `json:"pair"`
-	Rolling24HourVolume string `json:"rolling_24_hour_volume"`
-	Timestamp           int64  `json:"timestamp"`
+	Ask                 float64 `json:"ask,string"`
+	Bid                 float64 `json:"bid,string"`
+	LastTrade           float64 `json:"last_trade,string"`
+	Pair                string  `json:"pair"`
+	Rolling24HourVolume float64 `json:"rolling_24_hour_volume,string"`
+	Timestamp           int64   `json:"timestamp"`
 }
 
 // GetTickers makes a call to GET /api/1/tickers.
@@ -530,13 +531,13 @@ type GetWithdrawalRequest struct {
 }
 
 type GetWithdrawalResponse struct {
-	Amount    string `json:"amount"`
-	CreatedAt int64  `json:"created_at"`
-	Currency  string `json:"currency"`
-	Fee       string `json:"fee"`
-	Id        string `json:"id"`
-	Status    string `json:"status"`
-	Type      string `json:"type"`
+	Amount    float64 `json:"amount,string"`
+	CreatedAt int64   `json:"created_at"`
+	Currency  string  `json:"currency"`
+	Fee       float64 `json:"fee,string"`
+	Id        string  `json:"id"`
+	Status    string  `json:"status"`
+	Type      string  `json:"type"`
 }
 
 // GetWithdrawal makes a call to GET /api/1/withdrawals/{id}.
@@ -561,13 +562,13 @@ type GetWithdrawalsResponse struct {
 }
 
 type Withdrawal struct {
-	Amount    string `json:"amount"`
-	CreatedAt int64  `json:"created_at"`
-	Currency  string `json:"currency"`
-	Fee       string `json:"fee"`
-	Id        string `json:"id"`
-	Status    string `json:"status"`
-	Type      string `json:"type"`
+	Amount    float64 `json:"amount,string"`
+	CreatedAt int64   `json:"created_at"`
+	Currency  string  `json:"currency"`
+	Fee       float64 `json:"fee,string"`
+	Id        string  `json:"id"`
+	Status    string  `json:"status"`
+	Type      string  `json:"type"`
 }
 
 // GetWithdrawals makes a call to GET /api/1/withdrawals.
@@ -605,19 +606,19 @@ type ListOrdersResponse struct {
 }
 
 type Order struct {
-	Base                string `json:"base"`
-	Btc                 string `json:"btc"`
-	CompletedTimestamp  int64  `json:"completed_timestamp"`
-	Counter             string `json:"counter"`
-	CreationTimestamp   int64  `json:"creation_timestamp"`
-	ExpirationTimestamp int64  `json:"expiration_timestamp"`
-	FeeBase             string `json:"fee_base"`
-	FeeBtc              string `json:"fee_btc"`
-	FeeCounter          string `json:"fee_counter"`
-	FeeZar              string `json:"fee_zar"`
-	LimitPrice          string `json:"limit_price"`
-	LimitVolume         string `json:"limit_volume"`
-	OrderId             string `json:"order_id"`
+	Base                float64 `json:"base,string"`
+	Btc                 string  `json:"btc"`
+	CompletedTimestamp  int64   `json:"completed_timestamp"`
+	Counter             float64 `json:"counter,string"`
+	CreationTimestamp   int64   `json:"creation_timestamp"`
+	ExpirationTimestamp int64   `json:"expiration_timestamp"`
+	FeeBase             float64 `json:"fee_base,string"`
+	FeeBtc              string  `json:"fee_btc"`
+	FeeCounter          float64 `json:"fee_counter,string"`
+	FeeZar              string  `json:"fee_zar"`
+	LimitPrice          float64 `json:"limit_price,string"`
+	LimitVolume         float64 `json:"limit_volume,string"`
+	OrderId             string  `json:"order_id"`
 
 	// Specifies the market.
 	Pair string `json:"pair"`
@@ -701,6 +702,20 @@ type ListTradesResponse struct {
 	Trades   []Trade `json:"trades"`
 }
 
+type Trade struct {
+	Base       float64 `json:"base,string"`
+	Counter    float64 `json:"counter,string"`
+	FeeBase    float64 `json:"fee_base,string"`
+	FeeCounter float64 `json:"fee_counter,string"`
+	IsBuy      bool    `json:"is_buy"`
+	OrderId    string  `json:"order_id"`
+	Pair       string  `json:"pair"`
+	Price      float64 `json:"price,string"`
+	Timestamp  int64   `json:"timestamp"`
+	Type       string  `json:"type"`
+	Volume     float64 `json:"volume,string"`
+}
+
 // ListTrades makes a call to GET /api/1/trades.
 //
 // Returns a list of the most recent trades. At most 100 results are returned
@@ -738,25 +753,6 @@ type ListTransactionsResponse struct {
 	Transactions     []Transaction       `json:"transactions"`
 }
 
-type AccountBalance struct {
-	AccountId   string `json:"account_id"`
-	Asset       string `json:"asset"`
-	Balance     string `json:"balance"`
-	Name        string `json:"name"`
-	Reserved    string `json:"reserved"`
-	Unconfirmed string `json:"unconfirmed"`
-}
-
-type AccountCapabilities struct {
-	CanBuy        bool `json:"can_buy"`
-	CanDeposit    bool `json:"can_deposit"`
-	CanReceive    bool `json:"can_receive"`
-	CanSell       bool `json:"can_sell"`
-	CanSend       bool `json:"can_send"`
-	CanSocialSend bool `json:"can_social_send"`
-	CanWithdraw   bool `json:"can_withdraw"`
-}
-
 type Transaction struct {
 	AccountId      string  `json:"account_id"`
 	AppExt         AppExt  `json:"app_ext"`
@@ -774,15 +770,34 @@ type Transaction struct {
 	Timestamp   int64  `json:"timestamp"`
 }
 
+type AccountCapabilities struct {
+	CanBuy        bool `json:"can_buy"`
+	CanDeposit    bool `json:"can_deposit"`
+	CanReceive    bool `json:"can_receive"`
+	CanSell       bool `json:"can_sell"`
+	CanSend       bool `json:"can_send"`
+	CanSocialSend bool `json:"can_social_send"`
+	CanWithdraw   bool `json:"can_withdraw"`
+}
+
 type ReceiveAddress struct {
-	AccountId        string `json:"account_id"`
-	Address          string `json:"address"`
-	Asset            string `json:"asset"`
-	AssignedAt       int64  `json:"assigned_at"`
-	Name             string `json:"name"`
-	ReceiveFee       string `json:"receive_fee"`
-	TotalReceived    string `json:"total_received"`
-	TotalUnconfirmed string `json:"total_unconfirmed"`
+	AccountId        string  `json:"account_id"`
+	Address          string  `json:"address"`
+	Asset            string  `json:"asset"`
+	AssignedAt       int64   `json:"assigned_at"`
+	Name             string  `json:"name"`
+	ReceiveFee       float64 `json:"receive_fee,string"`
+	TotalReceived    float64 `json:"total_received,string"`
+	TotalUnconfirmed float64 `json:"total_unconfirmed,string"`
+}
+
+type AccountBalance struct {
+	AccountId   string  `json:"account_id"`
+	Asset       string  `json:"asset"`
+	Balance     float64 `json:"balance,string"`
+	Name        string  `json:"name"`
+	Reserved    float64 `json:"reserved,string"`
+	Unconfirmed float64 `json:"unconfirmed,string"`
 }
 
 type AppExt struct {
@@ -828,20 +843,6 @@ type ListUserTradesRequest struct {
 
 type ListUserTradesResponse struct {
 	Trades []Trade `json:"trades"`
-}
-
-type Trade struct {
-	Base       string `json:"base"`
-	Counter    string `json:"counter"`
-	FeeBase    string `json:"fee_base"`
-	FeeCounter string `json:"fee_counter"`
-	IsBuy      bool   `json:"is_buy"`
-	OrderId    string `json:"order_id"`
-	Pair       string `json:"pair"`
-	Price      string `json:"price"`
-	Timestamp  int64  `json:"timestamp"`
-	Type       string `json:"type"`
-	Volume     string `json:"volume"`
 }
 
 // ListUserTrades makes a call to GET /api/1/listtrades.
