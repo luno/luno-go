@@ -56,6 +56,60 @@ type CreateAccountResponse struct {
 	Transactions     []Transaction       `json:"transactions"`
 }
 
+type ReceiveAddress struct {
+	AccountId        string  `json:"account_id"`
+	Address          string  `json:"address"`
+	Asset            string  `json:"asset"`
+	AssignedAt       int64   `json:"assigned_at"`
+	Name             string  `json:"name"`
+	ReceiveFee       float64 `json:"receive_fee,string"`
+	TotalReceived    float64 `json:"total_received,string"`
+	TotalUnconfirmed float64 `json:"total_unconfirmed,string"`
+}
+
+type AccountCapabilities struct {
+	CanBuy        bool `json:"can_buy"`
+	CanDeposit    bool `json:"can_deposit"`
+	CanReceive    bool `json:"can_receive"`
+	CanSell       bool `json:"can_sell"`
+	CanSend       bool `json:"can_send"`
+	CanSocialSend bool `json:"can_social_send"`
+	CanWithdraw   bool `json:"can_withdraw"`
+}
+
+type Transaction struct {
+	AccountId      string  `json:"account_id"`
+	AppExt         AppExt  `json:"app_ext"`
+	Available      float64 `json:"available,string"`
+	AvailableDelta float64 `json:"available_delta,string"`
+	Balance        float64 `json:"balance,string"`
+
+	// Transaction amounts computed for convenience.
+	BalanceDelta float64 `json:"balance_delta,string"`
+	Currency     string  `json:"currency"`
+
+	// Human-readable description of the transaction.
+	Description string `json:"description"`
+	RowIndex    int64  `json:"row_index"`
+	Timestamp   int64  `json:"timestamp"`
+}
+
+type AccountBalance struct {
+	AccountId   string  `json:"account_id"`
+	Asset       string  `json:"asset"`
+	Balance     float64 `json:"balance,string"`
+	Name        string  `json:"name"`
+	Reserved    float64 `json:"reserved,string"`
+	Unconfirmed float64 `json:"unconfirmed,string"`
+}
+
+type AppExt struct {
+	ApproxCurrency  string `json:"approx_currency"`
+	ApproxValue     string `json:"approx_value"`
+	CancelToken     string `json:"cancel_token"`
+	PrimaryCategory string `json:"primary_category"`
+}
+
 // CreateAccount makes a call to POST /api/1/accounts.
 //
 // Create an additional account for the specified currency.
@@ -585,6 +639,13 @@ func (cl *Client) GetWithdrawals(ctx context.Context, req *GetWithdrawalsRequest
 	return &res, nil
 }
 
+type OrderState string
+
+const (
+	OrderStatePending  OrderState = "PENDING"
+	OrderStateComplete OrderState = "COMPLETE"
+)
+
 type ListOrdersRequest struct {
 	// Filter to orders created before this timestamp (Unix milliseconds)
 	CreatedBefore int64 `json:"created_before" url:"created_before"`
@@ -596,9 +657,7 @@ type ListOrdersRequest struct {
 	Pair string `json:"pair" url:"pair"`
 
 	// Filter to only orders of this state
-	//
-	// Possible values: <code>PENDING</code>, <code>COMPLETE</code>
-	State string `json:"state" url:"state"`
+	State OrderState `json:"state" url:"state"`
 }
 
 type ListOrdersResponse struct {
@@ -634,6 +693,20 @@ type Order struct {
 	// <code>ASK</code> ask (sell) limit order.
 	Type string `json:"type"`
 	Zar  string `json:"zar"`
+}
+
+type Trade struct {
+	Base       float64 `json:"base,string"`
+	Counter    float64 `json:"counter,string"`
+	FeeBase    float64 `json:"fee_base,string"`
+	FeeCounter float64 `json:"fee_counter,string"`
+	IsBuy      bool    `json:"is_buy"`
+	OrderId    string  `json:"order_id"`
+	Pair       string  `json:"pair"`
+	Price      float64 `json:"price,string"`
+	Timestamp  int64   `json:"timestamp"`
+	Type       string  `json:"type"`
+	Volume     float64 `json:"volume,string"`
 }
 
 // ListOrders makes a call to GET /api/1/listorders.
@@ -702,20 +775,6 @@ type ListTradesResponse struct {
 	Trades   []Trade `json:"trades"`
 }
 
-type Trade struct {
-	Base       float64 `json:"base,string"`
-	Counter    float64 `json:"counter,string"`
-	FeeBase    float64 `json:"fee_base,string"`
-	FeeCounter float64 `json:"fee_counter,string"`
-	IsBuy      bool    `json:"is_buy"`
-	OrderId    string  `json:"order_id"`
-	Pair       string  `json:"pair"`
-	Price      float64 `json:"price,string"`
-	Timestamp  int64   `json:"timestamp"`
-	Type       string  `json:"type"`
-	Volume     float64 `json:"volume,string"`
-}
-
 // ListTrades makes a call to GET /api/1/trades.
 //
 // Returns a list of the most recent trades. At most 100 results are returned
@@ -751,60 +810,6 @@ type ListTransactionsResponse struct {
 	Pending          []Transaction       `json:"pending"`
 	ReceiveAddresses []ReceiveAddress    `json:"receive_addresses"`
 	Transactions     []Transaction       `json:"transactions"`
-}
-
-type Transaction struct {
-	AccountId      string  `json:"account_id"`
-	AppExt         AppExt  `json:"app_ext"`
-	Available      float64 `json:"available,string"`
-	AvailableDelta float64 `json:"available_delta,string"`
-	Balance        float64 `json:"balance,string"`
-
-	// Transaction amounts computed for convenience.
-	BalanceDelta float64 `json:"balance_delta,string"`
-	Currency     string  `json:"currency"`
-
-	// Human-readable description of the transaction.
-	Description string `json:"description"`
-	RowIndex    int64  `json:"row_index"`
-	Timestamp   int64  `json:"timestamp"`
-}
-
-type AccountCapabilities struct {
-	CanBuy        bool `json:"can_buy"`
-	CanDeposit    bool `json:"can_deposit"`
-	CanReceive    bool `json:"can_receive"`
-	CanSell       bool `json:"can_sell"`
-	CanSend       bool `json:"can_send"`
-	CanSocialSend bool `json:"can_social_send"`
-	CanWithdraw   bool `json:"can_withdraw"`
-}
-
-type ReceiveAddress struct {
-	AccountId        string  `json:"account_id"`
-	Address          string  `json:"address"`
-	Asset            string  `json:"asset"`
-	AssignedAt       int64   `json:"assigned_at"`
-	Name             string  `json:"name"`
-	ReceiveFee       float64 `json:"receive_fee,string"`
-	TotalReceived    float64 `json:"total_received,string"`
-	TotalUnconfirmed float64 `json:"total_unconfirmed,string"`
-}
-
-type AccountBalance struct {
-	AccountId   string  `json:"account_id"`
-	Asset       string  `json:"asset"`
-	Balance     float64 `json:"balance,string"`
-	Name        string  `json:"name"`
-	Reserved    float64 `json:"reserved,string"`
-	Unconfirmed float64 `json:"unconfirmed,string"`
-}
-
-type AppExt struct {
-	ApproxCurrency  string `json:"approx_currency"`
-	ApproxValue     string `json:"approx_value"`
-	CancelToken     string `json:"cancel_token"`
-	PrimaryCategory string `json:"primary_category"`
 }
 
 // ListTransactions makes a call to GET /api/1/{id}/transactions.
@@ -869,6 +874,11 @@ func (cl *Client) ListUserTrades(ctx context.Context, req *ListUserTradesRequest
 	return &res, nil
 }
 
+const (
+	OrderTypeBid OrderType = "BID"
+	OrderTypeAsk OrderType = "ASK"
+)
+
 type PostLimitOrderRequest struct {
 	// The currency pair to trade.
 	Pair string `json:"pair" url:"pair"`
@@ -878,7 +888,7 @@ type PostLimitOrderRequest struct {
 
 	// <code>BID</code> for a bid (buy) limit order<br>
 	// <code>ASK</code> for ab ask (sell) limit order
-	Type string `json:"type" url:"type"`
+	Type OrderType `json:"type" url:"type"`
 
 	// Amount of Bitcoin or Ethereum to buy or sell as a decimal string in units
 	// of the currency.
@@ -917,13 +927,20 @@ func (cl *Client) PostLimitOrder(ctx context.Context, req *PostLimitOrderRequest
 	return &res, nil
 }
 
+type OrderType string
+
+const (
+	OrderTypeBuy  OrderType = "BUY"
+	OrderTypeSell OrderType = "SELL"
+)
+
 type PostMarketOrderRequest struct {
 	// The currency pair to trade.
 	Pair string `json:"pair" url:"pair"`
 
 	// <code>BUY</code> to buy Bitcoin or Ethereum<br>
 	// <code>SELL</code> to sell Bitcoin or Ethereum
-	Type string `json:"type" url:"type"`
+	Type OrderType `json:"type" url:"type"`
 
 	// The base currency account to use in the trade.
 	BaseAccountId int64 `json:"base_account_id" url:"base_account_id"`
