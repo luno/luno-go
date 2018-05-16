@@ -56,27 +56,6 @@ type CreateAccountResponse struct {
 	Transactions     []Transaction       `json:"transactions"`
 }
 
-type ReceiveAddress struct {
-	AccountId        string  `json:"account_id"`
-	Address          string  `json:"address"`
-	Asset            string  `json:"asset"`
-	AssignedAt       int64   `json:"assigned_at"`
-	Name             string  `json:"name"`
-	ReceiveFee       float64 `json:"receive_fee,string"`
-	TotalReceived    float64 `json:"total_received,string"`
-	TotalUnconfirmed float64 `json:"total_unconfirmed,string"`
-}
-
-type AccountCapabilities struct {
-	CanBuy        bool `json:"can_buy"`
-	CanDeposit    bool `json:"can_deposit"`
-	CanReceive    bool `json:"can_receive"`
-	CanSell       bool `json:"can_sell"`
-	CanSend       bool `json:"can_send"`
-	CanSocialSend bool `json:"can_social_send"`
-	CanWithdraw   bool `json:"can_withdraw"`
-}
-
 type Transaction struct {
 	AccountId      string  `json:"account_id"`
 	AppExt         AppExt  `json:"app_ext"`
@@ -94,6 +73,17 @@ type Transaction struct {
 	Timestamp   int64  `json:"timestamp"`
 }
 
+type ReceiveAddress struct {
+	AccountId        string  `json:"account_id"`
+	Address          string  `json:"address"`
+	Asset            string  `json:"asset"`
+	AssignedAt       int64   `json:"assigned_at"`
+	Name             string  `json:"name"`
+	ReceiveFee       float64 `json:"receive_fee,string"`
+	TotalReceived    float64 `json:"total_received,string"`
+	TotalUnconfirmed float64 `json:"total_unconfirmed,string"`
+}
+
 type AccountBalance struct {
 	AccountId   string  `json:"account_id"`
 	Asset       string  `json:"asset"`
@@ -101,6 +91,16 @@ type AccountBalance struct {
 	Name        string  `json:"name"`
 	Reserved    float64 `json:"reserved,string"`
 	Unconfirmed float64 `json:"unconfirmed,string"`
+}
+
+type AccountCapabilities struct {
+	CanBuy        bool `json:"can_buy"`
+	CanDeposit    bool `json:"can_deposit"`
+	CanReceive    bool `json:"can_receive"`
+	CanSell       bool `json:"can_sell"`
+	CanSend       bool `json:"can_send"`
+	CanSocialSend bool `json:"can_social_send"`
+	CanWithdraw   bool `json:"can_withdraw"`
 }
 
 type AppExt struct {
@@ -695,20 +695,6 @@ type Order struct {
 	Zar  string `json:"zar"`
 }
 
-type Trade struct {
-	Base       float64 `json:"base,string"`
-	Counter    float64 `json:"counter,string"`
-	FeeBase    float64 `json:"fee_base,string"`
-	FeeCounter float64 `json:"fee_counter,string"`
-	IsBuy      bool    `json:"is_buy"`
-	OrderId    string  `json:"order_id"`
-	Pair       string  `json:"pair"`
-	Price      float64 `json:"price,string"`
-	Timestamp  int64   `json:"timestamp"`
-	Type       string  `json:"type"`
-	Volume     float64 `json:"volume,string"`
-}
-
 // ListOrders makes a call to GET /api/1/listorders.
 //
 // Returns a list of the most recently placed orders. You can specify an
@@ -850,6 +836,20 @@ type ListUserTradesResponse struct {
 	Trades []Trade `json:"trades"`
 }
 
+type Trade struct {
+	Base       float64 `json:"base,string"`
+	Counter    float64 `json:"counter,string"`
+	FeeBase    float64 `json:"fee_base,string"`
+	FeeCounter float64 `json:"fee_counter,string"`
+	IsBuy      bool    `json:"is_buy"`
+	OrderId    string  `json:"order_id"`
+	Pair       string  `json:"pair"`
+	Price      float64 `json:"price,string"`
+	Timestamp  int64   `json:"timestamp"`
+	Type       string  `json:"type"`
+	Volume     float64 `json:"volume,string"`
+}
+
 // ListUserTrades makes a call to GET /api/1/listtrades.
 //
 // Returns a list of your recent trades for a given pair, sorted by oldest
@@ -895,10 +895,10 @@ type PostLimitOrderRequest struct {
 	Volume float64 `json:"volume,string" url:"volume"`
 
 	// The base currency account to use in the trade.
-	BaseAccountId int64 `json:"base_account_id" url:"base_account_id"`
+	BaseAccountId string `json:"base_account_id" url:"base_account_id"`
 
 	// The counter currency account to use in the trade.
-	CounterAccountId int64 `json:"counter_account_id" url:"counter_account_id"`
+	CounterAccountId string `json:"counter_account_id" url:"counter_account_id"`
 }
 
 type PostLimitOrderResponse struct {
@@ -943,14 +943,14 @@ type PostMarketOrderRequest struct {
 	Type OrderType `json:"type" url:"type"`
 
 	// The base currency account to use in the trade.
-	BaseAccountId int64 `json:"base_account_id" url:"base_account_id"`
+	BaseAccountId string `json:"base_account_id" url:"base_account_id"`
 
 	// For a <code>SELL</code> order: amount of Bitcoin to sell as a decimal
 	// string in units of BTC or ETH.
 	BaseVolume float64 `json:"base_volume,string" url:"base_volume"`
 
 	// The counter currency account to use in the trade.
-	CounterAccountId int64 `json:"counter_account_id" url:"counter_account_id"`
+	CounterAccountId string `json:"counter_account_id" url:"counter_account_id"`
 
 	// For a <code>BUY</code> order: amount of local currency (e.g. ZAR, MYR) to
 	// spend as a decimal string in units of the local currency.
