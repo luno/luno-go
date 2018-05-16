@@ -28,8 +28,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/bitx/bitx-go"
 	"golang.org/x/net/websocket"
+
+	luno "github.com/luno/luno-go"
 )
 
 func convertOrders(ol []*order) (map[string]order, error) {
@@ -40,7 +41,7 @@ func convertOrders(ol []*order) (map[string]order, error) {
 	return r, nil
 }
 
-type orderList []bitx.OrderBookEntry
+type orderList []luno.OrderBookEntry
 
 func (ol orderList) Less(i, j int) bool {
 	return ol[i].Price < ol[j].Price
@@ -52,10 +53,10 @@ func (ol orderList) Len() int {
 	return len(ol)
 }
 
-func flatten(m map[string]order, reverse bool) []bitx.OrderBookEntry {
-	var ol []bitx.OrderBookEntry
+func flatten(m map[string]order, reverse bool) []luno.OrderBookEntry {
+	var ol []luno.OrderBookEntry
 	for _, o := range m {
-		ol = append(ol, bitx.OrderBookEntry{
+		ol = append(ol, luno.OrderBookEntry{
 			Price:  o.Price,
 			Volume: o.Volume,
 		})
@@ -125,7 +126,7 @@ func (c *Conn) manageForever() {
 		lastAttempt = time.Now()
 		attempts++
 		if err := c.connect(); err != nil {
-			log.Printf("bitx-go/streaming: Connection error key=%s pair=%s: %v", c.keyID, c.pair, err)
+			log.Printf("luno-go/streaming: Connection error key=%s pair=%s: %v", c.keyID, c.pair, err)
 		}
 
 		if time.Now().Sub(lastAttempt) > time.Hour {
@@ -140,7 +141,7 @@ func (c *Conn) manageForever() {
 		}
 		wait = wait + rand.Intn(wait)
 		dt := time.Duration(wait) * time.Second
-		log.Printf("bitx-go/streaming: Waiting %s before reconnecting", dt)
+		log.Printf("luno-go/streaming: Waiting %s before reconnecting", dt)
 		time.Sleep(dt)
 	}
 }
@@ -175,7 +176,7 @@ func (c *Conn) connect() error {
 		return err
 	}
 
-	log.Printf("bitx-go/streaming: Connection established key=%s pair=%s", c.keyID, c.pair)
+	log.Printf("luno-go/streaming: Connection established key=%s pair=%s", c.keyID, c.pair)
 
 	go sendPings(ws)
 
@@ -356,9 +357,9 @@ func (c *Conn) processCreate(u CreateUpdate) error {
 		Volume: u.Volume,
 	}
 
-	if u.Type == string(bitx.BID) {
+	if u.Type == string(luno.OrderTypeBid) {
 		c.bids[o.ID] = o
-	} else if u.Type == string(bitx.ASK) {
+	} else if u.Type == string(luno.OrderTypeAsk) {
 		c.asks[o.ID] = o
 	} else {
 		return errors.New("unknown order type")
@@ -374,7 +375,7 @@ func (c *Conn) processDelete(u DeleteUpdate) error {
 }
 
 // OrderBookSnapshot returns the latest order book.
-func (c *Conn) OrderBookSnapshot() (int64, []bitx.OrderBookEntry, []bitx.OrderBookEntry) {
+func (c *Conn) OrderBookSnapshot() (int64, []luno.OrderBookEntry, []luno.OrderBookEntry) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
