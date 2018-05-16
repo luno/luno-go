@@ -1,6 +1,6 @@
 <img src="https://www.luno.com/static/images/luno-email-336.png">
 
-# Luno API [![GoDoc](https://godoc.org/github.com/luno/luno-go?status.png)](https://godoc.org/github.com/luno/luno-go)
+# Luno API [![GoDoc](https://godoc.org/github.com/luno/luno-go?status.png)](https://godoc.org/github.com/luno/luno-go) [![Build Status](https://travis-ci.org/luno/luno-go.svg?branch=master)](https://travis-ci.org/luno/luno-go)
 
 This Go package provides a wrapper for the [Luno API](https://www.luno.com/api).
 
