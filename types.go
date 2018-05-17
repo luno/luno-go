@@ -35,24 +35,14 @@ type AccountCapabilities struct {
 	CanWithdraw   bool `json:"can_withdraw"`
 }
 
-type AppExt struct {
-	ApproxCurrency  string `json:"approx_currency"`
-	ApproxValue     string `json:"approx_value"`
-	CancelToken     string `json:"cancel_token"`
-	PrimaryCategory string `json:"primary_category"`
-}
-
 type Order struct {
 	Base                float64 `json:"base,string"`
-	Btc                 string  `json:"btc"`
 	CompletedTimestamp  int64   `json:"completed_timestamp"`
 	Counter             float64 `json:"counter,string"`
 	CreationTimestamp   int64   `json:"creation_timestamp"`
 	ExpirationTimestamp int64   `json:"expiration_timestamp"`
 	FeeBase             float64 `json:"fee_base,string"`
-	FeeBtc              string  `json:"fee_btc"`
 	FeeCounter          float64 `json:"fee_counter,string"`
-	FeeZar              string  `json:"fee_zar"`
 	LimitPrice          float64 `json:"limit_price,string"`
 	LimitVolume         float64 `json:"limit_volume,string"`
 	OrderId             string  `json:"order_id"`
@@ -64,13 +54,11 @@ type Order struct {
 	// taken place but the order is not filled yet.<br>
 	// <code>COMPLETE</code> The order is no longer active. It has been settled
 	// or has been cancelled.
-	State  string  `json:"state"`
-	Trades []Trade `json:"trades"`
+	State string `json:"state"`
 
 	// <code>BID</code> bid (buy) limit order.<br>
 	// <code>ASK</code> ask (sell) limit order.
 	Type string `json:"type"`
-	Zar  string `json:"zar"`
 }
 
 type OrderBookEntry struct {
@@ -114,7 +102,6 @@ type Trade struct {
 
 type Transaction struct {
 	AccountId      string  `json:"account_id"`
-	AppExt         AppExt  `json:"app_ext"`
 	Available      float64 `json:"available,string"`
 	AvailableDelta float64 `json:"available_delta,string"`
 	Balance        float64 `json:"balance,string"`

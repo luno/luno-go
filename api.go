@@ -417,15 +417,12 @@ type GetOrderRequest struct {
 // GetOrderResponse is the response struct for GetOrder.
 type GetOrderResponse struct {
 	Base                float64 `json:"base,string"`
-	Btc                 string  `json:"btc"`
 	CompletedTimestamp  int64   `json:"completed_timestamp"`
 	Counter             float64 `json:"counter,string"`
 	CreationTimestamp   int64   `json:"creation_timestamp"`
 	ExpirationTimestamp int64   `json:"expiration_timestamp"`
 	FeeBase             float64 `json:"fee_base,string"`
-	FeeBtc              string  `json:"fee_btc"`
 	FeeCounter          float64 `json:"fee_counter,string"`
-	FeeZar              string  `json:"fee_zar"`
 	LimitPrice          float64 `json:"limit_price,string"`
 	LimitVolume         float64 `json:"limit_volume,string"`
 	OrderId             string  `json:"order_id"`
@@ -437,13 +434,11 @@ type GetOrderResponse struct {
 	// taken place but the order is not filled yet.<br>
 	// <code>COMPLETE</code> The order is no longer active. It has been settled
 	// or has been cancelled.
-	State  string  `json:"state"`
-	Trades []Trade `json:"trades"`
+	State string `json:"state"`
 
 	// <code>BID</code> bid (buy) limit order.<br>
 	// <code>ASK</code> ask (sell) limit order.
 	Type string `json:"type"`
-	Zar  string `json:"zar"`
 }
 
 // GetOrder makes a call to GET /api/1/orders/{id}.
@@ -721,8 +716,7 @@ type ListTradesRequest struct {
 
 // ListTradesResponse is the response struct for ListTrades.
 type ListTradesResponse struct {
-	Currency string  `json:"currency"`
-	Trades   []Trade `json:"trades"`
+	Trades []Trade `json:"trades"`
 }
 
 // ListTrades makes a call to GET /api/1/trades.
