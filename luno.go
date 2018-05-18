@@ -2,11 +2,14 @@
 package luno
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
+	"log"
 	"net/http"
 	"runtime"
 	"strings"
@@ -33,6 +36,7 @@ type Client struct {
 	baseURL      string
 	apiKeyID     string
 	apiKeySecret string
+	debug        bool
 }
 
 const defaultBaseURL = "https://api.mybitx.com"
@@ -67,10 +71,21 @@ func (cl *Client) SetTimeout(timeout time.Duration) {
 	cl.httpClient.Timeout = timeout
 }
 
+// SetDebug enables or disables debug mode. In debug mode, HTTP requests and
+// responses will be logged.
+func (cl *Client) SetDebug(debug bool) {
+	cl.debug = debug
+}
+
 func (cl *Client) do(ctx context.Context, method, path string,
 	req, res interface{}, auth bool) error {
 
 	url := cl.baseURL + "/" + strings.TrimLeft(path, "/")
+
+	if cl.debug {
+		log.Printf("luno: Call: %s %s", method, path)
+		log.Printf("luno: Request: %#v", req)
+	}
 
 	var contentType string
 	var body io.Reader
@@ -115,17 +130,34 @@ func (cl *Client) do(ctx context.Context, method, path string,
 	}
 	defer httpRes.Body.Close()
 
+	body = httpRes.Body
+	if cl.debug {
+		b, err := ioutil.ReadAll(body)
+		if err != nil {
+			log.Printf("luno: Error reading response body: %v", err)
+		} else {
+			log.Printf("Response: %s", string(b))
+		}
+		body = bytes.NewReader(b)
+	}
+
 	// TODO: Handle 429
 	if httpRes.StatusCode != http.StatusOK {
 		var e Error
-		if err := json.NewDecoder(httpRes.Body).Decode(&e); err != nil {
+		if err := json.NewDecoder(body).Decode(&e); err != nil {
 			return fmt.Errorf("luno: error decoding response (%d %s)",
 				httpRes.StatusCode, http.StatusText(httpRes.StatusCode))
 		}
-		return &e
+		b, err := ioutil.ReadAll(body)
+		if err != nil {
+			return fmt.Errorf("luno: received %d, but unable to read body: %v",
+				httpRes.StatusCode, err)
+		}
+		return fmt.Errorf("luno: received %d (%q)",
+			httpRes.StatusCode, string(b))
 	}
 
-	return json.NewDecoder(httpRes.Body).Decode(res)
+	return json.NewDecoder(body).Decode(res)
 }
 
 func makeUserAgent() string {
