@@ -23,6 +23,12 @@ func makeURLValues(v interface{}) (url.Values, error) {
 
 		fieldValue := valElem.Field(i)
 
+		stringer, ok := fieldValue.Interface().(fmt.Stringer)
+		if ok {
+			values.Set(urlTag, stringer.String())
+			continue
+		}
+
 		k := fieldValue.Kind()
 		var s string
 		switch k {
