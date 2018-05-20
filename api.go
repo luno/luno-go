@@ -12,10 +12,10 @@ type CancelWithdrawalRequest struct {
 
 // CancelWithdrawalResponse is the response struct for CancelWithdrawal.
 type CancelWithdrawalResponse struct {
-	Amount    float64 `json:"amount,string"`
+	Amount    Decimal `json:"amount"`
 	CreatedAt int64   `json:"created_at"`
 	Currency  string  `json:"currency"`
-	Fee       float64 `json:"fee,string"`
+	Fee       Decimal `json:"fee"`
 	Id        string  `json:"id"`
 	Status    string  `json:"status"`
 	Type      string  `json:"type"`
@@ -98,9 +98,9 @@ type CreateFundingAddressResponse struct {
 	Asset            string  `json:"asset"`
 	AssignedAt       int64   `json:"assigned_at"`
 	Name             string  `json:"name"`
-	ReceiveFee       float64 `json:"receive_fee,string"`
-	TotalReceived    float64 `json:"total_received,string"`
-	TotalUnconfirmed float64 `json:"total_unconfirmed,string"`
+	ReceiveFee       Decimal `json:"receive_fee"`
+	TotalReceived    Decimal `json:"total_received"`
+	TotalUnconfirmed Decimal `json:"total_unconfirmed"`
 }
 
 // CreateFundingAddress makes a call to POST /api/1/funding_address.
@@ -124,7 +124,7 @@ type CreateQuoteRequest struct {
 	// Amount to buy or sell in the pair base currency.
 	//
 	// required: true
-	BaseAmount float64 `json:"base_amount,string" url:"base_amount"`
+	BaseAmount Decimal `json:"base_amount" url:"base_amount"`
 
 	// Currency pair to trade. The pair can also be flipped if you want to buy
 	// or sell the counter currency (e.g. ZARXBT).
@@ -146,8 +146,8 @@ type CreateQuoteRequest struct {
 
 // CreateQuoteResponse is the response struct for CreateQuote.
 type CreateQuoteResponse struct {
-	BaseAmount    float64 `json:"base_amount,string"`
-	CounterAmount float64 `json:"counter_amount,string"`
+	BaseAmount    Decimal `json:"base_amount"`
+	CounterAmount Decimal `json:"counter_amount"`
 	CreatedAt     int64   `json:"created_at"`
 	Discarded     bool    `json:"discarded"`
 	Exercised     bool    `json:"exercised"`
@@ -189,7 +189,7 @@ type CreateWithdrawalRequest struct {
 	// Amount to withdraw. The currency depends on the type.
 	//
 	// required: true
-	Amount float64 `json:"amount,string" url:"amount"`
+	Amount Decimal `json:"amount" url:"amount"`
 
 	// Withdrawal type.
 	//
@@ -208,10 +208,10 @@ type CreateWithdrawalRequest struct {
 
 // CreateWithdrawalResponse is the response struct for CreateWithdrawal.
 type CreateWithdrawalResponse struct {
-	Amount    float64 `json:"amount,string"`
+	Amount    Decimal `json:"amount"`
 	CreatedAt int64   `json:"created_at"`
 	Currency  string  `json:"currency"`
-	Fee       float64 `json:"fee,string"`
+	Fee       Decimal `json:"fee"`
 	Id        string  `json:"id"`
 	Status    string  `json:"status"`
 	Type      string  `json:"type"`
@@ -241,8 +241,8 @@ type DiscardQuoteRequest struct {
 
 // DiscardQuoteResponse is the response struct for DiscardQuote.
 type DiscardQuoteResponse struct {
-	BaseAmount    float64 `json:"base_amount,string"`
-	CounterAmount float64 `json:"counter_amount,string"`
+	BaseAmount    Decimal `json:"base_amount"`
+	CounterAmount Decimal `json:"counter_amount"`
 	CreatedAt     int64   `json:"created_at"`
 	Discarded     bool    `json:"discarded"`
 	Exercised     bool    `json:"exercised"`
@@ -277,8 +277,8 @@ type ExerciseQuoteRequest struct {
 
 // ExerciseQuoteResponse is the response struct for ExerciseQuote.
 type ExerciseQuoteResponse struct {
-	BaseAmount    float64 `json:"base_amount,string"`
-	CounterAmount float64 `json:"counter_amount,string"`
+	BaseAmount    Decimal `json:"base_amount"`
+	CounterAmount Decimal `json:"counter_amount"`
 	CreatedAt     int64   `json:"created_at"`
 	Discarded     bool    `json:"discarded"`
 	Exercised     bool    `json:"exercised"`
@@ -382,9 +382,9 @@ type GetFundingAddressResponse struct {
 	Asset            string  `json:"asset"`
 	AssignedAt       int64   `json:"assigned_at"`
 	Name             string  `json:"name"`
-	ReceiveFee       float64 `json:"receive_fee,string"`
-	TotalReceived    float64 `json:"total_received,string"`
-	TotalUnconfirmed float64 `json:"total_unconfirmed,string"`
+	ReceiveFee       Decimal `json:"receive_fee"`
+	TotalReceived    Decimal `json:"total_received"`
+	TotalUnconfirmed Decimal `json:"total_unconfirmed"`
 }
 
 // GetFundingAddress makes a call to GET /api/1/funding_address.
@@ -416,15 +416,15 @@ type GetOrderRequest struct {
 
 // GetOrderResponse is the response struct for GetOrder.
 type GetOrderResponse struct {
-	Base                float64 `json:"base,string"`
+	Base                Decimal `json:"base"`
 	CompletedTimestamp  int64   `json:"completed_timestamp"`
-	Counter             float64 `json:"counter,string"`
+	Counter             Decimal `json:"counter"`
 	CreationTimestamp   int64   `json:"creation_timestamp"`
 	ExpirationTimestamp int64   `json:"expiration_timestamp"`
-	FeeBase             float64 `json:"fee_base,string"`
-	FeeCounter          float64 `json:"fee_counter,string"`
-	LimitPrice          float64 `json:"limit_price,string"`
-	LimitVolume         float64 `json:"limit_volume,string"`
+	FeeBase             Decimal `json:"fee_base"`
+	FeeCounter          Decimal `json:"fee_counter"`
+	LimitPrice          Decimal `json:"limit_price"`
+	LimitVolume         Decimal `json:"limit_volume"`
 	OrderId             string  `json:"order_id"`
 
 	// Specifies the market.
@@ -494,8 +494,8 @@ type GetQuoteRequest struct {
 
 // GetQuoteResponse is the response struct for GetQuote.
 type GetQuoteResponse struct {
-	BaseAmount    float64 `json:"base_amount,string"`
-	CounterAmount float64 `json:"counter_amount,string"`
+	BaseAmount    Decimal `json:"base_amount"`
+	CounterAmount Decimal `json:"counter_amount"`
 	CreatedAt     int64   `json:"created_at"`
 	Discarded     bool    `json:"discarded"`
 	Exercised     bool    `json:"exercised"`
@@ -529,11 +529,11 @@ type GetTickerRequest struct {
 
 // GetTickerResponse is the response struct for GetTicker.
 type GetTickerResponse struct {
-	Ask                 float64 `json:"ask,string"`
-	Bid                 float64 `json:"bid,string"`
-	LastTrade           float64 `json:"last_trade,string"`
+	Ask                 Decimal `json:"ask"`
+	Bid                 Decimal `json:"bid"`
+	LastTrade           Decimal `json:"last_trade"`
 	Pair                string  `json:"pair"`
-	Rolling24HourVolume float64 `json:"rolling_24_hour_volume,string"`
+	Rolling24HourVolume Decimal `json:"rolling_24_hour_volume"`
 	Timestamp           int64   `json:"timestamp"`
 }
 
@@ -580,10 +580,10 @@ type GetWithdrawalRequest struct {
 
 // GetWithdrawalResponse is the response struct for GetWithdrawal.
 type GetWithdrawalResponse struct {
-	Amount    float64 `json:"amount,string"`
+	Amount    Decimal `json:"amount"`
 	CreatedAt int64   `json:"created_at"`
 	Currency  string  `json:"currency"`
-	Fee       float64 `json:"fee,string"`
+	Fee       Decimal `json:"fee"`
 	Id        string  `json:"id"`
 	Status    string  `json:"status"`
 	Type      string  `json:"type"`
@@ -840,7 +840,7 @@ type PostLimitOrderRequest struct {
 	// Limit price as a decimal string in units of ZAR/BTC.
 	//
 	// required: true
-	Price float64 `json:"price,string" url:"price"`
+	Price Decimal `json:"price" url:"price"`
 
 	// <code>BID</code> for a bid (buy) limit order<br>
 	// <code>ASK</code> for ab ask (sell) limit order
@@ -852,7 +852,7 @@ type PostLimitOrderRequest struct {
 	// of the currency.
 	//
 	// required: true
-	Volume float64 `json:"volume,string" url:"volume"`
+	Volume Decimal `json:"volume" url:"volume"`
 
 	// The base currency account to use in the trade.
 	BaseAccountId string `json:"base_account_id" url:"base_account_id"`
@@ -906,14 +906,14 @@ type PostMarketOrderRequest struct {
 
 	// For a <code>SELL</code> order: amount of Bitcoin to sell as a decimal
 	// string in units of BTC or ETH.
-	BaseVolume float64 `json:"base_volume,string" url:"base_volume"`
+	BaseVolume Decimal `json:"base_volume" url:"base_volume"`
 
 	// The counter currency account to use in the trade.
 	CounterAccountId string `json:"counter_account_id" url:"counter_account_id"`
 
 	// For a <code>BUY</code> order: amount of local currency (e.g. ZAR, MYR) to
 	// spend as a decimal string in units of the local currency.
-	CounterVolume float64 `json:"counter_volume,string" url:"counter_volume"`
+	CounterVolume Decimal `json:"counter_volume" url:"counter_volume"`
 }
 
 // PostMarketOrderResponse is the response struct for PostMarketOrder.
@@ -964,7 +964,7 @@ type SendRequest struct {
 	// Amount to send as a decimal string.
 	//
 	// required: true
-	Amount float64 `json:"amount,string" url:"amount"`
+	Amount Decimal `json:"amount" url:"amount"`
 
 	// Currency to send.
 	//
