@@ -1,6 +1,10 @@
 package luno
 
-import "context"
+import (
+	"context"
+
+	"github.com/luno/luno-go/decimal"
+)
 
 // CancelWithdrawalRequest is the request struct for CancelWithdrawal.
 type CancelWithdrawalRequest struct {
@@ -12,13 +16,13 @@ type CancelWithdrawalRequest struct {
 
 // CancelWithdrawalResponse is the response struct for CancelWithdrawal.
 type CancelWithdrawalResponse struct {
-	Amount    Decimal `json:"amount"`
-	CreatedAt int64   `json:"created_at"`
-	Currency  string  `json:"currency"`
-	Fee       Decimal `json:"fee"`
-	Id        string  `json:"id"`
-	Status    string  `json:"status"`
-	Type      string  `json:"type"`
+	Amount    decimal.Decimal `json:"amount"`
+	CreatedAt int64           `json:"created_at"`
+	Currency  string          `json:"currency"`
+	Fee       decimal.Decimal `json:"fee"`
+	Id        string          `json:"id"`
+	Status    string          `json:"status"`
+	Type      string          `json:"type"`
 }
 
 // CancelWithdrawal makes a call to DELETE /api/1/withdrawals/{id}.
@@ -93,14 +97,14 @@ type CreateFundingAddressRequest struct {
 
 // CreateFundingAddressResponse is the response struct for CreateFundingAddress.
 type CreateFundingAddressResponse struct {
-	AccountId        string  `json:"account_id"`
-	Address          string  `json:"address"`
-	Asset            string  `json:"asset"`
-	AssignedAt       int64   `json:"assigned_at"`
-	Name             string  `json:"name"`
-	ReceiveFee       Decimal `json:"receive_fee"`
-	TotalReceived    Decimal `json:"total_received"`
-	TotalUnconfirmed Decimal `json:"total_unconfirmed"`
+	AccountId        string          `json:"account_id"`
+	Address          string          `json:"address"`
+	Asset            string          `json:"asset"`
+	AssignedAt       int64           `json:"assigned_at"`
+	Name             string          `json:"name"`
+	ReceiveFee       decimal.Decimal `json:"receive_fee"`
+	TotalReceived    decimal.Decimal `json:"total_received"`
+	TotalUnconfirmed decimal.Decimal `json:"total_unconfirmed"`
 }
 
 // CreateFundingAddress makes a call to POST /api/1/funding_address.
@@ -124,7 +128,7 @@ type CreateQuoteRequest struct {
 	// Amount to buy or sell in the pair base currency.
 	//
 	// required: true
-	BaseAmount Decimal `json:"base_amount" url:"base_amount"`
+	BaseAmount decimal.Decimal `json:"base_amount" url:"base_amount"`
 
 	// Currency pair to trade. The pair can also be flipped if you want to buy
 	// or sell the counter currency (e.g. ZARXBT).
@@ -146,15 +150,15 @@ type CreateQuoteRequest struct {
 
 // CreateQuoteResponse is the response struct for CreateQuote.
 type CreateQuoteResponse struct {
-	BaseAmount    Decimal `json:"base_amount"`
-	CounterAmount Decimal `json:"counter_amount"`
-	CreatedAt     int64   `json:"created_at"`
-	Discarded     bool    `json:"discarded"`
-	Exercised     bool    `json:"exercised"`
-	ExpiresAt     int64   `json:"expires_at"`
-	Id            string  `json:"id"`
-	Pair          string  `json:"pair"`
-	Type          string  `json:"type"`
+	BaseAmount    decimal.Decimal `json:"base_amount"`
+	CounterAmount decimal.Decimal `json:"counter_amount"`
+	CreatedAt     int64           `json:"created_at"`
+	Discarded     bool            `json:"discarded"`
+	Exercised     bool            `json:"exercised"`
+	ExpiresAt     int64           `json:"expires_at"`
+	Id            string          `json:"id"`
+	Pair          string          `json:"pair"`
+	Type          string          `json:"type"`
 }
 
 // CreateQuote makes a call to POST /api/1/quotes.
@@ -189,7 +193,7 @@ type CreateWithdrawalRequest struct {
 	// Amount to withdraw. The currency depends on the type.
 	//
 	// required: true
-	Amount Decimal `json:"amount" url:"amount"`
+	Amount decimal.Decimal `json:"amount" url:"amount"`
 
 	// Withdrawal type.
 	//
@@ -208,13 +212,13 @@ type CreateWithdrawalRequest struct {
 
 // CreateWithdrawalResponse is the response struct for CreateWithdrawal.
 type CreateWithdrawalResponse struct {
-	Amount    Decimal `json:"amount"`
-	CreatedAt int64   `json:"created_at"`
-	Currency  string  `json:"currency"`
-	Fee       Decimal `json:"fee"`
-	Id        string  `json:"id"`
-	Status    string  `json:"status"`
-	Type      string  `json:"type"`
+	Amount    decimal.Decimal `json:"amount"`
+	CreatedAt int64           `json:"created_at"`
+	Currency  string          `json:"currency"`
+	Fee       decimal.Decimal `json:"fee"`
+	Id        string          `json:"id"`
+	Status    string          `json:"status"`
+	Type      string          `json:"type"`
 }
 
 // CreateWithdrawal makes a call to POST /api/1/withdrawals.
@@ -241,15 +245,15 @@ type DiscardQuoteRequest struct {
 
 // DiscardQuoteResponse is the response struct for DiscardQuote.
 type DiscardQuoteResponse struct {
-	BaseAmount    Decimal `json:"base_amount"`
-	CounterAmount Decimal `json:"counter_amount"`
-	CreatedAt     int64   `json:"created_at"`
-	Discarded     bool    `json:"discarded"`
-	Exercised     bool    `json:"exercised"`
-	ExpiresAt     int64   `json:"expires_at"`
-	Id            string  `json:"id"`
-	Pair          string  `json:"pair"`
-	Type          string  `json:"type"`
+	BaseAmount    decimal.Decimal `json:"base_amount"`
+	CounterAmount decimal.Decimal `json:"counter_amount"`
+	CreatedAt     int64           `json:"created_at"`
+	Discarded     bool            `json:"discarded"`
+	Exercised     bool            `json:"exercised"`
+	ExpiresAt     int64           `json:"expires_at"`
+	Id            string          `json:"id"`
+	Pair          string          `json:"pair"`
+	Type          string          `json:"type"`
 }
 
 // DiscardQuote makes a call to DELETE /api/1/quotes/{id}.
@@ -277,15 +281,15 @@ type ExerciseQuoteRequest struct {
 
 // ExerciseQuoteResponse is the response struct for ExerciseQuote.
 type ExerciseQuoteResponse struct {
-	BaseAmount    Decimal `json:"base_amount"`
-	CounterAmount Decimal `json:"counter_amount"`
-	CreatedAt     int64   `json:"created_at"`
-	Discarded     bool    `json:"discarded"`
-	Exercised     bool    `json:"exercised"`
-	ExpiresAt     int64   `json:"expires_at"`
-	Id            string  `json:"id"`
-	Pair          string  `json:"pair"`
-	Type          string  `json:"type"`
+	BaseAmount    decimal.Decimal `json:"base_amount"`
+	CounterAmount decimal.Decimal `json:"counter_amount"`
+	CreatedAt     int64           `json:"created_at"`
+	Discarded     bool            `json:"discarded"`
+	Exercised     bool            `json:"exercised"`
+	ExpiresAt     int64           `json:"expires_at"`
+	Id            string          `json:"id"`
+	Pair          string          `json:"pair"`
+	Type          string          `json:"type"`
 }
 
 // ExerciseQuote makes a call to PUT /api/1/quotes/{id}.
@@ -377,14 +381,14 @@ type GetFundingAddressRequest struct {
 
 // GetFundingAddressResponse is the response struct for GetFundingAddress.
 type GetFundingAddressResponse struct {
-	AccountId        string  `json:"account_id"`
-	Address          string  `json:"address"`
-	Asset            string  `json:"asset"`
-	AssignedAt       int64   `json:"assigned_at"`
-	Name             string  `json:"name"`
-	ReceiveFee       Decimal `json:"receive_fee"`
-	TotalReceived    Decimal `json:"total_received"`
-	TotalUnconfirmed Decimal `json:"total_unconfirmed"`
+	AccountId        string          `json:"account_id"`
+	Address          string          `json:"address"`
+	Asset            string          `json:"asset"`
+	AssignedAt       int64           `json:"assigned_at"`
+	Name             string          `json:"name"`
+	ReceiveFee       decimal.Decimal `json:"receive_fee"`
+	TotalReceived    decimal.Decimal `json:"total_received"`
+	TotalUnconfirmed decimal.Decimal `json:"total_unconfirmed"`
 }
 
 // GetFundingAddress makes a call to GET /api/1/funding_address.
@@ -416,16 +420,16 @@ type GetOrderRequest struct {
 
 // GetOrderResponse is the response struct for GetOrder.
 type GetOrderResponse struct {
-	Base                Decimal `json:"base"`
-	CompletedTimestamp  int64   `json:"completed_timestamp"`
-	Counter             Decimal `json:"counter"`
-	CreationTimestamp   int64   `json:"creation_timestamp"`
-	ExpirationTimestamp int64   `json:"expiration_timestamp"`
-	FeeBase             Decimal `json:"fee_base"`
-	FeeCounter          Decimal `json:"fee_counter"`
-	LimitPrice          Decimal `json:"limit_price"`
-	LimitVolume         Decimal `json:"limit_volume"`
-	OrderId             string  `json:"order_id"`
+	Base                decimal.Decimal `json:"base"`
+	CompletedTimestamp  int64           `json:"completed_timestamp"`
+	Counter             decimal.Decimal `json:"counter"`
+	CreationTimestamp   int64           `json:"creation_timestamp"`
+	ExpirationTimestamp int64           `json:"expiration_timestamp"`
+	FeeBase             decimal.Decimal `json:"fee_base"`
+	FeeCounter          decimal.Decimal `json:"fee_counter"`
+	LimitPrice          decimal.Decimal `json:"limit_price"`
+	LimitVolume         decimal.Decimal `json:"limit_volume"`
+	OrderId             string          `json:"order_id"`
 
 	// Specifies the market.
 	Pair string `json:"pair"`
@@ -494,15 +498,15 @@ type GetQuoteRequest struct {
 
 // GetQuoteResponse is the response struct for GetQuote.
 type GetQuoteResponse struct {
-	BaseAmount    Decimal `json:"base_amount"`
-	CounterAmount Decimal `json:"counter_amount"`
-	CreatedAt     int64   `json:"created_at"`
-	Discarded     bool    `json:"discarded"`
-	Exercised     bool    `json:"exercised"`
-	ExpiresAt     int64   `json:"expires_at"`
-	Id            string  `json:"id"`
-	Pair          string  `json:"pair"`
-	Type          string  `json:"type"`
+	BaseAmount    decimal.Decimal `json:"base_amount"`
+	CounterAmount decimal.Decimal `json:"counter_amount"`
+	CreatedAt     int64           `json:"created_at"`
+	Discarded     bool            `json:"discarded"`
+	Exercised     bool            `json:"exercised"`
+	ExpiresAt     int64           `json:"expires_at"`
+	Id            string          `json:"id"`
+	Pair          string          `json:"pair"`
+	Type          string          `json:"type"`
 }
 
 // GetQuote makes a call to GET /api/1/quotes/{id}.
@@ -529,12 +533,12 @@ type GetTickerRequest struct {
 
 // GetTickerResponse is the response struct for GetTicker.
 type GetTickerResponse struct {
-	Ask                 Decimal `json:"ask"`
-	Bid                 Decimal `json:"bid"`
-	LastTrade           Decimal `json:"last_trade"`
-	Pair                string  `json:"pair"`
-	Rolling24HourVolume Decimal `json:"rolling_24_hour_volume"`
-	Timestamp           int64   `json:"timestamp"`
+	Ask                 decimal.Decimal `json:"ask"`
+	Bid                 decimal.Decimal `json:"bid"`
+	LastTrade           decimal.Decimal `json:"last_trade"`
+	Pair                string          `json:"pair"`
+	Rolling24HourVolume decimal.Decimal `json:"rolling_24_hour_volume"`
+	Timestamp           int64           `json:"timestamp"`
 }
 
 // GetTicker makes a call to GET /api/1/ticker.
@@ -580,13 +584,13 @@ type GetWithdrawalRequest struct {
 
 // GetWithdrawalResponse is the response struct for GetWithdrawal.
 type GetWithdrawalResponse struct {
-	Amount    Decimal `json:"amount"`
-	CreatedAt int64   `json:"created_at"`
-	Currency  string  `json:"currency"`
-	Fee       Decimal `json:"fee"`
-	Id        string  `json:"id"`
-	Status    string  `json:"status"`
-	Type      string  `json:"type"`
+	Amount    decimal.Decimal `json:"amount"`
+	CreatedAt int64           `json:"created_at"`
+	Currency  string          `json:"currency"`
+	Fee       decimal.Decimal `json:"fee"`
+	Id        string          `json:"id"`
+	Status    string          `json:"status"`
+	Type      string          `json:"type"`
 }
 
 // GetWithdrawal makes a call to GET /api/1/withdrawals/{id}.
@@ -840,7 +844,7 @@ type PostLimitOrderRequest struct {
 	// Limit price as a decimal string in units of ZAR/BTC.
 	//
 	// required: true
-	Price Decimal `json:"price" url:"price"`
+	Price decimal.Decimal `json:"price" url:"price"`
 
 	// <code>BID</code> for a bid (buy) limit order<br>
 	// <code>ASK</code> for ab ask (sell) limit order
@@ -852,7 +856,7 @@ type PostLimitOrderRequest struct {
 	// of the currency.
 	//
 	// required: true
-	Volume Decimal `json:"volume" url:"volume"`
+	Volume decimal.Decimal `json:"volume" url:"volume"`
 
 	// The base currency account to use in the trade.
 	BaseAccountId string `json:"base_account_id" url:"base_account_id"`
@@ -906,14 +910,14 @@ type PostMarketOrderRequest struct {
 
 	// For a <code>SELL</code> order: amount of Bitcoin to sell as a decimal
 	// string in units of BTC or ETH.
-	BaseVolume Decimal `json:"base_volume" url:"base_volume"`
+	BaseVolume decimal.Decimal `json:"base_volume" url:"base_volume"`
 
 	// The counter currency account to use in the trade.
 	CounterAccountId string `json:"counter_account_id" url:"counter_account_id"`
 
 	// For a <code>BUY</code> order: amount of local currency (e.g. ZAR, MYR) to
 	// spend as a decimal string in units of the local currency.
-	CounterVolume Decimal `json:"counter_volume" url:"counter_volume"`
+	CounterVolume decimal.Decimal `json:"counter_volume" url:"counter_volume"`
 }
 
 // PostMarketOrderResponse is the response struct for PostMarketOrder.
@@ -964,7 +968,7 @@ type SendRequest struct {
 	// Amount to send as a decimal string.
 	//
 	// required: true
-	Amount Decimal `json:"amount" url:"amount"`
+	Amount decimal.Decimal `json:"amount" url:"amount"`
 
 	// Currency to send.
 	//

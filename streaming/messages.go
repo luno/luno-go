@@ -1,9 +1,11 @@
 package streaming
 
+import "github.com/luno/luno-go/decimal"
+
 type order struct {
-	ID     string  `json:"id"`
-	Price  float64 `json:"price,string"`
-	Volume float64 `json:"volume,string"`
+	ID     string          `json:"id"`
+	Price  decimal.Decimal `json:"price,string"`
+	Volume decimal.Decimal `json:"volume,string"`
 }
 
 type orderBook struct {
@@ -13,16 +15,16 @@ type orderBook struct {
 }
 
 type TradeUpdate struct {
-	Base    float64 `json:"base,string"`
-	Counter float64 `json:"counter,string"`
-	OrderID string  `json:"order_id"`
+	Base    decimal.Decimal `json:"base,string"`
+	Counter decimal.Decimal `json:"counter,string"`
+	OrderID string          `json:"order_id"`
 }
 
 type CreateUpdate struct {
-	OrderID string  `json:"order_id"`
-	Type    string  `json:"type"`
-	Price   float64 `json:"price,string"`
-	Volume  float64 `json:"volume,string"`
+	OrderID string          `json:"order_id"`
+	Type    string          `json:"type"`
+	Price   decimal.Decimal `json:"price,string"`
+	Volume  decimal.Decimal `json:"volume,string"`
 }
 
 type DeleteUpdate struct {

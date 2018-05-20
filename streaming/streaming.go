@@ -31,6 +31,7 @@ import (
 	"golang.org/x/net/websocket"
 
 	luno "github.com/luno/luno-go"
+	"github.com/luno/luno-go/decimal"
 )
 
 func convertOrders(ol []*order) (map[string]order, error) {
@@ -44,7 +45,7 @@ func convertOrders(ol []*order) (map[string]order, error) {
 type orderList []luno.OrderBookEntry
 
 func (ol orderList) Less(i, j int) bool {
-	return ol[i].Price < ol[j].Price
+	return ol[i].Price.Cmp(ol[j].Price) < 0
 }
 func (ol orderList) Swap(i, j int) {
 	ol[i], ol[j] = ol[j], ol[i]
@@ -93,7 +94,7 @@ type Conn struct {
 // The connection will automatically reconnect on error.
 func Dial(keyID, keySecret, pair string, opts ...DialOption) (*Conn, error) {
 	if keyID == "" || keySecret == "" {
-		return nil, errors.New("streaming API requires credentials")
+		return nil, errors.New("streaming: streaming API requires credentials")
 	}
 
 	c := &Conn{
@@ -126,7 +127,8 @@ func (c *Conn) manageForever() {
 		lastAttempt = time.Now()
 		attempts++
 		if err := c.connect(); err != nil {
-			log.Printf("luno-go/streaming: Connection error key=%s pair=%s: %v", c.keyID, c.pair, err)
+			log.Printf("luno/streaming: Connection error key=%s pair=%s: %v",
+				c.keyID, c.pair, err)
 		}
 
 		if time.Now().Sub(lastAttempt) > time.Hour {
@@ -141,7 +143,7 @@ func (c *Conn) manageForever() {
 		}
 		wait = wait + rand.Intn(wait)
 		dt := time.Duration(wait) * time.Second
-		log.Printf("luno-go/streaming: Waiting %s before reconnecting", dt)
+		log.Printf("luno/streaming: Waiting %s before reconnecting", dt)
 		time.Sleep(dt)
 	}
 }
@@ -176,7 +178,8 @@ func (c *Conn) connect() error {
 		return err
 	}
 
-	log.Printf("luno-go/streaming: Connection established key=%s pair=%s", c.keyID, c.pair)
+	log.Printf("luno/streaming: Connection established key=%s pair=%s",
+		c.keyID, c.pair)
 
 	go sendPings(ws)
 
@@ -265,7 +268,7 @@ func (c *Conn) receivedUpdate(u Update) error {
 		return nil
 	}
 	if u.Sequence != c.seq+1 {
-		return errors.New("update received out of sequence")
+		return errors.New("streaming: update received out of sequence")
 	}
 
 	// Process trades
@@ -299,26 +302,21 @@ func (c *Conn) receivedUpdate(u Update) error {
 	return nil
 }
 
-// addD8 adds the two values and rounds the result to the nearest 8 decimal
-// places.
-func addD8(a, b float64) float64 {
-	s := a + b
-	return float64(int64(s*1e8+0.5)) / 1e8
-}
+func decTrade(m map[string]order, id string, base decimal.Decimal) (
+	bool, error) {
 
-func decTrade(m map[string]order, id string, base float64) (bool, error) {
 	o, ok := m[id]
 	if !ok {
 		return false, nil
 	}
 
-	o.Volume = addD8(o.Volume, -base)
+	o.Volume = o.Volume.Add(base.Neg())
 
-	if o.Volume < 0 {
-		return false, fmt.Errorf("negative volume: %f", o.Volume)
+	if o.Volume.Sign() < 0 {
+		return false, fmt.Errorf("streaming: negative volume: %s", o.Volume)
 	}
 
-	if o.Volume == 0 {
+	if o.Volume.Sign() == 0 {
 		delete(m, id)
 	} else {
 		m[id] = o
@@ -327,8 +325,8 @@ func decTrade(m map[string]order, id string, base float64) (bool, error) {
 }
 
 func (c *Conn) processTrade(t TradeUpdate) error {
-	if t.Base <= 0 {
-		return errors.New("nonpositive trade")
+	if t.Base.Sign() <= 0 {
+		return errors.New("streaming: nonpositive trade")
 	}
 
 	ok, err := decTrade(c.bids, t.OrderID, t.Base)
@@ -347,7 +345,7 @@ func (c *Conn) processTrade(t TradeUpdate) error {
 		return nil
 	}
 
-	return errors.New("trade for unknown order")
+	return errors.New("streaming: trade for unknown order")
 }
 
 func (c *Conn) processCreate(u CreateUpdate) error {
@@ -362,7 +360,7 @@ func (c *Conn) processCreate(u CreateUpdate) error {
 	} else if u.Type == string(luno.OrderTypeAsk) {
 		c.asks[o.ID] = o
 	} else {
-		return errors.New("unknown order type")
+		return errors.New("streaming: unknown order type")
 	}
 
 	return nil
@@ -375,7 +373,9 @@ func (c *Conn) processDelete(u DeleteUpdate) error {
 }
 
 // OrderBookSnapshot returns the latest order book.
-func (c *Conn) OrderBookSnapshot() (int64, []luno.OrderBookEntry, []luno.OrderBookEntry) {
+func (c *Conn) OrderBookSnapshot() (
+	int64, []luno.OrderBookEntry, []luno.OrderBookEntry) {
+
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
