@@ -1,28 +1,14 @@
 package luno
 
-type OrderState string
-
-const (
-	OrderStatePending  OrderState = "PENDING"
-	OrderStateComplete OrderState = "COMPLETE"
-)
-
-type OrderType string
-
-const (
-	OrderTypeAsk  OrderType = "ASK"
-	OrderTypeBid  OrderType = "BID"
-	OrderTypeBuy  OrderType = "BUY"
-	OrderTypeSell OrderType = "SELL"
-)
+import "github.com/luno/luno-go/decimal"
 
 type AccountBalance struct {
-	AccountId   string  `json:"account_id"`
-	Asset       string  `json:"asset"`
-	Balance     Decimal `json:"balance"`
-	Name        string  `json:"name"`
-	Reserved    Decimal `json:"reserved"`
-	Unconfirmed Decimal `json:"unconfirmed"`
+	AccountId   string          `json:"account_id"`
+	Asset       string          `json:"asset"`
+	Balance     decimal.Decimal `json:"balance"`
+	Name        string          `json:"name"`
+	Reserved    decimal.Decimal `json:"reserved"`
+	Unconfirmed decimal.Decimal `json:"unconfirmed"`
 }
 
 type AccountCapabilities struct {
@@ -36,16 +22,16 @@ type AccountCapabilities struct {
 }
 
 type Order struct {
-	Base                Decimal `json:"base"`
-	CompletedTimestamp  int64   `json:"completed_timestamp"`
-	Counter             Decimal `json:"counter"`
-	CreationTimestamp   int64   `json:"creation_timestamp"`
-	ExpirationTimestamp int64   `json:"expiration_timestamp"`
-	FeeBase             Decimal `json:"fee_base"`
-	FeeCounter          Decimal `json:"fee_counter"`
-	LimitPrice          Decimal `json:"limit_price"`
-	LimitVolume         Decimal `json:"limit_volume"`
-	OrderId             string  `json:"order_id"`
+	Base                decimal.Decimal `json:"base"`
+	CompletedTimestamp  int64           `json:"completed_timestamp"`
+	Counter             decimal.Decimal `json:"counter"`
+	CreationTimestamp   int64           `json:"creation_timestamp"`
+	ExpirationTimestamp int64           `json:"expiration_timestamp"`
+	FeeBase             decimal.Decimal `json:"fee_base"`
+	FeeCounter          decimal.Decimal `json:"fee_counter"`
+	LimitPrice          decimal.Decimal `json:"limit_price"`
+	LimitVolume         decimal.Decimal `json:"limit_volume"`
+	OrderId             string          `json:"order_id"`
 
 	// Specifies the market.
 	Pair string `json:"pair"`
@@ -62,53 +48,69 @@ type Order struct {
 }
 
 type OrderBookEntry struct {
-	Price  Decimal `json:"price"`
-	Volume Decimal `json:"volume"`
+	Price  decimal.Decimal `json:"price"`
+	Volume decimal.Decimal `json:"volume"`
 }
 
+type OrderState string
+
+const (
+	OrderStatePending  OrderState = "PENDING"
+	OrderStateComplete OrderState = "COMPLETE"
+)
+
+type OrderType string
+
+const (
+	OrderTypeAsk  OrderType = "ASK"
+	OrderTypeBid  OrderType = "BID"
+	OrderTypeBuy  OrderType = "BUY"
+	OrderTypeSell OrderType = "SELL"
+)
+
 type ReceiveAddress struct {
-	AccountId        string  `json:"account_id"`
-	Address          string  `json:"address"`
-	Asset            string  `json:"asset"`
-	AssignedAt       int64   `json:"assigned_at"`
-	Name             string  `json:"name"`
-	ReceiveFee       Decimal `json:"receive_fee"`
-	TotalReceived    Decimal `json:"total_received"`
-	TotalUnconfirmed Decimal `json:"total_unconfirmed"`
+	AccountId        string          `json:"account_id"`
+	Address          string          `json:"address"`
+	Asset            string          `json:"asset"`
+	AssignedAt       int64           `json:"assigned_at"`
+	Name             string          `json:"name"`
+	ReceiveFee       decimal.Decimal `json:"receive_fee"`
+	TotalReceived    decimal.Decimal `json:"total_received"`
+	TotalUnconfirmed decimal.Decimal `json:"total_unconfirmed"`
 }
 
 type Ticker struct {
-	Ask                 Decimal `json:"ask"`
-	Bid                 Decimal `json:"bid"`
-	LastTrade           Decimal `json:"last_trade"`
-	Pair                string  `json:"pair"`
-	Rolling24HourVolume Decimal `json:"rolling_24_hour_volume"`
-	Timestamp           int64   `json:"timestamp"`
+	Ask                 decimal.Decimal `json:"ask"`
+	Bid                 decimal.Decimal `json:"bid"`
+	LastTrade           decimal.Decimal `json:"last_trade"`
+	Pair                string          `json:"pair"`
+	Rolling24HourVolume decimal.Decimal `json:"rolling_24_hour_volume"`
+	Timestamp           int64           `json:"timestamp"`
 }
 
 type Trade struct {
-	Base       Decimal `json:"base"`
-	Counter    Decimal `json:"counter"`
-	FeeBase    Decimal `json:"fee_base"`
-	FeeCounter Decimal `json:"fee_counter"`
-	IsBuy      bool    `json:"is_buy"`
-	OrderId    string  `json:"order_id"`
-	Pair       string  `json:"pair"`
-	Price      Decimal `json:"price"`
-	Timestamp  int64   `json:"timestamp"`
-	Type       string  `json:"type"`
-	Volume     Decimal `json:"volume"`
+	Base       decimal.Decimal `json:"base"`
+	Counter    decimal.Decimal `json:"counter"`
+	FeeBase    decimal.Decimal `json:"fee_base"`
+	FeeCounter decimal.Decimal `json:"fee_counter"`
+	IsBuy      bool            `json:"is_buy"`
+	OrderId    string          `json:"order_id"`
+	Pair       string          `json:"pair"`
+	Price      decimal.Decimal `json:"price"`
+	Timestamp  int64           `json:"timestamp"`
+	Type       string          `json:"type"`
+	Volume     decimal.Decimal `json:"volume"`
 }
 
 type Transaction struct {
-	AccountId      string  `json:"account_id"`
-	Available      Decimal `json:"available"`
-	AvailableDelta Decimal `json:"available_delta"`
-	Balance        Decimal `json:"balance"`
+	AccountId      string          `json:"account_id"`
+	Available      decimal.Decimal `json:"available"`
+	AvailableDelta decimal.Decimal `json:"available_delta"`
+	Balance        decimal.Decimal `json:"balance"`
 
 	// Transaction amounts computed for convenience.
-	BalanceDelta Decimal `json:"balance_delta"`
-	Currency     string  `json:"currency"`
+	BalanceDelta decimal.Decimal `json:"balance_delta"`
+	Currency     string          `json:"currency"`
 
 	// Human-readable description of the transaction.
 	Description string `json:"description"`
@@ -117,13 +119,13 @@ type Transaction struct {
 }
 
 type Withdrawal struct {
-	Amount    Decimal `json:"amount"`
-	CreatedAt int64   `json:"created_at"`
-	Currency  string  `json:"currency"`
-	Fee       Decimal `json:"fee"`
-	Id        string  `json:"id"`
-	Status    string  `json:"status"`
-	Type      string  `json:"type"`
+	Amount    decimal.Decimal `json:"amount"`
+	CreatedAt int64           `json:"created_at"`
+	Currency  string          `json:"currency"`
+	Fee       decimal.Decimal `json:"fee"`
+	Id        string          `json:"id"`
+	Status    string          `json:"status"`
+	Type      string          `json:"type"`
 }
 
 // vi: ft=go

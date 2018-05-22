@@ -30,9 +30,7 @@ import luno "github.com/luno/luno-go"
 lunoClient := luno.NewClient()
 lunoClient.SetAuth("api_key_id", "api_key_secret")
 
-req := lunoClient.GetOrderBookRequest{
-  Pair: "XBTZAR",
-}
+req := luno.GetOrderBookRequest{Pair: "XBTZAR"}
 res, err := lunoClient.GetOrderBook(&req)
 if err != nil {
   log.Fatal(err)
