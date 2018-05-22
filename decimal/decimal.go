@@ -25,6 +25,11 @@ func New(i *big.Int, scale int) Decimal {
 	}
 }
 
+// Zero returns a Decimal representing 0, with precision 0.
+func Zero() Decimal {
+	return New(big.NewInt(0), 0)
+}
+
 // MarshalJSON converts the Decimal to JSON bytes.
 func (d Decimal) MarshalJSON() ([]byte, error) {
 	return []byte(`"` + d.String() + `"`), nil
@@ -134,6 +139,18 @@ func (d Decimal) Sub(y Decimal) Decimal {
 	di := bigIntDefault(_d.i)
 	yi := bigIntDefault(_y.i)
 	return New(new(big.Int).Sub(di, yi), _d.scale)
+}
+
+// MulInt64 multiplies d by y and returns the result. d is left unchanged.
+func (d Decimal) MulInt64(y int64) Decimal {
+	di := bigIntDefault(d.i)
+	return New(new(big.Int).Mul(di, big.NewInt(y)), d.scale)
+}
+
+// DivInt64 divides d by y and returns the result. d is left unchanged.
+func (d Decimal) DivInt64(y int64) Decimal {
+	di := bigIntDefault(d.i)
+	return New(new(big.Int).Div(di, big.NewInt(y)), d.scale)
 }
 
 func getScale(s string) int {
