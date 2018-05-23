@@ -7,6 +7,15 @@ import (
 	"github.com/luno/luno-go/decimal"
 )
 
+func TestZero(t *testing.T) {
+	d := decimal.Zero()
+	act := d.String()
+	exp := "0"
+	if act != exp {
+		t.Errorf("Expected Zero() to return %q, got %q", exp, act)
+	}
+}
+
 func TestDecimalString(t *testing.T) {
 	type testCase struct {
 		d   decimal.Decimal
@@ -316,6 +325,104 @@ func TestDecimalSub(t *testing.T) {
 		if actString != test.expString {
 			t.Errorf("Expected %s - %s to stringify as %q, got %q",
 				test.d1, test.d2, test.expString, actString)
+		}
+	}
+}
+
+func TestDecimalMulInt64(t *testing.T) {
+	type testCase struct {
+		d   decimal.Decimal
+		y   int64
+		exp string
+	}
+
+	testCases := []testCase{
+		testCase{
+			d:   decimal.New(big.NewInt(0), 0),
+			y:   0,
+			exp: "0",
+		},
+		testCase{
+			d:   decimal.New(big.NewInt(100), 0),
+			y:   100,
+			exp: "10000",
+		},
+		testCase{
+			d:   decimal.New(big.NewInt(-100), 0),
+			y:   100,
+			exp: "-10000",
+		},
+		testCase{
+			d:   decimal.New(big.NewInt(100), 8),
+			y:   100,
+			exp: "0.00010000",
+		},
+		testCase{
+			d:   decimal.New(big.NewInt(-100), 8),
+			y:   100,
+			exp: "-0.00010000",
+		},
+		testCase{
+			d:   decimal.New(big.NewInt(17823), 4),
+			y:   124,
+			exp: "221.0052",
+		},
+	}
+
+	for _, test := range testCases {
+		act := test.d.MulInt64(test.y).String()
+		if act != test.exp {
+			t.Errorf("Expected %s * %d to be %q, got %q",
+				test.d, test.y, test.exp, act)
+		}
+	}
+}
+
+func TestDecimalDivInt64(t *testing.T) {
+	type testCase struct {
+		d   decimal.Decimal
+		y   int64
+		exp string
+	}
+
+	testCases := []testCase{
+		testCase{
+			d:   decimal.New(big.NewInt(1), 0),
+			y:   1,
+			exp: "1",
+		},
+		testCase{
+			d:   decimal.New(big.NewInt(-100), 0),
+			y:   100,
+			exp: "-1",
+		},
+		testCase{
+			d:   decimal.New(big.NewInt(100), 8),
+			y:   100,
+			exp: "0.00000001",
+		},
+		testCase{
+			d:   decimal.New(big.NewInt(-100), 8),
+			y:   100,
+			exp: "-0.00000001",
+		},
+		testCase{
+			d:   decimal.New(big.NewInt(1), 4),
+			y:   10,
+			exp: "0.0000",
+		},
+		testCase{
+			d:   decimal.New(big.NewInt(17823), 4),
+			y:   124,
+			exp: "0.0143",
+		},
+	}
+
+	for _, test := range testCases {
+		act := test.d.DivInt64(test.y).String()
+		if act != test.exp {
+			t.Errorf("Expected %s / %d to be %q, got %q",
+				test.d, test.y, test.exp, act)
 		}
 	}
 }
