@@ -7,6 +7,129 @@ import (
 	"github.com/luno/luno-go/decimal"
 )
 
+func TestNewFromInt64(t *testing.T) {
+	type testCase struct {
+		i   int64
+		exp string
+	}
+
+	testCases := []testCase{
+		testCase{
+			i:   0,
+			exp: "0",
+		},
+		testCase{
+			i:   1,
+			exp: "1",
+		},
+		testCase{
+			i:   -1,
+			exp: "-1",
+		},
+		testCase{
+			i:   1231231,
+			exp: "1231231",
+		},
+	}
+
+	for _, test := range testCases {
+		act := decimal.NewFromInt64(test.i).String()
+		if act != test.exp {
+			t.Errorf("Expected %d to stringify as %q, got %q",
+				test.i, test.exp, act)
+		}
+	}
+}
+
+func TestNewFromFloat64(t *testing.T) {
+	type testCase struct {
+		f     float64
+		scale int
+		exp   string
+	}
+
+	testCases := []testCase{
+		testCase{
+			f:     0,
+			scale: 0,
+			exp:   "0",
+		},
+		testCase{
+			f:     1,
+			scale: 0,
+			exp:   "1",
+		},
+		testCase{
+			f:     1.12345678,
+			scale: 0,
+			exp:   "1",
+		},
+		testCase{
+			f:     1.12345678,
+			scale: 8,
+			exp:   "1.12345678",
+		},
+		testCase{
+			f:     -1.12345678,
+			scale: 4,
+			exp:   "-1.1234",
+		},
+	}
+
+	for _, test := range testCases {
+		act := decimal.NewFromFloat64(test.f, test.scale).String()
+		if act != test.exp {
+			t.Errorf("Expected %f (scale %d) to stringify as %q, got %q",
+				test.f, test.scale, test.exp, act)
+		}
+	}
+}
+
+func TestNewFromString(t *testing.T) {
+	type testCase struct {
+		s   string
+		err bool
+	}
+
+	testCases := []testCase{
+		testCase{
+			s:   "",
+			err: true,
+		},
+		testCase{
+			s:   "abc",
+			err: true,
+		},
+		testCase{
+			s:   "1e8",
+			err: true,
+		},
+		testCase{s: "0"},
+		testCase{s: "1"},
+		testCase{s: "-1.2"},
+		testCase{s: "1.12345678"},
+		testCase{s: "1.123456789"},
+	}
+
+	for _, test := range testCases {
+		d, err := decimal.NewFromString(test.s)
+		if err != nil {
+			if !test.err {
+				t.Errorf("Expected %q to succeed, got %v", test.s, err)
+			}
+			continue
+		} else if test.err {
+			t.Errorf("Expected %q to fail", test.s)
+			continue
+		}
+		act := d.String()
+		if act != test.s {
+			t.Errorf("%q failed to stringify back to itself, got %q",
+				test.s, act)
+		}
+	}
+}
+
 func TestZero(t *testing.T) {
 	d := decimal.Zero()
 	act := d.String()
