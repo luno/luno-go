@@ -607,29 +607,6 @@ func (cl *Client) GetWithdrawal(ctx context.Context, req *GetWithdrawalRequest) 
 	return &res, nil
 }
 
-// GetWithdrawalsRequest is the request struct for GetWithdrawals.
-type GetWithdrawalsRequest struct {
-}
-
-// GetWithdrawalsResponse is the response struct for GetWithdrawals.
-type GetWithdrawalsResponse struct {
-	Withdrawals []Withdrawal `json:"withdrawals"`
-}
-
-// GetWithdrawals makes a call to GET /api/1/withdrawals.
-//
-// Returns a list of withdrawal requests.
-//
-// Permissions required: <code>Perm_R_Withdrawals</code>
-func (cl *Client) GetWithdrawals(ctx context.Context, req *GetWithdrawalsRequest) (*GetWithdrawalsResponse, error) {
-	var res GetWithdrawalsResponse
-	err := cl.do(ctx, "GET", "/api/1/withdrawals", req, &res, true)
-	if err != nil {
-		return nil, err
-	}
-	return &res, nil
-}
-
 // ListOrdersRequest is the request struct for ListOrders.
 type ListOrdersRequest struct {
 	// Filter to orders created before this timestamp (Unix milliseconds)
@@ -768,7 +745,7 @@ type ListTransactionsResponse struct {
 	Transactions     []Transaction       `json:"transactions"`
 }
 
-// ListTransactions makes a call to GET /api/1/{id}/transactions.
+// ListTransactions makes a call to GET /api/1/accounts/{id}/transactions.
 //
 // Return a list of transaction entries from an account.
 //
@@ -784,7 +761,7 @@ type ListTransactionsResponse struct {
 // Permissions required: <code>Perm_R_Transactions</code>
 func (cl *Client) ListTransactions(ctx context.Context, req *ListTransactionsRequest) (*ListTransactionsResponse, error) {
 	var res ListTransactionsResponse
-	err := cl.do(ctx, "GET", "/api/1/{id}/transactions", req, &res, true)
+	err := cl.do(ctx, "GET", "/api/1/accounts/{id}/transactions", req, &res, true)
 	if err != nil {
 		return nil, err
 	}
@@ -828,6 +805,29 @@ type ListUserTradesResponse struct {
 func (cl *Client) ListUserTrades(ctx context.Context, req *ListUserTradesRequest) (*ListUserTradesResponse, error) {
 	var res ListUserTradesResponse
 	err := cl.do(ctx, "GET", "/api/1/listtrades", req, &res, true)
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+// ListWithdrawalsRequest is the request struct for ListWithdrawals.
+type ListWithdrawalsRequest struct {
+}
+
+// ListWithdrawalsResponse is the response struct for ListWithdrawals.
+type ListWithdrawalsResponse struct {
+	Withdrawals []Withdrawal `json:"withdrawals"`
+}
+
+// ListWithdrawals makes a call to GET /api/1/withdrawals.
+//
+// Returns a list of withdrawal requests.
+//
+// Permissions required: <code>Perm_R_Withdrawals</code>
+func (cl *Client) ListWithdrawals(ctx context.Context, req *ListWithdrawalsRequest) (*ListWithdrawalsResponse, error) {
+	var res ListWithdrawalsResponse
+	err := cl.do(ctx, "GET", "/api/1/withdrawals", req, &res, true)
 	if err != nil {
 		return nil, err
 	}
