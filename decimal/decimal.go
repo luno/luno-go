@@ -25,6 +25,32 @@ func New(i *big.Int, scale int) Decimal {
 	}
 }
 
+func NewFromInt64(i int64) Decimal {
+	return New(big.NewInt(i), 0)
+}
+
+// NewFromFloat64 returns a new Decimal with the given scale. The value is
+// truncated towards 0.
+func NewFromFloat64(f float64, scale int) Decimal {
+	i := big.NewInt(int64(f * math.Pow(float64(10), float64(scale))))
+	return New(i, scale)
+}
+
+var ErrUnsupportedDecimalNotation = errors.New("luno: unsupported decimal notation")
+
+func NewFromString(s string) (Decimal, error) {
+	if strings.IndexByte(s, 'e') > -1 {
+		return Decimal{}, ErrUnsupportedDecimalNotation
+	}
+	scale := getScale(s)
+	s = strings.Replace(s, ".", "", 1)
+	i, ok := new(big.Int).SetString(s, 10)
+	if !ok {
+		return Decimal{}, ErrUnsupportedDecimalNotation
+	}
+	return New(i, scale), nil
+}
+
 // Zero returns a Decimal representing 0, with precision 0.
 func Zero() Decimal {
 	return New(big.NewInt(0), 0)
@@ -35,21 +61,14 @@ func (d Decimal) MarshalJSON() ([]byte, error) {
 	return []byte(`"` + d.String() + `"`), nil
 }
 
-var ErrUnsupportedDecimalNotation = errors.New("luno: unsupported decimal notation")
-
 // UnmarshalJSON reads JSON bytes into a Decimal.
 func (d *Decimal) UnmarshalJSON(b []byte) error {
 	s := strings.Trim(string(b), `"`)
-	if strings.IndexByte(s, 'e') > -1 {
-		return ErrUnsupportedDecimalNotation
+	y, err := NewFromString(s)
+	if err != nil {
+		return err
 	}
-	scale := getScale(s)
-	s = strings.Replace(s, ".", "", 1)
-	i, ok := new(big.Int).SetString(s, 10)
-	if !ok {
-		return ErrUnsupportedDecimalNotation
-	}
-	*d = New(i, scale)
+	*d = y
 	return nil
 }
 
