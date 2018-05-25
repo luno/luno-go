@@ -11,7 +11,7 @@ type CancelWithdrawalRequest struct {
 	// ID of the withdrawal to cancel.
 	//
 	// required: true
-	Id int64 `json:"id" url:"id"`
+	Id string `json:"id" url:"id"`
 }
 
 // CancelWithdrawalResponse is the response struct for CancelWithdrawal.
@@ -142,10 +142,10 @@ type CreateQuoteRequest struct {
 	Type string `json:"type" url:"type"`
 
 	// Optional account for the pair's base currency.
-	BaseAccountId int64 `json:"base_account_id" url:"base_account_id"`
+	BaseAccountId string `json:"base_account_id" url:"base_account_id"`
 
 	// Optional account for the pair's counter currency.
-	CounterAccountId int64 `json:"counter_account_id" url:"counter_account_id"`
+	CounterAccountId string `json:"counter_account_id" url:"counter_account_id"`
 }
 
 // CreateQuoteResponse is the response struct for CreateQuote.
@@ -204,7 +204,7 @@ type CreateWithdrawalRequest struct {
 	// to. This parameter is required if you have multiple bank accounts. Your
 	// bank account beneficiary ID can be found by clicking on the beneficiary
 	// name on the <a href="/wallet/beneficiaries">Beneficiaries</a> page.
-	BeneficiaryId int64 `json:"beneficiary_id" url:"beneficiary_id"`
+	BeneficiaryId string `json:"beneficiary_id" url:"beneficiary_id"`
 
 	// For internal use.
 	Reference string `json:"reference" url:"reference"`
@@ -240,7 +240,7 @@ type DiscardQuoteRequest struct {
 	// ID of the quote to discard.
 	//
 	// required: true
-	Id int64 `json:"id" url:"id"`
+	Id string `json:"id" url:"id"`
 }
 
 // DiscardQuoteResponse is the response struct for DiscardQuote.
@@ -276,7 +276,7 @@ type ExerciseQuoteRequest struct {
 	// ID of the quote to exercise.
 	//
 	// required: true
-	Id int64 `json:"id" url:"id"`
+	Id string `json:"id" url:"id"`
 }
 
 // ExerciseQuoteResponse is the response struct for ExerciseQuote.
@@ -493,7 +493,7 @@ type GetQuoteRequest struct {
 	// ID of the quote to retrieve.
 	//
 	// required: true
-	Id int64 `json:"id" url:"id"`
+	Id string `json:"id" url:"id"`
 }
 
 // GetQuoteResponse is the response struct for GetQuote.
@@ -579,7 +579,7 @@ type GetWithdrawalRequest struct {
 	// Withdrawal ID to retrieve.
 	//
 	// required: true
-	Id int64 `json:"id" url:"id"`
+	Id string `json:"id" url:"id"`
 }
 
 // GetWithdrawalResponse is the response struct for GetWithdrawal.
@@ -601,29 +601,6 @@ type GetWithdrawalResponse struct {
 func (cl *Client) GetWithdrawal(ctx context.Context, req *GetWithdrawalRequest) (*GetWithdrawalResponse, error) {
 	var res GetWithdrawalResponse
 	err := cl.do(ctx, "GET", "/api/1/withdrawals/{id}", req, &res, true)
-	if err != nil {
-		return nil, err
-	}
-	return &res, nil
-}
-
-// GetWithdrawalsRequest is the request struct for GetWithdrawals.
-type GetWithdrawalsRequest struct {
-}
-
-// GetWithdrawalsResponse is the response struct for GetWithdrawals.
-type GetWithdrawalsResponse struct {
-	Withdrawals []Withdrawal `json:"withdrawals"`
-}
-
-// GetWithdrawals makes a call to GET /api/1/withdrawals.
-//
-// Returns a list of withdrawal requests.
-//
-// Permissions required: <code>Perm_R_Withdrawals</code>
-func (cl *Client) GetWithdrawals(ctx context.Context, req *GetWithdrawalsRequest) (*GetWithdrawalsResponse, error) {
-	var res GetWithdrawalsResponse
-	err := cl.do(ctx, "GET", "/api/1/withdrawals", req, &res, true)
 	if err != nil {
 		return nil, err
 	}
@@ -672,7 +649,7 @@ type ListPendingTransactionsRequest struct {
 	// Account ID
 	//
 	// required: true
-	Id int64 `json:"id" url:"id"`
+	Id string `json:"id" url:"id"`
 }
 
 // ListPendingTransactionsResponse is the response struct for ListPendingTransactions.
@@ -741,7 +718,7 @@ type ListTransactionsRequest struct {
 	// Account ID
 	//
 	// required: true
-	Id int64 `json:"id" url:"id"`
+	Id string `json:"id" url:"id"`
 
 	// Maximum of the row range to return (exclusive)
 	//
@@ -768,7 +745,7 @@ type ListTransactionsResponse struct {
 	Transactions     []Transaction       `json:"transactions"`
 }
 
-// ListTransactions makes a call to GET /api/1/{id}/transactions.
+// ListTransactions makes a call to GET /api/1/accounts/{id}/transactions.
 //
 // Return a list of transaction entries from an account.
 //
@@ -784,7 +761,7 @@ type ListTransactionsResponse struct {
 // Permissions required: <code>Perm_R_Transactions</code>
 func (cl *Client) ListTransactions(ctx context.Context, req *ListTransactionsRequest) (*ListTransactionsResponse, error) {
 	var res ListTransactionsResponse
-	err := cl.do(ctx, "GET", "/api/1/{id}/transactions", req, &res, true)
+	err := cl.do(ctx, "GET", "/api/1/accounts/{id}/transactions", req, &res, true)
 	if err != nil {
 		return nil, err
 	}
@@ -828,6 +805,29 @@ type ListUserTradesResponse struct {
 func (cl *Client) ListUserTrades(ctx context.Context, req *ListUserTradesRequest) (*ListUserTradesResponse, error) {
 	var res ListUserTradesResponse
 	err := cl.do(ctx, "GET", "/api/1/listtrades", req, &res, true)
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+// ListWithdrawalsRequest is the request struct for ListWithdrawals.
+type ListWithdrawalsRequest struct {
+}
+
+// ListWithdrawalsResponse is the response struct for ListWithdrawals.
+type ListWithdrawalsResponse struct {
+	Withdrawals []Withdrawal `json:"withdrawals"`
+}
+
+// ListWithdrawals makes a call to GET /api/1/withdrawals.
+//
+// Returns a list of withdrawal requests.
+//
+// Permissions required: <code>Perm_R_Withdrawals</code>
+func (cl *Client) ListWithdrawals(ctx context.Context, req *ListWithdrawalsRequest) (*ListWithdrawalsResponse, error) {
+	var res ListWithdrawalsResponse
+	err := cl.do(ctx, "GET", "/api/1/withdrawals", req, &res, true)
 	if err != nil {
 		return nil, err
 	}
