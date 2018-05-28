@@ -11,7 +11,7 @@ type CancelWithdrawalRequest struct {
 	// ID of the withdrawal to cancel.
 	//
 	// required: true
-	Id int64 `json:"id" url:"id"`
+	Id string `json:"id" url:"id"`
 }
 
 // CancelWithdrawalResponse is the response struct for CancelWithdrawal.
@@ -142,10 +142,10 @@ type CreateQuoteRequest struct {
 	Type string `json:"type" url:"type"`
 
 	// Optional account for the pair's base currency.
-	BaseAccountId int64 `json:"base_account_id" url:"base_account_id"`
+	BaseAccountId string `json:"base_account_id" url:"base_account_id"`
 
 	// Optional account for the pair's counter currency.
-	CounterAccountId int64 `json:"counter_account_id" url:"counter_account_id"`
+	CounterAccountId string `json:"counter_account_id" url:"counter_account_id"`
 }
 
 // CreateQuoteResponse is the response struct for CreateQuote.
@@ -204,7 +204,7 @@ type CreateWithdrawalRequest struct {
 	// to. This parameter is required if you have multiple bank accounts. Your
 	// bank account beneficiary ID can be found by clicking on the beneficiary
 	// name on the <a href="/wallet/beneficiaries">Beneficiaries</a> page.
-	BeneficiaryId int64 `json:"beneficiary_id" url:"beneficiary_id"`
+	BeneficiaryId string `json:"beneficiary_id" url:"beneficiary_id"`
 
 	// For internal use.
 	Reference string `json:"reference" url:"reference"`
@@ -240,7 +240,7 @@ type DiscardQuoteRequest struct {
 	// ID of the quote to discard.
 	//
 	// required: true
-	Id int64 `json:"id" url:"id"`
+	Id string `json:"id" url:"id"`
 }
 
 // DiscardQuoteResponse is the response struct for DiscardQuote.
@@ -276,7 +276,7 @@ type ExerciseQuoteRequest struct {
 	// ID of the quote to exercise.
 	//
 	// required: true
-	Id int64 `json:"id" url:"id"`
+	Id string `json:"id" url:"id"`
 }
 
 // ExerciseQuoteResponse is the response struct for ExerciseQuote.
@@ -493,7 +493,7 @@ type GetQuoteRequest struct {
 	// ID of the quote to retrieve.
 	//
 	// required: true
-	Id int64 `json:"id" url:"id"`
+	Id string `json:"id" url:"id"`
 }
 
 // GetQuoteResponse is the response struct for GetQuote.
@@ -579,7 +579,7 @@ type GetWithdrawalRequest struct {
 	// Withdrawal ID to retrieve.
 	//
 	// required: true
-	Id int64 `json:"id" url:"id"`
+	Id string `json:"id" url:"id"`
 }
 
 // GetWithdrawalResponse is the response struct for GetWithdrawal.
@@ -649,7 +649,7 @@ type ListPendingTransactionsRequest struct {
 	// Account ID
 	//
 	// required: true
-	Id int64 `json:"id" url:"id"`
+	Id string `json:"id" url:"id"`
 }
 
 // ListPendingTransactionsResponse is the response struct for ListPendingTransactions.
@@ -718,7 +718,7 @@ type ListTransactionsRequest struct {
 	// Account ID
 	//
 	// required: true
-	Id int64 `json:"id" url:"id"`
+	Id string `json:"id" url:"id"`
 
 	// Maximum of the row range to return (exclusive)
 	//
