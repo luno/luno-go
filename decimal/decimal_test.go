@@ -201,6 +201,48 @@ func TestDecimalString(t *testing.T) {
 	}
 }
 
+func TestDecimalValue(t *testing.T) {
+	type testCase struct {
+		d   decimal.Decimal
+		exp *big.Int
+	}
+
+	testCases := []testCase{
+		testCase{
+			d:   decimal.Decimal{},
+			exp: big.NewInt(0),
+		},
+		testCase{
+			d:   decimal.New(big.NewInt(0), 0),
+			exp: big.NewInt(0),
+		},
+		testCase{
+			d:   decimal.New(big.NewInt(1), 0),
+			exp: big.NewInt(1),
+		},
+		testCase{
+			d:   decimal.New(big.NewInt(1), 1),
+			exp: big.NewInt(1),
+		},
+		testCase{
+			d:   decimal.New(big.NewInt(250), 3),
+			exp: big.NewInt(250),
+		},
+		testCase{
+			d:   decimal.New(big.NewInt(-250), 3),
+			exp: big.NewInt(-250),
+		},
+	}
+
+	for _, test := range testCases {
+		act := test.d.Value()
+		if act.Cmp(test.exp) != 0 {
+			t.Errorf("Expected the value of %s to be %s, got %s",
+				test.d, test.exp, act)
+		}
+	}
+}
+
 func TestDecimalSign(t *testing.T) {
 	type testCase struct {
 		d   decimal.Decimal

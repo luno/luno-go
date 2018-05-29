@@ -102,6 +102,12 @@ func (d Decimal) Float64() float64 {
 	return float64(d.i.Int64()) * math.Pow(float64(10), float64(-d.scale))
 }
 
+// Value returns the value of the decimal in units of its scale. For example,
+// the decimal 0.250 with scale 3 will return a big.Int with value 250.
+func (d Decimal) Value() *big.Int {
+	return bigIntDefault(d.i)
+}
+
 // ToScale returns a Decimal representing the same value as d, but with the
 // given scale. If scale is less than the Decimal's current scale, i.e. the new
 // Decimal has fewer decimal points, the decimal is truncated (rounded towards
