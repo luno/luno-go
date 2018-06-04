@@ -591,3 +591,144 @@ func TestDecimalDivInt64(t *testing.T) {
 		}
 	}
 }
+
+func TestDecimalMul(t *testing.T) {
+	type testCase struct {
+		d   decimal.Decimal
+		y   decimal.Decimal
+		exp string
+	}
+
+	testCases := []testCase{
+		testCase{
+			d:   decimal.Decimal{},
+			y:   decimal.Decimal{},
+			exp: "0",
+		},
+		testCase{
+			d:   decimal.New(big.NewInt(1), 0),
+			y:   decimal.New(big.NewInt(1), 0),
+			exp: "1",
+		},
+		testCase{
+			d:   decimal.New(big.NewInt(1), 0),
+			y:   decimal.New(big.NewInt(-1), 0),
+			exp: "-1",
+		},
+		testCase{
+			d:   decimal.New(big.NewInt(1), 3),
+			y:   decimal.New(big.NewInt(1), 3),
+			exp: "0.000001",
+		},
+		testCase{
+			d:   decimal.New(big.NewInt(1234), 3),
+			y:   decimal.New(big.NewInt(5678), 8),
+			exp: "0.00007006652",
+		},
+		testCase{
+			d:   decimal.New(big.NewInt(100), 2),
+			y:   decimal.New(big.NewInt(100), 2),
+			exp: "1.0000",
+		},
+	}
+
+	for _, test := range testCases {
+		act := test.d.Mul(test.y).String()
+		if act != test.exp {
+			t.Errorf("Expected %s * %s to be %q, got %q",
+				test.d, test.y, test.exp, act)
+		}
+	}
+}
+
+func TestDecimalDivNoPanic(t *testing.T) {
+	type testCase struct {
+		d     decimal.Decimal
+		y     decimal.Decimal
+		scale int
+		exp   string
+	}
+
+	testCases := []testCase{
+		testCase{
+			d:     decimal.New(big.NewInt(1), 0),
+			y:     decimal.New(big.NewInt(1), 0),
+			scale: 0,
+			exp:   "1",
+		},
+		testCase{
+			d:     decimal.New(big.NewInt(1), 0),
+			y:     decimal.New(big.NewInt(10), 0),
+			scale: 2,
+			exp:   "0.10",
+		},
+		testCase{
+			d:     decimal.New(big.NewInt(1), 0),
+			y:     decimal.New(big.NewInt(-10), 0),
+			scale: 2,
+			exp:   "-0.10",
+		},
+		testCase{
+			d:     decimal.New(big.NewInt(5000), 4),
+			y:     decimal.New(big.NewInt(15000), 4),
+			scale: 2,
+			exp:   "0.33",
+		},
+		testCase{
+			d:     decimal.New(big.NewInt(5000), 4),
+			y:     decimal.New(big.NewInt(15000), 4),
+			scale: 10,
+			exp:   "0.3333333333",
+		},
+		testCase{
+			d:     decimal.New(big.NewInt(1234), 2),
+			y:     decimal.New(big.NewInt(5678), 8),
+			scale: 5,
+			exp:   "217330.04579",
+		},
+	}
+
+	for _, test := range testCases {
+		act := test.d.Div(test.y, test.scale).String()
+		if act != test.exp {
+			t.Errorf("Expected %s / %s to be %q, got %q",
+				test.d, test.y, test.exp, act)
+		}
+	}
+}
+
+func testDecimalDivPanic(t *testing.T, d, y decimal.Decimal) {
+	defer func() {
+		if e := recover(); e == nil {
+			t.Errorf("Expected %s / %s to panic", d, y)
+		}
+	}()
+
+	d.Div(y, 0)
+}
+
+func TestDecimalDivPanic(t *testing.T) {
+	type testCase struct {
+		d decimal.Decimal
+		y decimal.Decimal
+	}
+
+	testCases := []testCase{
+		testCase{
+			d: decimal.Decimal{},
+			y: decimal.Decimal{},
+		},
+		testCase{
+			d: decimal.New(big.NewInt(1), 0),
+			y: decimal.Decimal{},
+		},
+		testCase{
+			d: decimal.New(big.NewInt(1), 0),
+			y: decimal.New(big.NewInt(0), 0),
+		},
+	}
+
+	for _, test := range testCases {
+		testDecimalDivPanic(t, test.d, test.y)
+	}
+}
