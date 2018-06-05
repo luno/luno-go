@@ -23,10 +23,10 @@ type AccountCapabilities struct {
 
 type Order struct {
 	Base                decimal.Decimal `json:"base"`
-	CompletedTimestamp  int64           `json:"completed_timestamp"`
+	CompletedTimestamp  Time            `json:"completed_timestamp"`
 	Counter             decimal.Decimal `json:"counter"`
-	CreationTimestamp   int64           `json:"creation_timestamp"`
-	ExpirationTimestamp int64           `json:"expiration_timestamp"`
+	CreationTimestamp   Time            `json:"creation_timestamp"`
+	ExpirationTimestamp Time            `json:"expiration_timestamp"`
 	FeeBase             decimal.Decimal `json:"fee_base"`
 	FeeCounter          decimal.Decimal `json:"fee_counter"`
 	LimitPrice          decimal.Decimal `json:"limit_price"`
@@ -72,7 +72,7 @@ type ReceiveAddress struct {
 	AccountId        string          `json:"account_id"`
 	Address          string          `json:"address"`
 	Asset            string          `json:"asset"`
-	AssignedAt       int64           `json:"assigned_at"`
+	AssignedAt       Time            `json:"assigned_at"`
 	Name             string          `json:"name"`
 	ReceiveFee       decimal.Decimal `json:"receive_fee"`
 	TotalReceived    decimal.Decimal `json:"total_received"`
@@ -85,7 +85,7 @@ type Ticker struct {
 	LastTrade           decimal.Decimal `json:"last_trade"`
 	Pair                string          `json:"pair"`
 	Rolling24HourVolume decimal.Decimal `json:"rolling_24_hour_volume"`
-	Timestamp           int64           `json:"timestamp"`
+	Timestamp           Time            `json:"timestamp"`
 }
 
 type Trade struct {
@@ -97,7 +97,7 @@ type Trade struct {
 	OrderId    string          `json:"order_id"`
 	Pair       string          `json:"pair"`
 	Price      decimal.Decimal `json:"price"`
-	Timestamp  int64           `json:"timestamp"`
+	Timestamp  Time            `json:"timestamp"`
 	Type       string          `json:"type"`
 	Volume     decimal.Decimal `json:"volume"`
 }
@@ -115,12 +115,12 @@ type Transaction struct {
 	// Human-readable description of the transaction.
 	Description string `json:"description"`
 	RowIndex    int64  `json:"row_index"`
-	Timestamp   int64  `json:"timestamp"`
+	Timestamp   Time   `json:"timestamp"`
 }
 
 type Withdrawal struct {
 	Amount    decimal.Decimal `json:"amount"`
-	CreatedAt int64           `json:"created_at"`
+	CreatedAt Time            `json:"created_at"`
 	Currency  string          `json:"currency"`
 	Fee       decimal.Decimal `json:"fee"`
 	Id        string          `json:"id"`
