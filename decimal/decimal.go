@@ -172,6 +172,26 @@ func (d Decimal) DivInt64(y int64) Decimal {
 	return New(new(big.Int).Div(di, big.NewInt(y)), d.scale)
 }
 
+// Mul multiplies d by y and returns the result. The result has a scale equal to
+// the sum of d's and y's scales. d is left unchanged.
+func (d Decimal) Mul(y Decimal) Decimal {
+	di := bigIntDefault(d.i)
+	yi := bigIntDefault(y.i)
+	return New(new(big.Int).Mul(di, yi), d.scale+y.scale)
+}
+
+// Div divides d by y and returns the result in the provided scale. If the
+// provided scale is too small for the result of d/y, the result is truncated
+// towards 0. d is left unchanged.
+func (d Decimal) Div(y Decimal, scale int) Decimal {
+	if d.scale > y.scale+scale {
+		y = y.ToScale(d.scale - scale)
+	} else {
+		d = d.ToScale(y.scale + scale)
+	}
+	return New(new(big.Int).Div(bigIntDefault(d.i), bigIntDefault(y.i)), scale)
+}
+
 func getScale(s string) int {
 	i := strings.IndexByte(s, '.')
 	if i == -1 {
