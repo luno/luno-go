@@ -17,7 +17,7 @@ type CancelWithdrawalRequest struct {
 // CancelWithdrawalResponse is the response struct for CancelWithdrawal.
 type CancelWithdrawalResponse struct {
 	Amount    decimal.Decimal `json:"amount"`
-	CreatedAt int64           `json:"created_at"`
+	CreatedAt Time            `json:"created_at"`
 	Currency  string          `json:"currency"`
 	Fee       decimal.Decimal `json:"fee"`
 	Id        string          `json:"id"`
@@ -100,7 +100,7 @@ type CreateFundingAddressResponse struct {
 	AccountId        string          `json:"account_id"`
 	Address          string          `json:"address"`
 	Asset            string          `json:"asset"`
-	AssignedAt       int64           `json:"assigned_at"`
+	AssignedAt       Time            `json:"assigned_at"`
 	Name             string          `json:"name"`
 	ReceiveFee       decimal.Decimal `json:"receive_fee"`
 	TotalReceived    decimal.Decimal `json:"total_received"`
@@ -152,10 +152,10 @@ type CreateQuoteRequest struct {
 type CreateQuoteResponse struct {
 	BaseAmount    decimal.Decimal `json:"base_amount"`
 	CounterAmount decimal.Decimal `json:"counter_amount"`
-	CreatedAt     int64           `json:"created_at"`
+	CreatedAt     Time            `json:"created_at"`
 	Discarded     bool            `json:"discarded"`
 	Exercised     bool            `json:"exercised"`
-	ExpiresAt     int64           `json:"expires_at"`
+	ExpiresAt     Time            `json:"expires_at"`
 	Id            string          `json:"id"`
 	Pair          string          `json:"pair"`
 	Type          string          `json:"type"`
@@ -213,7 +213,7 @@ type CreateWithdrawalRequest struct {
 // CreateWithdrawalResponse is the response struct for CreateWithdrawal.
 type CreateWithdrawalResponse struct {
 	Amount    decimal.Decimal `json:"amount"`
-	CreatedAt int64           `json:"created_at"`
+	CreatedAt Time            `json:"created_at"`
 	Currency  string          `json:"currency"`
 	Fee       decimal.Decimal `json:"fee"`
 	Id        string          `json:"id"`
@@ -247,10 +247,10 @@ type DiscardQuoteRequest struct {
 type DiscardQuoteResponse struct {
 	BaseAmount    decimal.Decimal `json:"base_amount"`
 	CounterAmount decimal.Decimal `json:"counter_amount"`
-	CreatedAt     int64           `json:"created_at"`
+	CreatedAt     Time            `json:"created_at"`
 	Discarded     bool            `json:"discarded"`
 	Exercised     bool            `json:"exercised"`
-	ExpiresAt     int64           `json:"expires_at"`
+	ExpiresAt     Time            `json:"expires_at"`
 	Id            string          `json:"id"`
 	Pair          string          `json:"pair"`
 	Type          string          `json:"type"`
@@ -283,10 +283,10 @@ type ExerciseQuoteRequest struct {
 type ExerciseQuoteResponse struct {
 	BaseAmount    decimal.Decimal `json:"base_amount"`
 	CounterAmount decimal.Decimal `json:"counter_amount"`
-	CreatedAt     int64           `json:"created_at"`
+	CreatedAt     Time            `json:"created_at"`
 	Discarded     bool            `json:"discarded"`
 	Exercised     bool            `json:"exercised"`
-	ExpiresAt     int64           `json:"expires_at"`
+	ExpiresAt     Time            `json:"expires_at"`
 	Id            string          `json:"id"`
 	Pair          string          `json:"pair"`
 	Type          string          `json:"type"`
@@ -384,7 +384,7 @@ type GetFundingAddressResponse struct {
 	AccountId        string          `json:"account_id"`
 	Address          string          `json:"address"`
 	Asset            string          `json:"asset"`
-	AssignedAt       int64           `json:"assigned_at"`
+	AssignedAt       Time            `json:"assigned_at"`
 	Name             string          `json:"name"`
 	ReceiveFee       decimal.Decimal `json:"receive_fee"`
 	TotalReceived    decimal.Decimal `json:"total_received"`
@@ -421,10 +421,10 @@ type GetOrderRequest struct {
 // GetOrderResponse is the response struct for GetOrder.
 type GetOrderResponse struct {
 	Base                decimal.Decimal `json:"base"`
-	CompletedTimestamp  int64           `json:"completed_timestamp"`
+	CompletedTimestamp  Time            `json:"completed_timestamp"`
 	Counter             decimal.Decimal `json:"counter"`
-	CreationTimestamp   int64           `json:"creation_timestamp"`
-	ExpirationTimestamp int64           `json:"expiration_timestamp"`
+	CreationTimestamp   Time            `json:"creation_timestamp"`
+	ExpirationTimestamp Time            `json:"expiration_timestamp"`
 	FeeBase             decimal.Decimal `json:"fee_base"`
 	FeeCounter          decimal.Decimal `json:"fee_counter"`
 	LimitPrice          decimal.Decimal `json:"limit_price"`
@@ -500,10 +500,10 @@ type GetQuoteRequest struct {
 type GetQuoteResponse struct {
 	BaseAmount    decimal.Decimal `json:"base_amount"`
 	CounterAmount decimal.Decimal `json:"counter_amount"`
-	CreatedAt     int64           `json:"created_at"`
+	CreatedAt     Time            `json:"created_at"`
 	Discarded     bool            `json:"discarded"`
 	Exercised     bool            `json:"exercised"`
-	ExpiresAt     int64           `json:"expires_at"`
+	ExpiresAt     Time            `json:"expires_at"`
 	Id            string          `json:"id"`
 	Pair          string          `json:"pair"`
 	Type          string          `json:"type"`
@@ -538,7 +538,7 @@ type GetTickerResponse struct {
 	LastTrade           decimal.Decimal `json:"last_trade"`
 	Pair                string          `json:"pair"`
 	Rolling24HourVolume decimal.Decimal `json:"rolling_24_hour_volume"`
-	Timestamp           int64           `json:"timestamp"`
+	Timestamp           Time            `json:"timestamp"`
 }
 
 // GetTicker makes a call to GET /api/1/ticker.
@@ -585,7 +585,7 @@ type GetWithdrawalRequest struct {
 // GetWithdrawalResponse is the response struct for GetWithdrawal.
 type GetWithdrawalResponse struct {
 	Amount    decimal.Decimal `json:"amount"`
-	CreatedAt int64           `json:"created_at"`
+	CreatedAt Time            `json:"created_at"`
 	Currency  string          `json:"currency"`
 	Fee       decimal.Decimal `json:"fee"`
 	Id        string          `json:"id"`

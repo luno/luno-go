@@ -4,8 +4,6 @@
 
 This Go package provides a wrapper for the [Luno API](https://www.luno.com/api).
 
-⚠️ *WARNING* This package is currently being tested, and should not be used in production.
-
 ### Documentation
 
 Please visit [godoc.org](https://godoc.org/github.com/luno/luno-go) for the full
