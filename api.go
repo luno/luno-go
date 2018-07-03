@@ -863,6 +863,13 @@ type PostLimitOrderRequest struct {
 
 	// The counter currency account to use in the trade.
 	CounterAccountId string `json:"counter_account_id" url:"counter_account_id"`
+
+	// Post-only orders will be cancelled if they would otherwise have traded
+	// immediately. For example, if there's a bid at ZAR 100,000 and you place
+	// a post-only ask at ZAR 100,000, your order will be cancelled instead of
+	// trading. If the best bid is ZAR 100,000 and you place a post-only ask at
+	// ZAR 101,000, your order won't trade but will go into the order book.
+	PostOnly bool `json:"post_only" url:"post_only"`
 }
 
 // PostLimitOrderResponse is the response struct for PostLimitOrder.

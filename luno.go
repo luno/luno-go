@@ -61,14 +61,21 @@ func (cl *Client) SetAuth(apiKeyID, apiKeySecret string) error {
 	return nil
 }
 
+// SetHTTPClient sets the HTTP client that will be used for API calls.
+func (cl *Client) SetHTTPClient(httpClient *http.Client) {
+	cl.httpClient = httpClient
+}
+
+// SetTimeout sets the timeout for requests made by this client. Note: if you
+// set a timeout and then call .SetHTTPClient(), the timeout in the new HTTP
+// client will be used.
+func (cl *Client) SetTimeout(timeout time.Duration) {
+	cl.httpClient.Timeout = timeout
+}
+
 // SetBaseURL overrides the default base URL. For internal use.
 func (cl *Client) SetBaseURL(baseURL string) {
 	cl.baseURL = strings.TrimRight(baseURL, "/")
-}
-
-// SetTimeout sets the timeout for requests made by this client.
-func (cl *Client) SetTimeout(timeout time.Duration) {
-	cl.httpClient.Timeout = timeout
 }
 
 // SetDebug enables or disables debug mode. In debug mode, HTTP requests and
