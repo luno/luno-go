@@ -148,23 +148,29 @@ func (cl *Client) do(ctx context.Context, method, path string,
 		body = bytes.NewReader(b)
 	}
 
-	// TODO: Handle 429
+	if httpRes.StatusCode == http.StatusTooManyRequests {
+		return errors.New("luno: too many requests")
+	}
+
 	if httpRes.StatusCode != http.StatusOK {
 		var e Error
 		if err := json.NewDecoder(body).Decode(&e); err != nil {
 			return fmt.Errorf("luno: error decoding response (%d %s)",
 				httpRes.StatusCode, http.StatusText(httpRes.StatusCode))
 		}
-		b, err := ioutil.ReadAll(body)
-		if err != nil {
-			return fmt.Errorf("luno: received %d, but unable to read body: %v",
-				httpRes.StatusCode, err)
-		}
-		return fmt.Errorf("luno: received %d (%q)",
-			httpRes.StatusCode, string(b))
+		return fmt.Errorf("luno: %s (%s)", e.Message, e.Code)
 	}
 
-	return json.NewDecoder(body).Decode(res)
+	// The API returns errors as 200s, even if we get a 200 we still have to
+	// try to decode into an Error.
+
+	teeBuf := bytes.NewBuffer(nil)
+	tee := io.TeeReader(body, teeBuf)
+	var e Error
+	if err := json.NewDecoder(tee).Decode(&e); err == nil && e.Code != "" {
+		return fmt.Errorf("luno: %s (%s)", e.Message, e.Code)
+	}
+	return json.NewDecoder(teeBuf).Decode(res)
 }
 
 func makeUserAgent() string {
