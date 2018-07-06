@@ -31,7 +31,7 @@ func TestDoGet(t *testing.T) {
 	}
 }
 
-func TestDoGetWithParametes(t *testing.T) {
+func TestDoGetWithParameters(t *testing.T) {
 	type testReq struct {
 		Value string `url:"value"`
 	}

@@ -18,7 +18,6 @@ Example:
 package streaming
 
 import (
-	"encoding/json"
 	"errors"
 	"flag"
 	"log"
@@ -141,38 +140,11 @@ func (c *connection) connect() error {
 			return err
 		}
 
-		err = c.handleMessage(data)
+		err = c.MessageProcessor.HandleMessage(data)
 		if err != nil {
 			return err
 		}
 	}
-}
-
-func (c *connection) handleMessage(message []byte) error {
-	if string(message) == "\"\"" {
-		return nil
-	}
-
-	var ob orderBook
-	if err := json.Unmarshal(message, &ob); err != nil {
-		return err
-	}
-	if ob.Asks != nil || ob.Bids != nil {
-		if err := c.MessageProcessor.receivedOrderBook(ob); err != nil {
-			return err
-		}
-		return nil
-	}
-
-	var u Update
-	if err := json.Unmarshal(message, &u); err != nil {
-		return err
-	}
-	if err := c.MessageProcessor.receivedUpdate(u); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func sendPings(ws *websocket.Conn) {

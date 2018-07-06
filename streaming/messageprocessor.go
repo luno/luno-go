@@ -1,6 +1,7 @@
 package streaming
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/luno/luno-go"
@@ -63,6 +64,33 @@ func (m *messageProcessor) Reset() {
 	m.bids = nil
 	m.asks = nil
 	m.mu.Unlock()
+}
+
+func (m *messageProcessor) HandleMessage(message []byte) error {
+	if string(message) == "\"\"" {
+		return nil
+	}
+
+	var ob orderBook
+	if err := json.Unmarshal(message, &ob); err != nil {
+		return err
+	}
+	if ob.Asks != nil || ob.Bids != nil {
+		if err := m.receivedOrderBook(ob); err != nil {
+			return err
+		}
+		return nil
+	}
+
+	var u Update
+	if err := json.Unmarshal(message, &u); err != nil {
+		return err
+	}
+	if err := m.receivedUpdate(u); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (m *messageProcessor) receivedOrderBook(ob orderBook) error {
