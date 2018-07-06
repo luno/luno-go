@@ -72,32 +72,37 @@ func flatten(m map[string]order, reverse bool) []luno.OrderBookEntry {
 
 type UpdateCallback func(Update)
 
-type Conn struct {
+type connection struct {
 	keyID, keySecret string
 	pair             string
-	updateCallback   UpdateCallback
 
 	ws     *websocket.Conn
 	closed bool
 
+	MessageProcessor messageProcessor
+
+	mu sync.Mutex
+}
+
+type messageProcessor struct {
 	seq  int64
 	bids map[string]order
 	asks map[string]order
 
-	lastMessage time.Time
-
 	mu sync.Mutex
+
+	updateCallback UpdateCallback
 }
 
 // Dial initiates a connection to the streaming service and starts processing
 // data for the given market pair.
 // The connection will automatically reconnect on error.
-func Dial(keyID, keySecret, pair string, opts ...DialOption) (*Conn, error) {
+func Dial(keyID, keySecret, pair string, opts ...DialOption) (*connection, error) {
 	if keyID == "" || keySecret == "" {
 		return nil, errors.New("streaming: streaming API requires credentials")
 	}
 
-	c := &Conn{
+	c := &connection{
 		keyID:     keyID,
 		keySecret: keySecret,
 		pair:      pair,
@@ -113,7 +118,7 @@ func Dial(keyID, keySecret, pair string, opts ...DialOption) (*Conn, error) {
 var wsHost = flag.String(
 	"luno_websocket_host", "wss://ws.luno.com", "Luno API websocket host")
 
-func (c *Conn) manageForever() {
+func (c *connection) manageForever() {
 	attempts := 0
 	var lastAttempt time.Time
 	for {
@@ -127,7 +132,7 @@ func (c *Conn) manageForever() {
 		lastAttempt = time.Now()
 		attempts++
 		if err := c.connect(); err != nil {
-			log.Printf("luno/streaming: Connection error key=%s pair=%s: %v",
+			log.Printf("luno/streaming: connection error key=%s pair=%s: %v",
 				c.keyID, c.pair, err)
 		}
 
@@ -148,19 +153,18 @@ func (c *Conn) manageForever() {
 	}
 }
 
-func (c *Conn) connect() error {
+func (c *connection) connect() error {
 	url := *wsHost + "/api/1/stream/" + c.pair
 	ws, err := websocket.Dial(url, "", "http://localhost/")
 	if err != nil {
 		return err
 	}
+
 	defer func() {
 		ws.Close()
 		c.mu.Lock()
 		c.ws = nil
-		c.seq = 0
-		c.bids = nil
-		c.asks = nil
+		c.MessageProcessor.Reset()
 		c.mu.Unlock()
 	}()
 
@@ -178,7 +182,7 @@ func (c *Conn) connect() error {
 		return err
 	}
 
-	log.Printf("luno/streaming: Connection established key=%s pair=%s",
+	log.Printf("luno/streaming: connection established key=%s pair=%s",
 		c.keyID, c.pair)
 
 	go sendPings(ws)
@@ -197,9 +201,16 @@ func (c *Conn) connect() error {
 	}
 }
 
-func (c *Conn) handleMessage(message []byte) error {
+func (m *messageProcessor) Reset() {
+	m.mu.Lock()
+	m.seq = 0
+	m.bids = nil
+	m.asks = nil
+	m.mu.Unlock()
+}
+
+func (c *connection) handleMessage(message []byte) error {
 	if string(message) == "\"\"" {
-		c.receivedPing()
 		return nil
 	}
 
@@ -208,7 +219,7 @@ func (c *Conn) handleMessage(message []byte) error {
 		return err
 	}
 	if ob.Asks != nil || ob.Bids != nil {
-		if err := c.receivedOrderBook(ob); err != nil {
+		if err := c.MessageProcessor.receivedOrderBook(ob); err != nil {
 			return err
 		}
 		return nil
@@ -218,7 +229,7 @@ func (c *Conn) handleMessage(message []byte) error {
 	if err := json.Unmarshal(message, &u); err != nil {
 		return err
 	}
-	if err := c.receivedUpdate(u); err != nil {
+	if err := c.MessageProcessor.receivedUpdate(u); err != nil {
 		return err
 	}
 
@@ -239,13 +250,7 @@ func sendPing(ws *websocket.Conn) bool {
 	return websocket.Message.Send(ws, "") == nil
 }
 
-func (c *Conn) receivedPing() {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	c.lastMessage = time.Now()
-}
-
-func (c *Conn) receivedOrderBook(ob orderBook) error {
+func (m *messageProcessor) receivedOrderBook(ob orderBook) error {
 	bids, err := convertOrders(ob.Bids)
 	if err != nil {
 		return err
@@ -256,59 +261,57 @@ func (c *Conn) receivedOrderBook(ob orderBook) error {
 		return err
 	}
 
-	c.mu.Lock()
-	defer c.mu.Unlock()
+	m.mu.Lock()
+	defer m.mu.Unlock()
 
-	c.lastMessage = time.Now()
-	c.seq = ob.Sequence
-	c.bids = bids
-	c.asks = asks
+	m.seq = ob.Sequence
+	m.bids = bids
+	m.asks = asks
 	return nil
 }
 
-func (c *Conn) receivedUpdate(u Update) error {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+func (m *messageProcessor) receivedUpdate(u Update) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
 
-	if c.seq == 0 {
+	if m.seq == 0 {
 		// State not initialized so we can't update it.
 		return nil
 	}
 
-	if u.Sequence <= c.seq {
+	if u.Sequence <= m.seq {
 		// Old update. We can just discard it.
 		return nil
 	}
-	if u.Sequence != c.seq+1 {
+	if u.Sequence != m.seq+1 {
 		return errors.New("streaming: update received out of sequence")
 	}
 
 	// Process trades
 	for _, t := range u.TradeUpdates {
-		if err := c.processTrade(*t); err != nil {
+		if err := m.processTrade(*t); err != nil {
 			return err
 		}
 	}
 
 	// Process create
 	if u.CreateUpdate != nil {
-		if err := c.processCreate(*u.CreateUpdate); err != nil {
+		if err := m.processCreate(*u.CreateUpdate); err != nil {
 			return err
 		}
 	}
 
 	// Process delete
 	if u.DeleteUpdate != nil {
-		if err := c.processDelete(*u.DeleteUpdate); err != nil {
+		if err := m.processDelete(*u.DeleteUpdate); err != nil {
 			return err
 		}
 	}
 
-	c.lastMessage = time.Now()
-	c.seq = u.Sequence
+	m.seq = u.Sequence
 
-	if c.updateCallback != nil {
-		c.updateCallback(u)
+	if m.updateCallback != nil {
+		m.updateCallback(u)
 	}
 
 	return nil
@@ -336,12 +339,12 @@ func decTrade(m map[string]order, id string, base decimal.Decimal) (
 	return true, nil
 }
 
-func (c *Conn) processTrade(t TradeUpdate) error {
+func (m *messageProcessor) processTrade(t TradeUpdate) error {
 	if t.Base.Sign() <= 0 {
 		return errors.New("streaming: nonpositive trade")
 	}
 
-	ok, err := decTrade(c.bids, t.OrderID, t.Base)
+	ok, err := decTrade(m.bids, t.OrderID, t.Base)
 	if err != nil {
 		return err
 	}
@@ -349,7 +352,7 @@ func (c *Conn) processTrade(t TradeUpdate) error {
 		return nil
 	}
 
-	ok, err = decTrade(c.asks, t.OrderID, t.Base)
+	ok, err = decTrade(m.asks, t.OrderID, t.Base)
 	if err != nil {
 		return err
 	}
@@ -360,7 +363,7 @@ func (c *Conn) processTrade(t TradeUpdate) error {
 	return errors.New("streaming: trade for unknown order")
 }
 
-func (c *Conn) processCreate(u CreateUpdate) error {
+func (m *messageProcessor) processCreate(u CreateUpdate) error {
 	o := order{
 		ID:     u.OrderID,
 		Price:  u.Price,
@@ -368,9 +371,9 @@ func (c *Conn) processCreate(u CreateUpdate) error {
 	}
 
 	if u.Type == string(luno.OrderTypeBid) {
-		c.bids[o.ID] = o
+		m.bids[o.ID] = o
 	} else if u.Type == string(luno.OrderTypeAsk) {
-		c.asks[o.ID] = o
+		m.asks[o.ID] = o
 	} else {
 		return errors.New("streaming: unknown order type")
 	}
@@ -378,26 +381,26 @@ func (c *Conn) processCreate(u CreateUpdate) error {
 	return nil
 }
 
-func (c *Conn) processDelete(u DeleteUpdate) error {
-	delete(c.bids, u.OrderID)
-	delete(c.asks, u.OrderID)
+func (m *messageProcessor) processDelete(u DeleteUpdate) error {
+	delete(m.bids, u.OrderID)
+	delete(m.asks, u.OrderID)
 	return nil
 }
 
 // OrderBookSnapshot returns the latest order book.
-func (c *Conn) OrderBookSnapshot() (
+func (m *messageProcessor) OrderBookSnapshot() (
 	int64, []luno.OrderBookEntry, []luno.OrderBookEntry) {
 
-	c.mu.Lock()
-	defer c.mu.Unlock()
+	m.mu.Lock()
+	defer m.mu.Unlock()
 
-	bids := flatten(c.bids, true)
-	asks := flatten(c.asks, false)
-	return c.seq, bids, asks
+	bids := flatten(m.bids, true)
+	asks := flatten(m.asks, false)
+	return m.seq, bids, asks
 }
 
 // Close the connection.
-func (c *Conn) Close() {
+func (c *connection) Close() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
