@@ -220,11 +220,15 @@ func (c *Conn) connect() error {
 func sendPings(ws *websocket.Conn) {
 	defer ws.Close()
 	for {
-		if err := websocket.Message.Send(ws, ""); err != nil {
+		if !sendPing(ws) {
 			return
 		}
 		time.Sleep(time.Minute)
 	}
+}
+
+func sendPing(ws *websocket.Conn) bool {
+	return websocket.Message.Send(ws, "") == nil
 }
 
 func (c *Conn) receivedPing() {
