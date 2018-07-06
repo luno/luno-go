@@ -190,31 +190,39 @@ func (c *Conn) connect() error {
 			return err
 		}
 
-		if string(data) == "\"\"" {
-			c.receivedPing()
-			continue
-		}
-
-		var ob orderBook
-		if err := json.Unmarshal(data, &ob); err != nil {
-			return err
-		}
-		if ob.Asks != nil || ob.Bids != nil {
-			// Received an order book.
-			if err := c.receivedOrderBook(ob); err != nil {
-				return err
-			}
-			continue
-		}
-
-		var u Update
-		if err := json.Unmarshal(data, &u); err != nil {
-			return err
-		}
-		if err := c.receivedUpdate(u); err != nil {
+		err = c.handleMessage(data)
+		if err != nil {
 			return err
 		}
 	}
+}
+
+func (c *Conn) handleMessage(message []byte) error {
+	if string(message) == "\"\"" {
+		c.receivedPing()
+		return nil
+	}
+
+	var ob orderBook
+	if err := json.Unmarshal(message, &ob); err != nil {
+		return err
+	}
+	if ob.Asks != nil || ob.Bids != nil {
+		if err := c.receivedOrderBook(ob); err != nil {
+			return err
+		}
+		return nil
+	}
+
+	var u Update
+	if err := json.Unmarshal(message, &u); err != nil {
+		return err
+	}
+	if err := c.receivedUpdate(u); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func sendPings(ws *websocket.Conn) {
