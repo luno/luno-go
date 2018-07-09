@@ -10,12 +10,12 @@ import (
 	"sync"
 )
 
-func convertOrders(ol []*order) (map[string]order, error) {
+func convertOrders(ol []*order) map[string]order {
 	r := make(map[string]order)
 	for _, o := range ol {
 		r[o.ID] = *o
 	}
-	return r, nil
+	return r
 }
 
 type orderList []luno.OrderBookEntry
@@ -76,9 +76,7 @@ func (m *messageProcessor) HandleMessage(message []byte) error {
 		return err
 	}
 	if ob.Asks != nil || ob.Bids != nil {
-		if err := m.receivedOrderBook(ob); err != nil {
-			return err
-		}
+		m.receivedOrderBook(ob)
 		return nil
 	}
 
@@ -93,16 +91,9 @@ func (m *messageProcessor) HandleMessage(message []byte) error {
 	return nil
 }
 
-func (m *messageProcessor) receivedOrderBook(ob orderBook) error {
-	bids, err := convertOrders(ob.Bids)
-	if err != nil {
-		return err
-	}
-
-	asks, err := convertOrders(ob.Asks)
-	if err != nil {
-		return err
-	}
+func (m *messageProcessor) receivedOrderBook(ob orderBook) {
+	bids := convertOrders(ob.Bids)
+	asks := convertOrders(ob.Asks)
 
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -110,7 +101,6 @@ func (m *messageProcessor) receivedOrderBook(ob orderBook) error {
 	m.seq = ob.Sequence
 	m.bids = bids
 	m.asks = asks
-	return nil
 }
 
 func (m *messageProcessor) receivedUpdate(u Update) error {
@@ -118,33 +108,28 @@ func (m *messageProcessor) receivedUpdate(u Update) error {
 	defer m.mu.Unlock()
 
 	if m.seq == 0 {
-		// State not initialized so we can't update it.
 		return nil
 	}
 
 	if u.Sequence <= m.seq {
-		// Old update. We can just discard it.
 		return nil
 	}
 	if u.Sequence != m.seq+1 {
 		return errors.New("streaming: update received out of sequence")
 	}
 
-	// Process trades
 	for _, t := range u.TradeUpdates {
 		if err := m.processTrade(*t); err != nil {
 			return err
 		}
 	}
 
-	// Process create
 	if u.CreateUpdate != nil {
 		if err := m.processCreate(*u.CreateUpdate); err != nil {
 			return err
 		}
 	}
 
-	// Process delete
 	if u.DeleteUpdate != nil {
 		if err := m.processDelete(*u.DeleteUpdate); err != nil {
 			return err
