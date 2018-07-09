@@ -19,7 +19,14 @@ type orderbookStatistics struct {
 }
 
 func TestHandleMessageWithOrderbook(t *testing.T) {
-	mp := &messageProcessor{}
+	expectedCallbackCount := 0
+	var callbackCount int
+
+	mp := &messageProcessor{
+		updateCallback: func(update Update) {
+			callbackCount++
+		},
+	}
 
 	mp.HandleMessage([]byte("\"\""))
 	mp.HandleMessage(loadFromFile(t, "fixture_orderbook.json"))
@@ -39,20 +46,42 @@ func TestHandleMessageWithOrderbook(t *testing.T) {
 	if !reflect.DeepEqual(expected, actual) {
 		t.Errorf("Expected %v, got %v", expected, actual)
 	}
+
+	if expectedCallbackCount != callbackCount {
+		t.Errorf("Expected callback to be called %d times, instead of %d times", expectedCallbackCount, callbackCount)
+	}
 }
 
 func TestHandleMessageWithInvalidOrderbook(t *testing.T) {
-	mp := &messageProcessor{}
+	expectedCallbackCount := 0
+	var callbackCount int
+
+	mp := &messageProcessor{
+		updateCallback: func(update Update) {
+			callbackCount++
+		},
+	}
 
 	err := mp.HandleMessage([]byte(`{"sequence": "40413238","asks": {"id": "BXEMZSYBRFYHSCF","price": "92655.00","volume": "0.495769"}, "bids": [{"id": "BXBAYA687URRT28","price": "92654.00","volume": "1.834379"}]}`))
 
 	if err == nil {
 		t.Errorf("Expected error to be returned")
 	}
+
+	if expectedCallbackCount != callbackCount {
+		t.Errorf("Expected callback to be called %d times, instead of %d times", expectedCallbackCount, callbackCount)
+	}
 }
 
 func TestHandleMessageWithDelete(t *testing.T) {
-	mp := &messageProcessor{}
+	expectedCallbackCount := 1
+	var callbackCount int
+
+	mp := &messageProcessor{
+		updateCallback: func(update Update) {
+			callbackCount++
+		},
+	}
 
 	mp.HandleMessage(loadFromFile(t, "fixture_orderbook.json"))
 	mp.HandleMessage([]byte(`{"sequence":"40413239","trade_updates":null,"create_update":null,"delete_update":{"order_id":"BXNC7TGBBJJ885S"},"timestamp":1530887350936}`))
@@ -70,10 +99,21 @@ func TestHandleMessageWithDelete(t *testing.T) {
 	if !reflect.DeepEqual(expected, actual) {
 		t.Errorf("Expected %v, got %v", expected, actual)
 	}
+
+	if expectedCallbackCount != callbackCount {
+		t.Errorf("Expected callback to be called %d times, instead of %d times", expectedCallbackCount, callbackCount)
+	}
 }
 
 func TestHandleMessageWithInvalidDelete(t *testing.T) {
-	mp := &messageProcessor{}
+	expectedCallbackCount := 0
+	var callbackCount int
+
+	mp := &messageProcessor{
+		updateCallback: func(update Update) {
+			callbackCount++
+		},
+	}
 
 	mp.HandleMessage(loadFromFile(t, "fixture_orderbook.json"))
 	err := mp.HandleMessage([]byte(`{"sequence":"40413239","trade_updates":null,"create_update":null,"delete_update":{"order_id":{"order_id":"BXNC7TGBBJJ885S"}},"timestamp":1530887350936}`))
@@ -81,10 +121,21 @@ func TestHandleMessageWithInvalidDelete(t *testing.T) {
 	if err == nil {
 		t.Errorf("Expected error to be returned")
 	}
+
+	if expectedCallbackCount != callbackCount {
+		t.Errorf("Expected callback to be called %d times, instead of %d times", expectedCallbackCount, callbackCount)
+	}
 }
 
 func TestHandleMessageWithBuyTrade(t *testing.T) {
-	mp := &messageProcessor{}
+	expectedCallbackCount := 1
+	var callbackCount int
+
+	mp := &messageProcessor{
+		updateCallback: func(update Update) {
+			callbackCount++
+		},
+	}
 
 	mp.HandleMessage(loadFromFile(t, "fixture_orderbook.json"))
 	mp.HandleMessage([]byte(`{"sequence":"40413239","trade_updates":[{"base":"0.094976","counter":"8800.00128","maker_order_id":"BXEMZSYBRFYHSCF","taker_order_id":"BXGGSPFECZKFQ34","order_id":"BXEMZSYBRFYHSCF"}],"create_update":null,"delete_update":null,"timestamp":1530887351827}`))
@@ -102,10 +153,21 @@ func TestHandleMessageWithBuyTrade(t *testing.T) {
 	if !reflect.DeepEqual(expected, actual) {
 		t.Errorf("Expected %v, got %v", expected, actual)
 	}
+
+	if expectedCallbackCount != callbackCount {
+		t.Errorf("Expected callback to be called %d times, instead of %d times", expectedCallbackCount, callbackCount)
+	}
 }
 
 func TestHandleMessageWithNonpositiveBuyTrade(t *testing.T) {
-	mp := &messageProcessor{}
+	expectedCallbackCount := 0
+	var callbackCount int
+
+	mp := &messageProcessor{
+		updateCallback: func(update Update) {
+			callbackCount++
+		},
+	}
 
 	mp.HandleMessage(loadFromFile(t, "fixture_orderbook.json"))
 	err := mp.HandleMessage([]byte(`{"sequence":"40413239","trade_updates":[{"base":"-0.094976","counter":"8800.00128","maker_order_id":"BXEMZSYBRFYHSCF","taker_order_id":"BXGGSPFECZKFQ34","order_id":"BXEMZSYBRFYHSCF"}],"create_update":null,"delete_update":null,"timestamp":1530887351827}`))
@@ -113,10 +175,21 @@ func TestHandleMessageWithNonpositiveBuyTrade(t *testing.T) {
 	if err == nil {
 		t.Errorf("Expected error to be returned")
 	}
+
+	if expectedCallbackCount != callbackCount {
+		t.Errorf("Expected callback to be called %d times, instead of %d times", expectedCallbackCount, callbackCount)
+	}
 }
 
 func TestHandleMessageWithOversizedBuyTrade(t *testing.T) {
-	mp := &messageProcessor{}
+	expectedCallbackCount := 0
+	var callbackCount int
+
+	mp := &messageProcessor{
+		updateCallback: func(update Update) {
+			callbackCount++
+		},
+	}
 
 	mp.HandleMessage(loadFromFile(t, "fixture_orderbook.json"))
 	err := mp.HandleMessage([]byte(`{"sequence":"40413239","trade_updates":[{"base":"1.094976","counter":"8800.00128","maker_order_id":"BXEMZSYBRFYHSCF","taker_order_id":"BXGGSPFECZKFQ34","order_id":"BXEMZSYBRFYHSCF"}],"create_update":null,"delete_update":null,"timestamp":1530887351827}`))
@@ -124,10 +197,21 @@ func TestHandleMessageWithOversizedBuyTrade(t *testing.T) {
 	if err == nil {
 		t.Errorf("Expected error to be returned")
 	}
+
+	if expectedCallbackCount != callbackCount {
+		t.Errorf("Expected callback to be called %d times, instead of %d times", expectedCallbackCount, callbackCount)
+	}
 }
 
 func TestHandleMessageWithSellTrade(t *testing.T) {
-	mp := &messageProcessor{}
+	expectedCallbackCount := 1
+	var callbackCount int
+
+	mp := &messageProcessor{
+		updateCallback: func(update Update) {
+			callbackCount++
+		},
+	}
 
 	mp.HandleMessage(loadFromFile(t, "fixture_orderbook.json"))
 	mp.HandleMessage([]byte(`{"sequence":"40413239","trade_updates":[{"base":"1.834379","counter":"169962.55187","maker_order_id":"BXBAYA687URRT28","taker_order_id":"BXGGSPFECZKFQ34","order_id":"BXBAYA687URRT28"}],"create_update":null,"delete_update":null,"timestamp":1530887351827}`))
@@ -145,10 +229,21 @@ func TestHandleMessageWithSellTrade(t *testing.T) {
 	if !reflect.DeepEqual(expected, actual) {
 		t.Errorf("Expected %v, got %v", expected, actual)
 	}
+
+	if expectedCallbackCount != callbackCount {
+		t.Errorf("Expected callback to be called %d times, instead of %d times", expectedCallbackCount, callbackCount)
+	}
 }
 
 func TestHandleMessageWithOversizedSellTrade(t *testing.T) {
-	mp := &messageProcessor{}
+	expectedCallbackCount := 0
+	var callbackCount int
+
+	mp := &messageProcessor{
+		updateCallback: func(update Update) {
+			callbackCount++
+		},
+	}
 
 	mp.HandleMessage(loadFromFile(t, "fixture_orderbook.json"))
 	err := mp.HandleMessage([]byte(`{"sequence":"40413239","trade_updates":[{"base":"1.83438","counter":"169962.55187","maker_order_id":"BXBAYA687URRT28","taker_order_id":"BXGGSPFECZKFQ34","order_id":"BXBAYA687URRT28"}],"create_update":null,"delete_update":null,"timestamp":1530887351827}`))
@@ -156,10 +251,21 @@ func TestHandleMessageWithOversizedSellTrade(t *testing.T) {
 	if err == nil {
 		t.Errorf("Expected error to be returned")
 	}
+
+	if expectedCallbackCount != callbackCount {
+		t.Errorf("Expected callback to be called %d times, instead of %d times", expectedCallbackCount, callbackCount)
+	}
 }
 
 func TestHandleMessageWithTradeMatchingNoOrder(t *testing.T) {
-	mp := &messageProcessor{}
+	expectedCallbackCount := 0
+	var callbackCount int
+
+	mp := &messageProcessor{
+		updateCallback: func(update Update) {
+			callbackCount++
+		},
+	}
 
 	mp.HandleMessage(loadFromFile(t, "fixture_orderbook.json"))
 	err := mp.HandleMessage([]byte(`{"sequence":"40413239","trade_updates":[{"base":"1.83438","counter":"169962.55187","maker_order_id":"BX_INVALID","taker_order_id":"BXGGSPFECZKFQ34","order_id":"BX_INVALID"}],"create_update":null,"delete_update":null,"timestamp":1530887351827}`))
@@ -167,10 +273,21 @@ func TestHandleMessageWithTradeMatchingNoOrder(t *testing.T) {
 	if err == nil {
 		t.Errorf("Expected error to be returned")
 	}
+
+	if expectedCallbackCount != callbackCount {
+		t.Errorf("Expected callback to be called %d times, instead of %d times", expectedCallbackCount, callbackCount)
+	}
 }
 
 func TestHandleMessageWithCreateBid(t *testing.T) {
-	mp := &messageProcessor{}
+	expectedCallbackCount := 1
+	var callbackCount int
+
+	mp := &messageProcessor{
+		updateCallback: func(update Update) {
+			callbackCount++
+		},
+	}
 
 	mp.HandleMessage(loadFromFile(t, "fixture_orderbook.json"))
 	mp.HandleMessage([]byte(`{"sequence":"40413239","trade_updates":null,"create_update":{"order_id":"BXKQ7P9GK27486F","type":"BID","price":"88501.00","volume":"3.0485"},"delete_update":null,"timestamp":1530887351155}`))
@@ -188,10 +305,21 @@ func TestHandleMessageWithCreateBid(t *testing.T) {
 	if !reflect.DeepEqual(expected, actual) {
 		t.Errorf("Expected %v, got %v", expected, actual)
 	}
+
+	if expectedCallbackCount != callbackCount {
+		t.Errorf("Expected callback to be called %d times, instead of %d times", expectedCallbackCount, callbackCount)
+	}
 }
 
 func TestHandleMessageWithCreateAsk(t *testing.T) {
-	mp := &messageProcessor{}
+	expectedCallbackCount := 1
+	var callbackCount int
+
+	mp := &messageProcessor{
+		updateCallback: func(update Update) {
+			callbackCount++
+		},
+	}
 
 	mp.HandleMessage(loadFromFile(t, "fixture_orderbook.json"))
 	mp.HandleMessage([]byte(`{"sequence":"40413239","trade_updates":null,"create_update":{"order_id":"BXKQ7P9GK27486F","type":"ASK","price":"92655.00","volume":"3.0485"},"delete_update":null,"timestamp":1530887351155}`))
@@ -209,10 +337,21 @@ func TestHandleMessageWithCreateAsk(t *testing.T) {
 	if !reflect.DeepEqual(expected, actual) {
 		t.Errorf("Expected %v, got %v", expected, actual)
 	}
+
+	if expectedCallbackCount != callbackCount {
+		t.Errorf("Expected callback to be called %d times, instead of %d times", expectedCallbackCount, callbackCount)
+	}
 }
 
 func TestHandleMessageWithCreateInvalidOrderType(t *testing.T) {
-	mp := &messageProcessor{}
+	expectedCallbackCount := 0
+	var callbackCount int
+
+	mp := &messageProcessor{
+		updateCallback: func(update Update) {
+			callbackCount++
+		},
+	}
 
 	mp.HandleMessage(loadFromFile(t, "fixture_orderbook.json"))
 	err := mp.HandleMessage([]byte(`{"sequence":"40413239","trade_updates":null,"create_update":{"order_id":"BXKQ7P9GK27486F","type":"INVALID","price":"92655.00","volume":"3.0485"},"delete_update":null,"timestamp":1530887351155}`))
@@ -220,10 +359,21 @@ func TestHandleMessageWithCreateInvalidOrderType(t *testing.T) {
 	if err == nil {
 		t.Errorf("Expected error to be returned")
 	}
+
+	if expectedCallbackCount != callbackCount {
+		t.Errorf("Expected callback to be called %d times, instead of %d times", expectedCallbackCount, callbackCount)
+	}
 }
 
 func TestHandleMessageWithUpdateBeforeOrderbook(t *testing.T) {
-	mp := &messageProcessor{}
+	expectedCallbackCount := 0
+	var callbackCount int
+
+	mp := &messageProcessor{
+		updateCallback: func(update Update) {
+			callbackCount++
+		},
+	}
 
 	mp.HandleMessage([]byte(`{"sequence":"40413239","trade_updates":null,"create_update":{"order_id":"BXKQ7P9GK27486F","type":"BID","price":"88501.00","volume":"3.0485"},"delete_update":null,"timestamp":1530887351155}`))
 
@@ -238,10 +388,21 @@ func TestHandleMessageWithUpdateBeforeOrderbook(t *testing.T) {
 	if nil != actualAsks {
 		t.Errorf("Expected asks to be nil, got %v", actualAsks)
 	}
+
+	if expectedCallbackCount != callbackCount {
+		t.Errorf("Expected callback to be called %d times, instead of %d times", expectedCallbackCount, callbackCount)
+	}
 }
 
 func TestHandleMessageWithPreviousUpdate(t *testing.T) {
-	mp := &messageProcessor{}
+	expectedCallbackCount := 0
+	var callbackCount int
+
+	mp := &messageProcessor{
+		updateCallback: func(update Update) {
+			callbackCount++
+		},
+	}
 
 	mp.HandleMessage(loadFromFile(t, "fixture_orderbook.json"))
 	mp.HandleMessage([]byte(`{"sequence":"40413237","trade_updates":null,"create_update":{"order_id":"BXKQ7P9GK27486F","type":"BID","price":"88501.00","volume":"3.0485"},"delete_update":null,"timestamp":1530887351155}`))
@@ -260,10 +421,21 @@ func TestHandleMessageWithPreviousUpdate(t *testing.T) {
 	if !reflect.DeepEqual(expected, actual) {
 		t.Errorf("Expected %v, got %v", expected, actual)
 	}
+
+	if expectedCallbackCount != callbackCount {
+		t.Errorf("Expected callback to be called %d times, instead of %d times", expectedCallbackCount, callbackCount)
+	}
 }
 
 func TestHandleMessageWithOutOfSequenceUpdate(t *testing.T) {
-	mp := &messageProcessor{}
+	expectedCallbackCount := 0
+	var callbackCount int
+
+	mp := &messageProcessor{
+		updateCallback: func(update Update) {
+			callbackCount++
+		},
+	}
 
 	mp.HandleMessage(loadFromFile(t, "fixture_orderbook.json"))
 	err := mp.HandleMessage([]byte(`{"sequence":"40413240","trade_updates":null,"create_update":{"order_id":"BXKQ7P9GK27486F","type":"BID","price":"88501.00","volume":"3.0485"},"delete_update":null,"timestamp":1530887351155}`))
@@ -271,10 +443,21 @@ func TestHandleMessageWithOutOfSequenceUpdate(t *testing.T) {
 	if err == nil {
 		t.Errorf("Expected error to be returned")
 	}
+
+	if expectedCallbackCount != callbackCount {
+		t.Errorf("Expected callback to be called %d times, instead of %d times", expectedCallbackCount, callbackCount)
+	}
 }
 
 func TestReset(t *testing.T) {
-	mp := &messageProcessor{}
+	expectedCallbackCount := 0
+	var callbackCount int
+
+	mp := &messageProcessor{
+		updateCallback: func(update Update) {
+			callbackCount++
+		},
+	}
 
 	mp.HandleMessage(loadFromFile(t, "fixture_orderbook.json"))
 	mp.Reset()
@@ -289,6 +472,10 @@ func TestReset(t *testing.T) {
 	}
 	if nil != actualAsks {
 		t.Errorf("Expected asks to be nil, got %v", actualAsks)
+	}
+
+	if expectedCallbackCount != callbackCount {
+		t.Errorf("Expected callback to be called %d times, instead of %d times", expectedCallbackCount, callbackCount)
 	}
 }
 
