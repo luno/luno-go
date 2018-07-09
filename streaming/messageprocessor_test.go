@@ -169,7 +169,7 @@ func TestHandleMessageWithTradeMatchingNoOrder(t *testing.T) {
 	}
 }
 
-func TestHandleMessageWithCreate(t *testing.T) {
+func TestHandleMessageWithCreateBid(t *testing.T) {
 	mp := &messageProcessor{}
 
 	mp.HandleMessage(loadFromFile(t, "fixture_orderbook.json"))
@@ -187,6 +187,38 @@ func TestHandleMessageWithCreate(t *testing.T) {
 
 	if !reflect.DeepEqual(expected, actual) {
 		t.Errorf("Expected %v, got %v", expected, actual)
+	}
+}
+
+func TestHandleMessageWithCreateAsk(t *testing.T) {
+	mp := &messageProcessor{}
+
+	mp.HandleMessage(loadFromFile(t, "fixture_orderbook.json"))
+	mp.HandleMessage([]byte(`{"sequence":"40413239","trade_updates":null,"create_update":{"order_id":"BXKQ7P9GK27486F","type":"ASK","price":"92655.00","volume":"3.0485"},"delete_update":null,"timestamp":1530887351155}`))
+
+	expected := orderbookStatistics{
+		Sequence:  40413239,
+		AskCount:  9215,
+		BidCount:  3248,
+		AskVolume: decimal.New(big.NewInt(787863924), 6),
+		BidVolume: decimal.New(big.NewInt(2695234253), 6),
+	}
+
+	actual := calculateOrderbookStatistics(mp.OrderBookSnapshot())
+
+	if !reflect.DeepEqual(expected, actual) {
+		t.Errorf("Expected %v, got %v", expected, actual)
+	}
+}
+
+func TestHandleMessageWithCreateInvalidOrderType(t *testing.T) {
+	mp := &messageProcessor{}
+
+	mp.HandleMessage(loadFromFile(t, "fixture_orderbook.json"))
+	err := mp.HandleMessage([]byte(`{"sequence":"40413239","trade_updates":null,"create_update":{"order_id":"BXKQ7P9GK27486F","type":"INVALID","price":"92655.00","volume":"3.0485"},"delete_update":null,"timestamp":1530887351155}`))
+
+	if err == nil {
+		t.Errorf("Expected error to be returned")
 	}
 }
 

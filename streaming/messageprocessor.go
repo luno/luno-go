@@ -131,9 +131,7 @@ func (m *messageProcessor) receivedUpdate(u Update) error {
 	}
 
 	if u.DeleteUpdate != nil {
-		if err := m.processDelete(*u.DeleteUpdate); err != nil {
-			return err
-		}
+		m.processDelete(*u.DeleteUpdate)
 	}
 
 	m.seq = u.Sequence
@@ -209,10 +207,9 @@ func (m *messageProcessor) processCreate(u CreateUpdate) error {
 	return nil
 }
 
-func (m *messageProcessor) processDelete(u DeleteUpdate) error {
+func (m *messageProcessor) processDelete(u DeleteUpdate) {
 	delete(m.bids, u.OrderID)
 	delete(m.asks, u.OrderID)
-	return nil
 }
 
 // OrderBookSnapshot returns the latest order book.
