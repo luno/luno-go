@@ -83,7 +83,7 @@ func TestHandleMessageWithInvalidDelete(t *testing.T) {
 	}
 }
 
-func TestHandleMessageWithTrade(t *testing.T) {
+func TestHandleMessageWithBuyTrade(t *testing.T) {
 	mp := &messageProcessor{}
 
 	mp.HandleMessage(loadFromFile(t, "fixture_orderbook.json"))
@@ -104,11 +104,65 @@ func TestHandleMessageWithTrade(t *testing.T) {
 	}
 }
 
-func TestHandleMessageWithNonpositiveTrade(t *testing.T) {
+func TestHandleMessageWithNonpositiveBuyTrade(t *testing.T) {
 	mp := &messageProcessor{}
 
 	mp.HandleMessage(loadFromFile(t, "fixture_orderbook.json"))
 	err := mp.HandleMessage([]byte(`{"sequence":"40413239","trade_updates":[{"base":"-0.094976","counter":"8800.00128","maker_order_id":"BXEMZSYBRFYHSCF","taker_order_id":"BXGGSPFECZKFQ34","order_id":"BXEMZSYBRFYHSCF"}],"create_update":null,"delete_update":null,"timestamp":1530887351827}`))
+
+	if err == nil {
+		t.Errorf("Expected error to be returned")
+	}
+}
+
+func TestHandleMessageWithOversizedBuyTrade(t *testing.T) {
+	mp := &messageProcessor{}
+
+	mp.HandleMessage(loadFromFile(t, "fixture_orderbook.json"))
+	err := mp.HandleMessage([]byte(`{"sequence":"40413239","trade_updates":[{"base":"1.094976","counter":"8800.00128","maker_order_id":"BXEMZSYBRFYHSCF","taker_order_id":"BXGGSPFECZKFQ34","order_id":"BXEMZSYBRFYHSCF"}],"create_update":null,"delete_update":null,"timestamp":1530887351827}`))
+
+	if err == nil {
+		t.Errorf("Expected error to be returned")
+	}
+}
+
+func TestHandleMessageWithSellTrade(t *testing.T) {
+	mp := &messageProcessor{}
+
+	mp.HandleMessage(loadFromFile(t, "fixture_orderbook.json"))
+	mp.HandleMessage([]byte(`{"sequence":"40413239","trade_updates":[{"base":"1.834379","counter":"169962.55187","maker_order_id":"BXBAYA687URRT28","taker_order_id":"BXGGSPFECZKFQ34","order_id":"BXBAYA687URRT28"}],"create_update":null,"delete_update":null,"timestamp":1530887351827}`))
+
+	expected := orderbookStatistics{
+		Sequence:  40413239,
+		AskCount:  9214,
+		BidCount:  3247,
+		AskVolume: decimal.New(big.NewInt(784815424), 6),
+		BidVolume: decimal.New(big.NewInt(2693399874), 6),
+	}
+
+	actual := calculateOrderbookStatistics(mp.OrderBookSnapshot())
+
+	if !reflect.DeepEqual(expected, actual) {
+		t.Errorf("Expected %v, got %v", expected, actual)
+	}
+}
+
+func TestHandleMessageWithOversizedSellTrade(t *testing.T) {
+	mp := &messageProcessor{}
+
+	mp.HandleMessage(loadFromFile(t, "fixture_orderbook.json"))
+	err := mp.HandleMessage([]byte(`{"sequence":"40413239","trade_updates":[{"base":"1.83438","counter":"169962.55187","maker_order_id":"BXBAYA687URRT28","taker_order_id":"BXGGSPFECZKFQ34","order_id":"BXBAYA687URRT28"}],"create_update":null,"delete_update":null,"timestamp":1530887351827}`))
+
+	if err == nil {
+		t.Errorf("Expected error to be returned")
+	}
+}
+
+func TestHandleMessageWithTradeMatchingNoOrder(t *testing.T) {
+	mp := &messageProcessor{}
+
+	mp.HandleMessage(loadFromFile(t, "fixture_orderbook.json"))
+	err := mp.HandleMessage([]byte(`{"sequence":"40413239","trade_updates":[{"base":"1.83438","counter":"169962.55187","maker_order_id":"BX_INVALID","taker_order_id":"BXGGSPFECZKFQ34","order_id":"BX_INVALID"}],"create_update":null,"delete_update":null,"timestamp":1530887351827}`))
 
 	if err == nil {
 		t.Errorf("Expected error to be returned")
