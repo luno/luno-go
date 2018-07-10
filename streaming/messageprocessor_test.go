@@ -23,7 +23,7 @@ func TestHandleMessageWithOrderbook(t *testing.T) {
 	var callbackCount int
 
 	mp := &messageProcessor{
-		updateCallback: func(update Update) {
+		updateCallback: func(update UpdateMessage) {
 			callbackCount++
 		},
 	}
@@ -41,7 +41,7 @@ func TestHandleMessageWithOrderbook(t *testing.T) {
 		BidVolume: decimal.New(big.NewInt(2695234253), 6),
 	}
 
-	actual := calculateOrderbookStatistics(mp.OrderBookSnapshot())
+	actual := calculateOrderbookStatistics(mp.orderbook.GetSnapshot())
 
 	if !reflect.DeepEqual(expected, actual) {
 		t.Errorf("Expected %v, got %v", expected, actual)
@@ -57,7 +57,7 @@ func TestHandleMessageWithInvalidOrderbook(t *testing.T) {
 	var callbackCount int
 
 	mp := &messageProcessor{
-		updateCallback: func(update Update) {
+		updateCallback: func(update UpdateMessage) {
 			callbackCount++
 		},
 	}
@@ -78,7 +78,7 @@ func TestHandleMessageWithDelete(t *testing.T) {
 	var callbackCount int
 
 	mp := &messageProcessor{
-		updateCallback: func(update Update) {
+		updateCallback: func(update UpdateMessage) {
 			callbackCount++
 		},
 	}
@@ -94,7 +94,7 @@ func TestHandleMessageWithDelete(t *testing.T) {
 		BidVolume: decimal.New(big.NewInt(2692184753), 6),
 	}
 
-	actual := calculateOrderbookStatistics(mp.OrderBookSnapshot())
+	actual := calculateOrderbookStatistics(mp.orderbook.GetSnapshot())
 
 	if !reflect.DeepEqual(expected, actual) {
 		t.Errorf("Expected %v, got %v", expected, actual)
@@ -110,7 +110,7 @@ func TestHandleMessageWithInvalidDelete(t *testing.T) {
 	var callbackCount int
 
 	mp := &messageProcessor{
-		updateCallback: func(update Update) {
+		updateCallback: func(update UpdateMessage) {
 			callbackCount++
 		},
 	}
@@ -132,7 +132,7 @@ func TestHandleMessageWithBuyTrade(t *testing.T) {
 	var callbackCount int
 
 	mp := &messageProcessor{
-		updateCallback: func(update Update) {
+		updateCallback: func(update UpdateMessage) {
 			callbackCount++
 		},
 	}
@@ -148,7 +148,7 @@ func TestHandleMessageWithBuyTrade(t *testing.T) {
 		BidVolume: decimal.New(big.NewInt(2695234253), 6),
 	}
 
-	actual := calculateOrderbookStatistics(mp.OrderBookSnapshot())
+	actual := calculateOrderbookStatistics(mp.orderbook.GetSnapshot())
 
 	if !reflect.DeepEqual(expected, actual) {
 		t.Errorf("Expected %v, got %v", expected, actual)
@@ -164,7 +164,7 @@ func TestHandleMessageWithNonpositiveBuyTrade(t *testing.T) {
 	var callbackCount int
 
 	mp := &messageProcessor{
-		updateCallback: func(update Update) {
+		updateCallback: func(update UpdateMessage) {
 			callbackCount++
 		},
 	}
@@ -186,7 +186,7 @@ func TestHandleMessageWithOversizedBuyTrade(t *testing.T) {
 	var callbackCount int
 
 	mp := &messageProcessor{
-		updateCallback: func(update Update) {
+		updateCallback: func(update UpdateMessage) {
 			callbackCount++
 		},
 	}
@@ -208,7 +208,7 @@ func TestHandleMessageWithSellTrade(t *testing.T) {
 	var callbackCount int
 
 	mp := &messageProcessor{
-		updateCallback: func(update Update) {
+		updateCallback: func(update UpdateMessage) {
 			callbackCount++
 		},
 	}
@@ -224,7 +224,7 @@ func TestHandleMessageWithSellTrade(t *testing.T) {
 		BidVolume: decimal.New(big.NewInt(2693399874), 6),
 	}
 
-	actual := calculateOrderbookStatistics(mp.OrderBookSnapshot())
+	actual := calculateOrderbookStatistics(mp.orderbook.GetSnapshot())
 
 	if !reflect.DeepEqual(expected, actual) {
 		t.Errorf("Expected %v, got %v", expected, actual)
@@ -240,7 +240,7 @@ func TestHandleMessageWithOversizedSellTrade(t *testing.T) {
 	var callbackCount int
 
 	mp := &messageProcessor{
-		updateCallback: func(update Update) {
+		updateCallback: func(update UpdateMessage) {
 			callbackCount++
 		},
 	}
@@ -262,7 +262,7 @@ func TestHandleMessageWithTradeMatchingNoOrder(t *testing.T) {
 	var callbackCount int
 
 	mp := &messageProcessor{
-		updateCallback: func(update Update) {
+		updateCallback: func(update UpdateMessage) {
 			callbackCount++
 		},
 	}
@@ -284,7 +284,7 @@ func TestHandleMessageWithCreateBid(t *testing.T) {
 	var callbackCount int
 
 	mp := &messageProcessor{
-		updateCallback: func(update Update) {
+		updateCallback: func(update UpdateMessage) {
 			callbackCount++
 		},
 	}
@@ -300,7 +300,7 @@ func TestHandleMessageWithCreateBid(t *testing.T) {
 		BidVolume: decimal.New(big.NewInt(2698282753), 6),
 	}
 
-	actual := calculateOrderbookStatistics(mp.OrderBookSnapshot())
+	actual := calculateOrderbookStatistics(mp.orderbook.GetSnapshot())
 
 	if !reflect.DeepEqual(expected, actual) {
 		t.Errorf("Expected %v, got %v", expected, actual)
@@ -316,7 +316,7 @@ func TestHandleMessageWithCreateAsk(t *testing.T) {
 	var callbackCount int
 
 	mp := &messageProcessor{
-		updateCallback: func(update Update) {
+		updateCallback: func(update UpdateMessage) {
 			callbackCount++
 		},
 	}
@@ -332,7 +332,7 @@ func TestHandleMessageWithCreateAsk(t *testing.T) {
 		BidVolume: decimal.New(big.NewInt(2695234253), 6),
 	}
 
-	actual := calculateOrderbookStatistics(mp.OrderBookSnapshot())
+	actual := calculateOrderbookStatistics(mp.orderbook.GetSnapshot())
 
 	if !reflect.DeepEqual(expected, actual) {
 		t.Errorf("Expected %v, got %v", expected, actual)
@@ -348,7 +348,7 @@ func TestHandleMessageWithCreateInvalidOrderType(t *testing.T) {
 	var callbackCount int
 
 	mp := &messageProcessor{
-		updateCallback: func(update Update) {
+		updateCallback: func(update UpdateMessage) {
 			callbackCount++
 		},
 	}
@@ -370,14 +370,14 @@ func TestHandleMessageWithUpdateBeforeOrderbook(t *testing.T) {
 	var callbackCount int
 
 	mp := &messageProcessor{
-		updateCallback: func(update Update) {
+		updateCallback: func(update UpdateMessage) {
 			callbackCount++
 		},
 	}
 
 	mp.HandleMessage([]byte(`{"sequence":"40413239","trade_updates":null,"create_update":{"order_id":"BXKQ7P9GK27486F","type":"BID","price":"88501.00","volume":"3.0485"},"delete_update":null,"timestamp":1530887351155}`))
 
-	actualSeq, actualBids, actualAsks := mp.OrderBookSnapshot()
+	actualSeq, actualBids, actualAsks := mp.orderbook.GetSnapshot()
 
 	if 0 != actualSeq {
 		t.Errorf("Expected sequence to be 0, got %v", actualSeq)
@@ -399,7 +399,7 @@ func TestHandleMessageWithPreviousUpdate(t *testing.T) {
 	var callbackCount int
 
 	mp := &messageProcessor{
-		updateCallback: func(update Update) {
+		updateCallback: func(update UpdateMessage) {
 			callbackCount++
 		},
 	}
@@ -416,7 +416,7 @@ func TestHandleMessageWithPreviousUpdate(t *testing.T) {
 		BidVolume: decimal.New(big.NewInt(2695234253), 6),
 	}
 
-	actual := calculateOrderbookStatistics(mp.OrderBookSnapshot())
+	actual := calculateOrderbookStatistics(mp.orderbook.GetSnapshot())
 
 	if !reflect.DeepEqual(expected, actual) {
 		t.Errorf("Expected %v, got %v", expected, actual)
@@ -432,7 +432,7 @@ func TestHandleMessageWithOutOfSequenceUpdate(t *testing.T) {
 	var callbackCount int
 
 	mp := &messageProcessor{
-		updateCallback: func(update Update) {
+		updateCallback: func(update UpdateMessage) {
 			callbackCount++
 		},
 	}
@@ -454,7 +454,7 @@ func TestReset(t *testing.T) {
 	var callbackCount int
 
 	mp := &messageProcessor{
-		updateCallback: func(update Update) {
+		updateCallback: func(update UpdateMessage) {
 			callbackCount++
 		},
 	}
@@ -462,7 +462,7 @@ func TestReset(t *testing.T) {
 	mp.HandleMessage(loadFromFile(t, "fixture_orderbook.json"))
 	mp.Reset()
 
-	actualSeq, actualBids, actualAsks := mp.OrderBookSnapshot()
+	actualSeq, actualBids, actualAsks := mp.orderbook.GetSnapshot()
 
 	if 0 != actualSeq {
 		t.Errorf("Expected sequence to be 0, got %v", actualSeq)

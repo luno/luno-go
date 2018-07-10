@@ -3,32 +3,9 @@ package streaming
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/luno/luno-go"
-	"github.com/luno/luno-go/decimal"
 	"sort"
-	"sync"
 )
-
-func convertOrders(ol []*order) map[string]order {
-	r := make(map[string]order)
-	for _, o := range ol {
-		r[o.ID] = *o
-	}
-	return r
-}
-
-type orderList []luno.OrderBookEntry
-
-func (ol orderList) Less(i, j int) bool {
-	return ol[i].Price.Cmp(ol[j].Price) < 0
-}
-func (ol orderList) Swap(i, j int) {
-	ol[i], ol[j] = ol[j], ol[i]
-}
-func (ol orderList) Len() int {
-	return len(ol)
-}
 
 func flatten(m map[string]order, reverse bool) []luno.OrderBookEntry {
 	var ol []luno.OrderBookEntry
@@ -46,24 +23,15 @@ func flatten(m map[string]order, reverse bool) []luno.OrderBookEntry {
 	return ol
 }
 
-type UpdateCallback func(Update)
+type UpdateCallback func(UpdateMessage)
 
 type messageProcessor struct {
-	seq  int64
-	bids map[string]order
-	asks map[string]order
-
-	mu sync.Mutex
-
+	orderbook      orderbookState
 	updateCallback UpdateCallback
 }
 
 func (m *messageProcessor) Reset() {
-	m.mu.Lock()
-	m.seq = 0
-	m.bids = nil
-	m.asks = nil
-	m.mu.Unlock()
+	m.orderbook.Reset()
 }
 
 func (m *messageProcessor) HandleMessage(message []byte) error {
@@ -71,16 +39,16 @@ func (m *messageProcessor) HandleMessage(message []byte) error {
 		return nil
 	}
 
-	var ob orderBook
+	var ob orderbookMessage
 	if err := json.Unmarshal(message, &ob); err != nil {
 		return err
 	}
 	if ob.Asks != nil || ob.Bids != nil {
-		m.receivedOrderBook(ob)
+		m.orderbook.Set(ob.Sequence, ob.Bids, ob.Asks)
 		return nil
 	}
 
-	var u Update
+	var u UpdateMessage
 	if err := json.Unmarshal(message, &u); err != nil {
 		return err
 	}
@@ -91,30 +59,19 @@ func (m *messageProcessor) HandleMessage(message []byte) error {
 	return nil
 }
 
-func (m *messageProcessor) receivedOrderBook(ob orderBook) {
-	bids := convertOrders(ob.Bids)
-	asks := convertOrders(ob.Asks)
+func (m *messageProcessor) receivedUpdate(u UpdateMessage) error {
+	m.orderbook.Lock()
+	defer m.orderbook.Unlock()
 
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	m.seq = ob.Sequence
-	m.bids = bids
-	m.asks = asks
-}
-
-func (m *messageProcessor) receivedUpdate(u Update) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	if m.seq == 0 {
+	if m.orderbook.GetStateId() == 0 {
 		return nil
 	}
 
-	if u.Sequence <= m.seq {
+	if u.Sequence <= m.orderbook.GetStateId() {
 		return nil
 	}
-	if u.Sequence != m.seq+1 {
+
+	if u.Sequence != m.orderbook.GetStateId()+1 {
 		return errors.New("streaming: update received out of sequence")
 	}
 
@@ -131,95 +88,38 @@ func (m *messageProcessor) receivedUpdate(u Update) error {
 	}
 
 	if u.DeleteUpdate != nil {
-		m.processDelete(*u.DeleteUpdate)
+		m.orderbook.RemoveOrder(u.DeleteUpdate.OrderID)
 	}
 
-	m.seq = u.Sequence
+	m.orderbook.SetStateId(u.Sequence)
 
 	if m.updateCallback != nil {
-		m.updateCallback(u)
+		go m.updateCallback(u)
 	}
 
 	return nil
 }
 
-func decTrade(m map[string]order, id string, base decimal.Decimal) (
-	bool, error) {
-
-	o, ok := m[id]
-	if !ok {
-		return false, nil
-	}
-
-	o.Volume = o.Volume.Add(base.Neg())
-
-	if o.Volume.Sign() < 0 {
-		return false, fmt.Errorf("streaming: negative volume: %s", o.Volume)
-	}
-
-	if o.Volume.Sign() == 0 {
-		delete(m, id)
-	} else {
-		m[id] = o
-	}
-	return true, nil
-}
-
-func (m *messageProcessor) processTrade(t TradeUpdate) error {
+func (m *messageProcessor) processTrade(t TradeUpdateMessage) error {
 	if t.Base.Sign() <= 0 {
 		return errors.New("streaming: nonpositive trade")
 	}
 
-	ok, err := decTrade(m.bids, t.OrderID, t.Base)
-	if err != nil {
-		return err
-	}
-	if ok {
-		return nil
-	}
-
-	ok, err = decTrade(m.asks, t.OrderID, t.Base)
-	if err != nil {
-		return err
-	}
-	if ok {
-		return nil
-	}
-
-	return errors.New("streaming: trade for unknown order")
+	return m.orderbook.DecrementOrder(t.OrderID, t.Base)
 }
 
-func (m *messageProcessor) processCreate(u CreateUpdate) error {
+func (m *messageProcessor) processCreate(u CreateUpdateMessage) error {
 	o := order{
 		ID:     u.OrderID,
 		Price:  u.Price,
 		Volume: u.Volume,
 	}
 
-	if u.Type == string(luno.OrderTypeBid) {
-		m.bids[o.ID] = o
-	} else if u.Type == string(luno.OrderTypeAsk) {
-		m.asks[o.ID] = o
-	} else {
+	if u.Type != string(luno.OrderTypeBid) && u.Type != string(luno.OrderTypeAsk) {
 		return errors.New("streaming: unknown order type")
 	}
 
+	m.orderbook.AddOrder(luno.OrderType(u.Type), o)
+
 	return nil
-}
-
-func (m *messageProcessor) processDelete(u DeleteUpdate) {
-	delete(m.bids, u.OrderID)
-	delete(m.asks, u.OrderID)
-}
-
-// OrderBookSnapshot returns the latest order book.
-func (m *messageProcessor) OrderBookSnapshot() (
-	int64, []luno.OrderBookEntry, []luno.OrderBookEntry) {
-
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	bids := flatten(m.bids, true)
-	asks := flatten(m.asks, false)
-	return m.seq, bids, asks
 }
