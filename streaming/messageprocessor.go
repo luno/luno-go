@@ -95,7 +95,7 @@ func (m *messageProcessor) receivedUpdate(u UpdateMessage) error {
 	m.orderbook.SetStateId(u.Sequence)
 
 	if m.updateCallback != nil {
-		go m.updateCallback(u)
+		m.updateCallback(u)
 	}
 
 	return nil
