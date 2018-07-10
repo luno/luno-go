@@ -3,9 +3,10 @@ package streaming
 import (
 	"errors"
 	"fmt"
+	"sync"
+
 	"github.com/luno/luno-go"
 	"github.com/luno/luno-go/decimal"
-	"sync"
 )
 
 type orderList []luno.OrderBookEntry

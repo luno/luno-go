@@ -3,8 +3,9 @@ package streaming
 import (
 	"encoding/json"
 	"errors"
-	"github.com/luno/luno-go"
 	"sort"
+
+	"github.com/luno/luno-go"
 )
 
 func flatten(m map[string]order, reverse bool) []luno.OrderBookEntry {

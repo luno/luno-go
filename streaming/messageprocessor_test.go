@@ -1,13 +1,14 @@
 package streaming
 
 import (
-	"github.com/luno/luno-go"
-	"github.com/luno/luno-go/decimal"
 	"io/ioutil"
 	"math/big"
 	"path/filepath"
 	"reflect"
 	"testing"
+
+	"github.com/luno/luno-go"
+	"github.com/luno/luno-go/decimal"
 )
 
 type orderbookStatistics struct {

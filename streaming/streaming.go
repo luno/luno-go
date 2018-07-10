@@ -2,18 +2,25 @@
 Package streaming implements a client for the Luno Streaming API.
 
 Example:
+func main() {
+	callback := func (update streaming.Update) {
+	log.Print(".")
+	}
 
-	c, err := streaming.Dial(keyID, keySecret, "XBTZAR")
+	c, err := streaming.Dial(keyId, keySecret, pair, streaming.WithUpdateCallback(callback))
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer c.Close()
 
 	for {
-		seq, bids, asks := c.OrderBookSnapshot()
-		log.Printf("%d: %v %v\n", seq, bids[0], asks[0])
-		time.Sleep(time.Minute)
+		time.Sleep(time.Second * 5)
+		seq, bids, asks := c.MessageProcessor.OrderBookSnapshot()
+		if seq != 0 {
+			log.Printf("%d: %v %v\n", seq, bids[0], asks[0])
+		}
 	}
+}
 */
 package streaming
 
