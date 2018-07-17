@@ -474,13 +474,47 @@ type GetOrderBookResponse struct {
 	Timestamp int64            `json:"timestamp"`
 }
 
-// GetOrderBook makes a call to GET /api/1/orderbook.
+// GetOrderBook makes a call to GET /api/1/orderbook_top.
 //
-// Returns a list of bids and asks in the order book. Ask orders are sorted by
-// price ascending. Bid orders are sorted by price descending. Note that
-// multiple orders at the same price are not necessarily conflated.
+// Returns a list of the top 100 bids and asks in the order book.
+// Ask orders are sorted by price ascending.
+// Bid orders are sorted by price descending.
+// Orders of the same price are aggregated.
 func (cl *Client) GetOrderBook(ctx context.Context, req *GetOrderBookRequest) (*GetOrderBookResponse, error) {
 	var res GetOrderBookResponse
+	err := cl.do(ctx, "GET", "/api/1/orderbook_top", req, &res, false)
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+// GetOrderBookFullRequest is the request struct for GetOrderBookFull.
+type GetOrderBookFullRequest struct {
+	// Currency pair
+	//
+	// required: true
+	Pair string `json:"pair" url:"pair"`
+}
+
+// GetOrderBookFullResponse is the response struct for GetOrderBookFull.
+type GetOrderBookFullResponse struct {
+	Asks      []OrderBookEntry `json:"asks"`
+	Bids      []OrderBookEntry `json:"bids"`
+	Timestamp int64            `json:"timestamp"`
+}
+
+// GetOrderBookFull makes a call to GET /api/1/orderbook.
+//
+// Returns a list of all bids and asks in the order book.
+// Ask orders are sorted by price ascending.
+// Bid orders are sorted by price descending.
+// Multiple orders at the same price are not aggregated.
+//
+// Warning: This may return a large amount of data. Generally you should rather
+// use GetOrderBook or the Streaming API.
+func (cl *Client) GetOrderBookFull(ctx context.Context, req *GetOrderBookFullRequest) (*GetOrderBookFullResponse, error) {
+	var res GetOrderBookFullResponse
 	err := cl.do(ctx, "GET", "/api/1/orderbook", req, &res, false)
 	if err != nil {
 		return nil, err
