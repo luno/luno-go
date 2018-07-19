@@ -35,7 +35,7 @@ import (
 	"golang.org/x/net/websocket"
 )
 
-type connection struct {
+type Connection struct {
 	keyID, keySecret string
 	pair             string
 
@@ -47,15 +47,15 @@ type connection struct {
 	mu sync.Mutex
 }
 
-// Dial initiates a connection to the streaming service and starts processing
+// Dial initiates a Connection to the streaming service and starts processing
 // data for the given market pair.
-// The connection will automatically reconnect on error.
-func Dial(keyID, keySecret, pair string, opts ...DialOption) (*connection, error) {
+// The Connection will automatically reconnect on error.
+func Dial(keyID, keySecret, pair string, opts ...DialOption) (*Connection, error) {
 	if keyID == "" || keySecret == "" {
 		return nil, errors.New("streaming: streaming API requires credentials")
 	}
 
-	c := &connection{
+	c := &Connection{
 		keyID:     keyID,
 		keySecret: keySecret,
 		pair:      pair,
@@ -71,7 +71,7 @@ func Dial(keyID, keySecret, pair string, opts ...DialOption) (*connection, error
 var wsHost = flag.String(
 	"luno_websocket_host", "wss://ws.luno.com", "Luno API websocket host")
 
-func (c *connection) manageForever() {
+func (c *Connection) manageForever() {
 	attempts := 0
 	var lastAttempt time.Time
 	for {
@@ -85,7 +85,7 @@ func (c *connection) manageForever() {
 		lastAttempt = time.Now()
 		attempts++
 		if err := c.connect(); err != nil {
-			log.Printf("luno/streaming: connection error key=%s pair=%s: %v",
+			log.Printf("luno/streaming: Connection error key=%s pair=%s: %v",
 				c.keyID, c.pair, err)
 		}
 
@@ -106,7 +106,7 @@ func (c *connection) manageForever() {
 	}
 }
 
-func (c *connection) connect() error {
+func (c *Connection) connect() error {
 	url := *wsHost + "/api/1/stream/" + c.pair
 	ws, err := websocket.Dial(url, "", "http://localhost/")
 	if err != nil {
@@ -135,7 +135,7 @@ func (c *connection) connect() error {
 		return err
 	}
 
-	log.Printf("luno/streaming: connection established key=%s pair=%s",
+	log.Printf("luno/streaming: Connection established key=%s pair=%s",
 		c.keyID, c.pair)
 
 	go sendPings(ws)
@@ -168,8 +168,8 @@ func sendPing(ws *websocket.Conn) bool {
 	return websocket.Message.Send(ws, "") == nil
 }
 
-// Close the connection.
-func (c *connection) Close() {
+// Close the Connection.
+func (c *Connection) Close() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
