@@ -32,6 +32,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/luno/luno-go"
 	"golang.org/x/net/websocket"
 )
 
@@ -168,7 +169,6 @@ func sendPing(ws *websocket.Conn) bool {
 	return websocket.Message.Send(ws, "") == nil
 }
 
-// Close the Connection.
 func (c *Connection) Close() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -177,4 +177,8 @@ func (c *Connection) Close() {
 	if c.ws != nil {
 		c.ws.Close()
 	}
+}
+
+func (c *Connection) GetSnapshot() (int64, []luno.OrderBookEntry, []luno.OrderBookEntry) {
+	return c.MessageProcessor.orderbook.GetSnapshot()
 }
