@@ -438,11 +438,11 @@ type GetOrderResponse struct {
 	// taken place but the order is not filled yet.<br>
 	// <code>COMPLETE</code> The order is no longer active. It has been settled
 	// or has been cancelled.
-	State string `json:"state"`
+	State OrderState `json:"state"`
 
 	// <code>BID</code> bid (buy) limit order.<br>
 	// <code>ASK</code> ask (sell) limit order.
-	Type string `json:"type"`
+	Type OrderType `json:"type"`
 }
 
 // GetOrder makes a call to GET /api/1/orders/{id}.
@@ -726,7 +726,7 @@ type ListTradesRequest struct {
 
 	// Fetch trades executed after this time, specified as a Unix timestamp in
 	// milliseconds.
-	Since int64 `json:"since" url:"since"`
+	Since Time `json:"since" url:"since"`
 }
 
 // ListTradesResponse is the response struct for ListTrades.
@@ -813,7 +813,7 @@ type ListUserTradesRequest struct {
 	Limit int64 `json:"limit" url:"limit"`
 
 	// Filter to trades on or after this timestamp.
-	Since int64 `json:"since" url:"since"`
+	Since Time `json:"since" url:"since"`
 }
 
 // ListUserTradesResponse is the response struct for ListUserTrades.

@@ -40,11 +40,11 @@ type Order struct {
 	// taken place but the order is not filled yet.<br>
 	// <code>COMPLETE</code> The order is no longer active. It has been settled
 	// or has been cancelled.
-	State string `json:"state"`
+	State OrderState `json:"state"`
 
 	// <code>BID</code> bid (buy) limit order.<br>
 	// <code>ASK</code> ask (sell) limit order.
-	Type string `json:"type"`
+	Type OrderType `json:"type"`
 }
 
 type OrderBookEntry struct {
@@ -55,8 +55,8 @@ type OrderBookEntry struct {
 type OrderState string
 
 const (
-	OrderStatePending  OrderState = "PENDING"
 	OrderStateComplete OrderState = "COMPLETE"
+	OrderStatePending  OrderState = "PENDING"
 )
 
 type OrderType string
@@ -98,7 +98,7 @@ type Trade struct {
 	Pair       string          `json:"pair"`
 	Price      decimal.Decimal `json:"price"`
 	Timestamp  Time            `json:"timestamp"`
-	Type       string          `json:"type"`
+	Type       OrderType       `json:"type"`
 	Volume     decimal.Decimal `json:"volume"`
 }
 

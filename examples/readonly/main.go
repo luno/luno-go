@@ -57,7 +57,7 @@ func main() {
 	{
 		req := luno.ListTradesRequest{
 			Pair:  "XBTZAR",
-			Since: time.Now().Add(-24*time.Hour).UnixNano() / 1e6,
+			Since: luno.Time(time.Now().Add(-24 * time.Hour)),
 		}
 		res, err := cl.ListTrades(ctx, &req)
 		if err != nil {
