@@ -12,6 +12,10 @@ func (t *Time) UnmarshalJSON(b []byte) error {
 	if err != nil {
 		return err
 	}
+	if i == 0 {
+		*t = Time{}
+		return nil
+	}
 	*t = Time(time.Unix(0, i*1e6))
 	return nil
 }
