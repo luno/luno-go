@@ -161,16 +161,7 @@ func (cl *Client) do(ctx context.Context, method, path string,
 		return fmt.Errorf("luno: %s (%s)", e.Message, e.Code)
 	}
 
-	// The API returns errors as 200s, even if we get a 200 we still have to
-	// try to decode into an Error.
-
-	teeBuf := bytes.NewBuffer(nil)
-	tee := io.TeeReader(body, teeBuf)
-	var e Error
-	if err := json.NewDecoder(tee).Decode(&e); err == nil && e.Code != "" {
-		return fmt.Errorf("luno: %s (%s)", e.Message, e.Code)
-	}
-	return json.NewDecoder(teeBuf).Decode(res)
+	return json.NewDecoder(body).Decode(res)
 }
 
 func makeUserAgent() string {
