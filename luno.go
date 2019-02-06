@@ -51,6 +51,15 @@ func NewClient() *Client {
 	}
 }
 
+// NewWithCustomHTTPClient creates a new Luno API client with the default base URL using your own custom http client.
+// You can easily use this to restrict your API calls to only whitelisted ip addresses
+func NewWithCustomHTTPClient(client *http.Client) *Client {
+	return &Client{
+		httpClient: client,
+		baseURL:    defaultBaseURL,
+	}
+}
+
 // SetAuth provides the client with an API key and secret.
 func (cl *Client) SetAuth(apiKeyID, apiKeySecret string) error {
 	if apiKeyID == "" || apiKeySecret == "" {
