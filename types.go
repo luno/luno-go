@@ -97,6 +97,7 @@ type Trade struct {
 	OrderId    string          `json:"order_id"`
 	Pair       string          `json:"pair"`
 	Price      decimal.Decimal `json:"price"`
+	Sequence   int64           `json:"sequence"`
 	Timestamp  Time            `json:"timestamp"`
 	Type       OrderType       `json:"type"`
 	Volume     decimal.Decimal `json:"volume"`

@@ -809,11 +809,26 @@ type ListUserTradesRequest struct {
 	// required: true
 	Pair string `json:"pair" url:"pair"`
 
+	// Filter to trades from (including) this sequence number.
+	// Default behaviour is not to include this filter.
+	AfterSeq int64 `json:"after_seq" url:"after_seq"`
+
+	// Filter to trades before this timestamp.
+	Before Time `json:"before" url:"before"`
+
+	// Filter to trades before (excluding) this sequence number.
+	// Default behaviour is not to include this filter.
+	BeforeSeq int64 `json:"before_seq" url:"before_seq"`
+
 	// Limit to this number of trades (default 100).
 	Limit int64 `json:"limit" url:"limit"`
 
 	// Filter to trades on or after this timestamp.
 	Since Time `json:"since" url:"since"`
+
+	// If set to true, sorts trades in descending order, otherwise ascending
+	// order will be assumed.
+	SortDesc bool `json:"sort_desc" url:"sort_desc"`
 }
 
 // ListUserTradesResponse is the response struct for ListUserTrades.
@@ -824,7 +839,8 @@ type ListUserTradesResponse struct {
 // ListUserTrades makes a call to GET /api/1/listtrades.
 //
 // Returns a list of your recent trades for a given pair, sorted by oldest
-// first.
+// first. If <code>before</code> is specified, then the trades are returned
+// sorted by most-recent first.
 //
 // <code>type</code> in the response indicates the type of order that you placed
 // in order to participate in the trade. Possible types: <code>BID</code>,
@@ -1038,7 +1054,7 @@ type SendResponse struct {
 // If the email address is not associated with an existing Luno account, an
 // invitation to create an account and claim the funds will be sent.
 //
-// Warning! Digital currency transactions are irreversible. Please ensure your
+// Warning! Cryptocurrency transactions are irreversible. Please ensure your
 // program has been thoroughly tested before using this call.
 //
 // Permissions required: <code>Perm_W_Send</code>
