@@ -16,13 +16,14 @@ type CancelWithdrawalRequest struct {
 
 // CancelWithdrawalResponse is the response struct for CancelWithdrawal.
 type CancelWithdrawalResponse struct {
-	Amount    decimal.Decimal `json:"amount"`
-	CreatedAt Time            `json:"created_at"`
-	Currency  string          `json:"currency"`
-	Fee       decimal.Decimal `json:"fee"`
-	Id        string          `json:"id"`
-	Status    string          `json:"status"`
-	Type      string          `json:"type"`
+	Amount     decimal.Decimal `json:"amount"`
+	CreatedAt  Time            `json:"created_at"`
+	Currency   string          `json:"currency"`
+	ExternalId string          `json:"external_id"`
+	Fee        decimal.Decimal `json:"fee"`
+	Id         string          `json:"id"`
+	Status     string          `json:"status"`
+	Type       string          `json:"type"`
 }
 
 // CancelWithdrawal makes a call to DELETE /api/1/withdrawals/{id}.
@@ -206,19 +207,25 @@ type CreateWithdrawalRequest struct {
 	// name on the <a href="/wallet/beneficiaries">Beneficiaries</a> page.
 	BeneficiaryId string `json:"beneficiary_id" url:"beneficiary_id"`
 
+	// Optional unique ID to associate with this withdrawal. Useful to prevent
+	// duplicate sends in case of failure. It supports all alphanumeric
+	// characters, as well as "-" and "_".
+	ExternalId string `json:"external_id" url:"external_id"`
+
 	// For internal use.
 	Reference string `json:"reference" url:"reference"`
 }
 
 // CreateWithdrawalResponse is the response struct for CreateWithdrawal.
 type CreateWithdrawalResponse struct {
-	Amount    decimal.Decimal `json:"amount"`
-	CreatedAt Time            `json:"created_at"`
-	Currency  string          `json:"currency"`
-	Fee       decimal.Decimal `json:"fee"`
-	Id        string          `json:"id"`
-	Status    string          `json:"status"`
-	Type      string          `json:"type"`
+	Amount     decimal.Decimal `json:"amount"`
+	CreatedAt  Time            `json:"created_at"`
+	Currency   string          `json:"currency"`
+	ExternalId string          `json:"external_id"`
+	Fee        decimal.Decimal `json:"fee"`
+	Id         string          `json:"id"`
+	Status     string          `json:"status"`
+	Type       string          `json:"type"`
 }
 
 // CreateWithdrawal makes a call to POST /api/1/withdrawals.
@@ -618,13 +625,14 @@ type GetWithdrawalRequest struct {
 
 // GetWithdrawalResponse is the response struct for GetWithdrawal.
 type GetWithdrawalResponse struct {
-	Amount    decimal.Decimal `json:"amount"`
-	CreatedAt Time            `json:"created_at"`
-	Currency  string          `json:"currency"`
-	Fee       decimal.Decimal `json:"fee"`
-	Id        string          `json:"id"`
-	Status    string          `json:"status"`
-	Type      string          `json:"type"`
+	Amount     decimal.Decimal `json:"amount"`
+	CreatedAt  Time            `json:"created_at"`
+	Currency   string          `json:"currency"`
+	ExternalId string          `json:"external_id"`
+	Fee        decimal.Decimal `json:"fee"`
+	Id         string          `json:"id"`
+	Status     string          `json:"status"`
+	Type       string          `json:"type"`
 }
 
 // GetWithdrawal makes a call to GET /api/1/withdrawals/{id}.
@@ -1034,6 +1042,11 @@ type SendRequest struct {
 
 	// Description for the transaction to record on the account statement.
 	Description string `json:"description" url:"description"`
+
+	// Optional unique ID to associate with this withdrawal. Useful to prevent
+	// duplicate sends in case of failure. It supports all alphanumeric
+	// characters, as well as "-" and "_".
+	ExternalId string `json:"external_id" url:"external_id"`
 
 	// Message to send to the recipient. This is only relevant when sending to
 	// an email address.
