@@ -120,13 +120,14 @@ type Transaction struct {
 }
 
 type Withdrawal struct {
-	Amount    decimal.Decimal `json:"amount"`
-	CreatedAt Time            `json:"created_at"`
-	Currency  string          `json:"currency"`
-	Fee       decimal.Decimal `json:"fee"`
-	Id        string          `json:"id"`
-	Status    string          `json:"status"`
-	Type      string          `json:"type"`
+	Amount     decimal.Decimal `json:"amount"`
+	CreatedAt  Time            `json:"created_at"`
+	Currency   string          `json:"currency"`
+	ExternalId string          `json:"external_id"`
+	Fee        decimal.Decimal `json:"fee"`
+	Id         string          `json:"id"`
+	Status     string          `json:"status"`
+	Type       string          `json:"type"`
 }
 
 // vi: ft=go
