@@ -115,8 +115,11 @@ type Transaction struct {
 
 	// Human-readable description of the transaction.
 	Description string `json:"description"`
-	RowIndex    int64  `json:"row_index"`
-	Timestamp   Time   `json:"timestamp"`
+
+	// Human-readable label-value attributes.
+	Details   map[string]string `json:"details"`
+	RowIndex  int64             `json:"row_index"`
+	Timestamp Time              `json:"timestamp"`
 }
 
 type Withdrawal struct {
