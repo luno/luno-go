@@ -8,35 +8,35 @@ type order struct {
 	Volume decimal.Decimal `json:"volume,string"`
 }
 
-type orderBook struct {
+type orderbookMessage struct {
 	Sequence int64    `json:"sequence,string"`
 	Asks     []*order `json:"asks"`
 	Bids     []*order `json:"bids"`
 }
 
-type TradeUpdate struct {
+type TradeUpdateMessage struct {
 	Base    decimal.Decimal `json:"base,string"`
 	Counter decimal.Decimal `json:"counter,string"`
 	OrderID string          `json:"order_id"`
 }
 
-type CreateUpdate struct {
+type CreateUpdateMessage struct {
 	OrderID string          `json:"order_id"`
 	Type    string          `json:"type"`
 	Price   decimal.Decimal `json:"price,string"`
 	Volume  decimal.Decimal `json:"volume,string"`
 }
 
-type DeleteUpdate struct {
+type DeleteUpdateMessage struct {
 	OrderID string `json:"order_id"`
 }
 
-type Update struct {
-	Sequence     int64          `json:"sequence,string"`
-	TradeUpdates []*TradeUpdate `json:"trade_updates"`
-	CreateUpdate *CreateUpdate  `json:"create_update"`
-	DeleteUpdate *DeleteUpdate  `json:"delete_update"`
-	Timestamp    int64          `json:"timestamp"`
+type UpdateMessage struct {
+	Sequence     int64                 `json:"sequence,string"`
+	TradeUpdates []*TradeUpdateMessage `json:"trade_updates"`
+	CreateUpdate *CreateUpdateMessage  `json:"create_update"`
+	DeleteUpdate *DeleteUpdateMessage  `json:"delete_update"`
+	Timestamp    int64                 `json:"timestamp"`
 }
 
 type credentials struct {
