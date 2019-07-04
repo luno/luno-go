@@ -79,13 +79,28 @@ type ReceiveAddress struct {
 	TotalUnconfirmed decimal.Decimal `json:"total_unconfirmed"`
 }
 
+type Status string
+
+const (
+	StatusActive   Status = "ACTIVE"
+	StatusDisabled Status = "DISABLED"
+	StatusPostonly Status = "POSTONLY"
+)
+
 type Ticker struct {
 	Ask                 decimal.Decimal `json:"ask"`
 	Bid                 decimal.Decimal `json:"bid"`
 	LastTrade           decimal.Decimal `json:"last_trade"`
 	Pair                string          `json:"pair"`
 	Rolling24HourVolume decimal.Decimal `json:"rolling_24_hour_volume"`
-	Timestamp           Time            `json:"timestamp"`
+
+	// <code>ACTIVE</code> when the market is trading normally
+	//
+	// <code>POSTONLY</code> when the market has been suspended and only post-only orders will be accepted
+	//
+	// <code>DISABLED</code> when the market is shutdown and no orders can be accepted
+	Status    Status `json:"status"`
+	Timestamp Time   `json:"timestamp"`
 }
 
 type Trade struct {

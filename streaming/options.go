@@ -10,3 +10,11 @@ func WithUpdateCallback(fn UpdateCallback) DialOption {
 		c.updateCallback = fn
 	}
 }
+
+// WithConnectCallback returns an options which sets a callback function for
+// when the connection is fully initialised and the orderbook has been set up.
+func WithConnectCallback(fn ConnectCallback) DialOption {
+	return func(c *Conn) {
+		c.connectCallback = fn
+	}
+}
