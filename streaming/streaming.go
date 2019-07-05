@@ -30,7 +30,7 @@ import (
 
 	"golang.org/x/net/websocket"
 
-	luno "github.com/luno/luno-go"
+	"github.com/luno/luno-go"
 	"github.com/luno/luno-go/decimal"
 )
 
@@ -403,6 +403,7 @@ func (c *Conn) processStatus(u StatusUpdate) error {
 }
 
 // OrderBookSnapshot returns the latest order book.
+// Deprecated at v0.0.8, use Snapshot().
 func (c *Conn) OrderBookSnapshot() (
 	int64, []luno.OrderBookEntry, []luno.OrderBookEntry) {
 
@@ -414,11 +415,23 @@ func (c *Conn) OrderBookSnapshot() (
 	return c.seq, bids, asks
 }
 
-func (c *Conn) MarketStatus() (int64, luno.Status) {
+type Snapshot struct {
+	Sequence int64
+	Bids, Asks []luno.OrderBookEntry
+	Status luno.Status
+}
+
+// Snapshot returns the current state of the streamed data.
+func (c *Conn) Snapshot() Snapshot {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	return c.seq, c.status
+	return Snapshot{
+		Sequence: c.seq,
+		Bids:flatten(c.bids, true),
+		Asks:flatten(c.asks, false),
+		Status:c.status,
+	}
 }
 
 // Close the connection.

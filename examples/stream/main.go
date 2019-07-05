@@ -8,9 +8,8 @@ import (
 )
 
 func printOrderBook(c *streaming.Conn) {
-	seq, bids, asks := c.OrderBookSnapshot()
-	seq, status := c.MarketStatus()
-	log.Printf("%d: %s %v %v\n", seq, status, bids[0], asks[0])
+	ss := c.Snapshot()
+	log.Printf("%d: %s %v %v\n", ss.Sequence, ss.Status, ss.Bids[0], ss.Asks[0])
 }
 
 func main() {
