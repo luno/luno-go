@@ -416,9 +416,9 @@ func (c *Conn) OrderBookSnapshot() (
 }
 
 type Snapshot struct {
-	Sequence int64
+	Sequence   int64
 	Bids, Asks []luno.OrderBookEntry
-	Status luno.Status
+	Status     luno.Status
 }
 
 // Snapshot returns the current state of the streamed data.
@@ -428,9 +428,9 @@ func (c *Conn) Snapshot() Snapshot {
 
 	return Snapshot{
 		Sequence: c.seq,
-		Bids:flatten(c.bids, true),
-		Asks:flatten(c.asks, false),
-		Status:c.status,
+		Bids:     flatten(c.bids, true),
+		Asks:     flatten(c.asks, false),
+		Status:   c.status,
 	}
 }
 
