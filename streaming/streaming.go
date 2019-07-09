@@ -30,7 +30,7 @@ import (
 
 	"golang.org/x/net/websocket"
 
-	luno "github.com/luno/luno-go"
+	"github.com/luno/luno-go"
 	"github.com/luno/luno-go/decimal"
 )
 
@@ -70,11 +70,13 @@ func flatten(m map[string]order, reverse bool) []luno.OrderBookEntry {
 	return ol
 }
 
+type ConnectCallback func(*Conn)
 type UpdateCallback func(Update)
 
 type Conn struct {
 	keyID, keySecret string
 	pair             string
+	connectCallback  ConnectCallback
 	updateCallback   UpdateCallback
 
 	ws     *websocket.Conn
@@ -83,6 +85,8 @@ type Conn struct {
 	seq  int64
 	bids map[string]order
 	asks map[string]order
+
+	status luno.Status
 
 	lastMessage time.Time
 
@@ -161,6 +165,7 @@ func (c *Conn) connect() error {
 		c.seq = 0
 		c.bids = nil
 		c.asks = nil
+		c.status = ""
 		c.mu.Unlock()
 	}()
 
@@ -203,6 +208,9 @@ func (c *Conn) connect() error {
 			// Received an order book.
 			if err := c.receivedOrderBook(ob); err != nil {
 				return err
+			}
+			if c.connectCallback != nil {
+				c.connectCallback(c)
 			}
 			continue
 		}
@@ -249,6 +257,7 @@ func (c *Conn) receivedOrderBook(ob orderBook) error {
 
 	c.lastMessage = time.Now()
 	c.seq = ob.Sequence
+	c.status = ob.Status
 	c.bids = bids
 	c.asks = asks
 	return nil
@@ -288,6 +297,13 @@ func (c *Conn) receivedUpdate(u Update) error {
 	// Process delete
 	if u.DeleteUpdate != nil {
 		if err := c.processDelete(*u.DeleteUpdate); err != nil {
+			return err
+		}
+	}
+
+	// Process status
+	if u.StatusUpdate != nil {
+		if err := c.processStatus(*u.StatusUpdate); err != nil {
 			return err
 		}
 	}
@@ -372,7 +388,22 @@ func (c *Conn) processDelete(u DeleteUpdate) error {
 	return nil
 }
 
+func (c *Conn) processStatus(u StatusUpdate) error {
+	switch u.Status {
+	case string(luno.StatusActive):
+		c.status = luno.StatusActive
+	case string(luno.StatusDisabled):
+		c.status = luno.StatusDisabled
+	case string(luno.StatusPostonly):
+		c.status = luno.StatusPostonly
+	default:
+		return errors.New(fmt.Sprintf("Unknown status update: %s", u.Status))
+	}
+	return nil
+}
+
 // OrderBookSnapshot returns the latest order book.
+// Deprecated at v0.0.8, use Snapshot().
 func (c *Conn) OrderBookSnapshot() (
 	int64, []luno.OrderBookEntry, []luno.OrderBookEntry) {
 
@@ -382,6 +413,25 @@ func (c *Conn) OrderBookSnapshot() (
 	bids := flatten(c.bids, true)
 	asks := flatten(c.asks, false)
 	return c.seq, bids, asks
+}
+
+type Snapshot struct {
+	Sequence   int64
+	Bids, Asks []luno.OrderBookEntry
+	Status     luno.Status
+}
+
+// Snapshot returns the current state of the streamed data.
+func (c *Conn) Snapshot() Snapshot {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	return Snapshot{
+		Sequence: c.seq,
+		Bids:     flatten(c.bids, true),
+		Asks:     flatten(c.asks, false),
+		Status:   c.status,
+	}
 }
 
 // Close the connection.
