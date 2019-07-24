@@ -21,6 +21,15 @@ type AccountCapabilities struct {
 	CanWithdraw   bool `json:"can_withdraw"`
 }
 
+type CryptoDetails struct {
+	Address string `json:"address"`
+	Txid    string `json:"txid"`
+}
+
+type DetailFields struct {
+	CryptoDetails CryptoDetails `json:"crypto_details"`
+}
+
 type Order struct {
 	Base                decimal.Decimal `json:"base"`
 	CompletedTimestamp  Time            `json:"completed_timestamp"`
@@ -129,7 +138,8 @@ type Transaction struct {
 	Currency     string          `json:"currency"`
 
 	// Human-readable description of the transaction.
-	Description string `json:"description"`
+	Description  string       `json:"description"`
+	DetailFields DetailFields `json:"detail_fields"`
 
 	// Human-readable label-value attributes.
 	Details   map[string]string `json:"details"`
