@@ -2,7 +2,7 @@ package streaming
 
 import (
 	"github.com/luno/luno-go"
-	"github.com/luno/luno-go/decimal"
+	"github.com/shopspring/decimal"
 )
 
 type order struct {

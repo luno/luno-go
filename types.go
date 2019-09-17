@@ -1,6 +1,6 @@
 package luno
 
-import "github.com/luno/luno-go/decimal"
+import "github.com/shopspring/decimal"
 
 type AccountBalance struct {
 	AccountId   string          `json:"account_id"`

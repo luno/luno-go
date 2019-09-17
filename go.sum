@@ -1,3 +1,5 @@
+github.com/shopspring/decimal v0.0.0-20190905144223-a36b5d85f337 h1:Da9XEUfFxgyDOqUfwgoTDcWzmnlOnCGi6i4iPS+8Fbw=
+github.com/shopspring/decimal v0.0.0-20190905144223-a36b5d85f337/go.mod h1:M+9NzErvs504Cn4c5DxATwIqPbtswREoFCre64PpcG4=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/net v0.0.0-20190620200207-3b0461eec859 h1:R/3boaszxrf1GEUWTVDzSKVwLmSJpwZ1yqXm8j0v2QI=
 golang.org/x/net v0.0.0-20190620200207-3b0461eec859/go.mod h1:z5CRVTTTmAJ677TzLLGU+0bjPO0LkuOLi4/5GtJWs/s=
