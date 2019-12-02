@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"log"
+	"strconv"
 	"time"
 
 	luno "github.com/luno/luno-go"
@@ -83,8 +84,12 @@ func main() {
 	}
 
 	if accountID != "" {
+		acc, err := strconv.ParseInt(accountID, 10, 64)
+		if err != nil {
+			log.Println(err)
+		}
 		req := luno.ListTransactionsRequest{
-			Id:     accountID,
+			Id:     acc,
 			MinRow: 1,
 			MaxRow: 1000,
 		}
@@ -97,8 +102,12 @@ func main() {
 	}
 
 	if accountID != "" {
+		acc, err := strconv.ParseInt(accountID, 10, 64)
+		if err != nil {
+			log.Println(err)
+		}
 		req := luno.ListPendingTransactionsRequest{
-			Id: accountID,
+			Id: acc,
 		}
 		res, err := cl.ListPendingTransactions(ctx, &req)
 		if err != nil {
@@ -166,8 +175,12 @@ func main() {
 	}
 
 	if withdrawalID != "" {
+		wID, err := strconv.ParseInt(accountID, 10, 64)
+		if err != nil {
+			log.Println(err)
+		}
 		req := luno.GetWithdrawalRequest{
-			Id: withdrawalID,
+			Id: wID,
 		}
 		res, err := cl.GetWithdrawal(ctx, &req)
 		if err != nil {
