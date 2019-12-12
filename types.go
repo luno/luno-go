@@ -11,16 +11,6 @@ type AccountBalance struct {
 	Unconfirmed decimal.Decimal `json:"unconfirmed"`
 }
 
-type AccountCapabilities struct {
-	CanBuy        bool `json:"can_buy"`
-	CanDeposit    bool `json:"can_deposit"`
-	CanReceive    bool `json:"can_receive"`
-	CanSell       bool `json:"can_sell"`
-	CanSend       bool `json:"can_send"`
-	CanSocialSend bool `json:"can_social_send"`
-	CanWithdraw   bool `json:"can_withdraw"`
-}
-
 type CryptoDetails struct {
 	Address string `json:"address"`
 	Txid    string `json:"txid"`
@@ -76,17 +66,6 @@ const (
 	OrderTypeBuy  OrderType = "BUY"
 	OrderTypeSell OrderType = "SELL"
 )
-
-type ReceiveAddress struct {
-	AccountId        string          `json:"account_id"`
-	Address          string          `json:"address"`
-	Asset            string          `json:"asset"`
-	AssignedAt       Time            `json:"assigned_at"`
-	Name             string          `json:"name"`
-	ReceiveFee       decimal.Decimal `json:"receive_fee"`
-	TotalReceived    decimal.Decimal `json:"total_received"`
-	TotalUnconfirmed decimal.Decimal `json:"total_unconfirmed"`
-}
 
 type Status string
 
@@ -156,6 +135,17 @@ type Withdrawal struct {
 	Id         string          `json:"id"`
 	Status     string          `json:"status"`
 	Type       string          `json:"type"`
+}
+
+type beneficiary struct {
+	BankAccountBranch string `json:"bank_account_branch"`
+	BankAccountNumber string `json:"bank_account_number"`
+	BankAccountType   string `json:"bank_account_type"`
+	BankCountry       string `json:"bank_country"`
+	BankName          string `json:"bank_name"`
+	BankRecipient     string `json:"bank_recipient"`
+	CreatedAt         Time   `json:"created_at"`
+	Id                string `json:"id"`
 }
 
 // vi: ft=go
