@@ -346,7 +346,7 @@ func (c *Conn) processTrade(t TradeUpdate) error {
 		return errors.New("streaming: nonpositive trade")
 	}
 
-	c.lastTrade = t.Base
+	c.lastTrade = t.Counter
 
 	ok, err := decTrade(c.bids, t.OrderID, t.Base)
 	if err != nil {
