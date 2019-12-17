@@ -158,4 +158,9 @@ type Withdrawal struct {
 	Type       string          `json:"type"`
 }
 
+type TradeUpdate struct {
+	Base    decimal.Decimal
+	Counter decimal.Decimal
+}
+
 // vi: ft=go

@@ -89,7 +89,7 @@ type Conn struct {
 	status luno.Status
 
 	lastMessage time.Time
-	lastTrade   decimal.Decimal
+	lastTrade   luno.TradeUpdate
 
 	mu sync.Mutex
 }
@@ -346,7 +346,10 @@ func (c *Conn) processTrade(t TradeUpdate) error {
 		return errors.New("streaming: nonpositive trade")
 	}
 
-	c.lastTrade = t.Counter
+	c.lastTrade = luno.TradeUpdate{
+		Base:    t.Base,
+		Counter: t.Counter,
+	}
 
 	ok, err := decTrade(c.bids, t.OrderID, t.Base)
 	if err != nil {
@@ -422,7 +425,7 @@ type Snapshot struct {
 	Sequence   int64
 	Bids, Asks []luno.OrderBookEntry
 	Status     luno.Status
-	LastTrade  decimal.Decimal
+	LastTrade  luno.TradeUpdate
 }
 
 // Snapshot returns the current state of the streamed data.
