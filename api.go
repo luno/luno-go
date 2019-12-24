@@ -11,7 +11,7 @@ type CancelWithdrawalRequest struct {
 	// ID of the withdrawal to cancel.
 	//
 	// required: true
-	Id string `json:"id" url:"id"`
+	Id int64 `json:"id" url:"id"`
 }
 
 // CancelWithdrawalResponse is the response struct for CancelWithdrawal.
@@ -43,10 +43,11 @@ func (cl *Client) CancelWithdrawal(ctx context.Context, req *CancelWithdrawalReq
 
 // CreateAccountRequest is the request struct for CreateAccount.
 type CreateAccountRequest struct {
-	// The currency code for the account you want to create
+	// The currency code for the Account you want to create.  Please see the Currency section for a detailed list of currencies supported by the Luno platform.
 	//
-	// You must be verified to trade currency in order to be able to create an
-	// account. A user has a limit of 4 accounts per currency.
+	// Users must be verified to trade currency in order to be able to create an Account.  For more information on the verification process, please see <a href="/help/en/articles/1000168396">How do I verify my identity?</a>.
+	//
+	// Users have a limit of 4 accounts per currency.
 	//
 	// required: true
 	Currency string `json:"currency" url:"currency"`
@@ -59,21 +60,16 @@ type CreateAccountRequest struct {
 
 // CreateAccountResponse is the response struct for CreateAccount.
 type CreateAccountResponse struct {
-	Balance          AccountBalance      `json:"balance"`
-	Capabilities     AccountCapabilities `json:"capabilities"`
-	Currency         string              `json:"currency"`
-	Icon             string              `json:"icon"`
-	Id               string              `json:"id"`
-	IsDefault        bool                `json:"is_default"`
-	Name             string              `json:"name"`
-	Pending          []Transaction       `json:"pending"`
-	ReceiveAddresses []ReceiveAddress    `json:"receive_addresses"`
-	Transactions     []Transaction       `json:"transactions"`
+	Currency     string        `json:"currency"`
+	Id           string        `json:"id"`
+	Name         string        `json:"name"`
+	Pending      []Transaction `json:"pending"`
+	Transactions []Transaction `json:"transactions"`
 }
 
 // CreateAccount makes a call to POST /api/1/accounts.
 //
-// Create an additional account for the specified currency.
+// This request creates an Account for the specified currency.  Please note that the balances for the Account will be displayed based on the <code>asset</code> value, which is the currency the Account is based on.
 //
 // Permissions required: <code>Perm_W_Addresses</code>
 func (cl *Client) CreateAccount(ctx context.Context, req *CreateAccountRequest) (*CreateAccountResponse, error) {
@@ -92,7 +88,7 @@ type CreateFundingAddressRequest struct {
 	// required: true
 	Asset string `json:"asset" url:"asset"`
 
-	// An optional name for the new address
+	// An optional name for the new Receive Address
 	Name string `json:"name" url:"name"`
 }
 
@@ -126,6 +122,11 @@ func (cl *Client) CreateFundingAddress(ctx context.Context, req *CreateFundingAd
 
 // CreateQuoteRequest is the request struct for CreateQuote.
 type CreateQuoteRequest struct {
+	// <code>BUY</code> or <code>SELL</code>.
+	//
+	// required: true
+	Type string `json:"type" url:"type"`
+
 	// Amount to buy or sell in the pair base currency.
 	//
 	// required: true
@@ -137,16 +138,11 @@ type CreateQuoteRequest struct {
 	// required: true
 	Pair string `json:"pair" url:"pair"`
 
-	// <code>BUY</code> or <code>SELL</code>.
-	//
-	// required: true
-	Type string `json:"type" url:"type"`
-
 	// Optional account for the pair's base currency.
-	BaseAccountId string `json:"base_account_id" url:"base_account_id"`
+	BaseAccountId int64 `json:"base_account_id" url:"base_account_id"`
 
 	// Optional account for the pair's counter currency.
-	CounterAccountId string `json:"counter_account_id" url:"counter_account_id"`
+	CounterAccountId int64 `json:"counter_account_id" url:"counter_account_id"`
 }
 
 // CreateQuoteResponse is the response struct for CreateQuote.
@@ -191,29 +187,29 @@ func (cl *Client) CreateQuote(ctx context.Context, req *CreateQuoteRequest) (*Cr
 
 // CreateWithdrawalRequest is the request struct for CreateWithdrawal.
 type CreateWithdrawalRequest struct {
-	// Amount to withdraw. The currency depends on the type.
-	//
-	// required: true
-	Amount decimal.Decimal `json:"amount" url:"amount"`
-
 	// Withdrawal type.
 	//
 	// required: true
 	Type string `json:"type" url:"type"`
 
+	// Amount to withdraw. The currency depends on the type.
+	//
+	// required: true
+	Amount decimal.Decimal `json:"amount" url:"amount"`
+
 	// The beneficiary ID of the bank account the withdrawal will be paid out
 	// to. This parameter is required if you have multiple bank accounts. Your
 	// bank account beneficiary ID can be found by clicking on the beneficiary
 	// name on the <a href="/wallet/beneficiaries">Beneficiaries</a> page.
-	BeneficiaryId string `json:"beneficiary_id" url:"beneficiary_id"`
+	BeneficiaryId int64 `json:"beneficiary_id" url:"beneficiary_id"`
+
+	// For internal use.
+	Reference string `json:"reference" url:"reference"`
 
 	// Optional unique ID to associate with this withdrawal. Useful to prevent
 	// duplicate sends in case of failure. It supports all alphanumeric
 	// characters, as well as "-" and "_".
 	ExternalId string `json:"external_id" url:"external_id"`
-
-	// For internal use.
-	Reference string `json:"reference" url:"reference"`
 }
 
 // CreateWithdrawalResponse is the response struct for CreateWithdrawal.
@@ -247,7 +243,7 @@ type DiscardQuoteRequest struct {
 	// ID of the quote to discard.
 	//
 	// required: true
-	Id string `json:"id" url:"id"`
+	Id int64 `json:"id" url:"id"`
 }
 
 // DiscardQuoteResponse is the response struct for DiscardQuote.
@@ -283,7 +279,7 @@ type ExerciseQuoteRequest struct {
 	// ID of the quote to exercise.
 	//
 	// required: true
-	Id string `json:"id" url:"id"`
+	Id int64 `json:"id" url:"id"`
 }
 
 // ExerciseQuoteResponse is the response struct for ExerciseQuote.
@@ -332,7 +328,7 @@ type GetBalancesResponse struct {
 
 // GetBalances makes a call to GET /api/1/balance.
 //
-// Return the list of all accounts and their respective balances.
+// The list of all Accounts and their respective balances for the requesting user.
 //
 // Permissions required: <code>Perm_R_Balance</code>
 func (cl *Client) GetBalances(ctx context.Context, req *GetBalancesRequest) (*GetBalancesResponse, error) {
@@ -361,8 +357,7 @@ type GetFeeInfoResponse struct {
 
 // GetFeeInfo makes a call to GET /api/1/fee_info.
 //
-// Returns your fees and 30 day trading volume (as of midnight) for a given
-// pair.
+// Returns the fees and 30 day trading volume (as of midnight) for a given currency pair.  For complete details, please see <a href="en/countries">Fees & Features</a>.
 //
 // Permissions required: <code>Perm_R_Orders</code>
 func (cl *Client) GetFeeInfo(ctx context.Context, req *GetFeeInfoRequest) (*GetFeeInfoResponse, error) {
@@ -381,7 +376,7 @@ type GetFundingAddressRequest struct {
 	// required: true
 	Asset string `json:"asset" url:"asset"`
 
-	// Specific Bitcoin or Ethereum address to retrieve. If not provided, the
+	// Specific cryptocurrency address to retrieve. If not provided, the
 	// default address will be used.
 	Address string `json:"address" url:"address"`
 }
@@ -401,16 +396,47 @@ type GetFundingAddressResponse struct {
 // GetFundingAddress makes a call to GET /api/1/funding_address.
 //
 // Returns the default receive address associated with your account and the
-// amount received via the address. You can specify an optional address
-// parameter to return information for a non-default receive address. In the
-// response, total_received is the total confirmed Bitcoin amount received
-// excluding unconfirmed transactions. total_unconfirmed is the total sum of
-// unconfirmed receive transactions.
+// amount received via the address. Users can specify an optional address parameter to return information for a non-default receive address.
+//
+// In the response, <code>total_received</code> is the total confirmed amount received excluding unconfirmed transactions.
+// <code>total_unconfirmed</code> is the total sum of unconfirmed receive transactions.
 //
 // Permissions required: <code>Perm_R_Addresses</code>
 func (cl *Client) GetFundingAddress(ctx context.Context, req *GetFundingAddressRequest) (*GetFundingAddressResponse, error) {
 	var res GetFundingAddressResponse
 	err := cl.do(ctx, "GET", "/api/1/funding_address", req, &res, true)
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+// GetLightningReceiveRequest is the request struct for GetLightningReceive.
+type GetLightningReceiveRequest struct {
+	// ID of invoice.
+	//
+	// required: true
+	Id int64 `json:"id" url:"id"`
+}
+
+// GetLightningReceiveResponse is the response struct for GetLightningReceive.
+type GetLightningReceiveResponse struct {
+	PaymentRequest string          `json:"payment_request"`
+	SettledAmount  decimal.Decimal `json:"settled_amount"`
+	Status         string          `json:"status"`
+}
+
+// GetLightningReceive makes a call to GET /api/1/lightning/receive/{id}.
+//
+// <b>Alpha warning!</b> The Lightning API is still in Alpha stage.
+// The risks are limited api availability and channel capacity.
+//
+// Lookup the status of a Lightning Receive Invoice.
+//
+// Permissions required: <code>Perm_W_Send</code>
+func (cl *Client) GetLightningReceive(ctx context.Context, req *GetLightningReceiveRequest) (*GetLightningReceiveResponse, error) {
+	var res GetLightningReceiveResponse
+	err := cl.do(ctx, "GET", "/api/1/lightning/receive/{id}", req, &res, true)
 	if err != nil {
 		return nil, err
 	}
@@ -468,7 +494,7 @@ func (cl *Client) GetOrder(ctx context.Context, req *GetOrderRequest) (*GetOrder
 
 // GetOrderBookRequest is the request struct for GetOrderBook.
 type GetOrderBookRequest struct {
-	// Currency pair
+	// Currency pair of the Orders to retrieve
 	//
 	// required: true
 	Pair string `json:"pair" url:"pair"`
@@ -483,9 +509,12 @@ type GetOrderBookResponse struct {
 
 // GetOrderBook makes a call to GET /api/1/orderbook_top.
 //
-// Returns a list of the top 100 bids and asks in the order book.
-// Ask orders are sorted by price ascending.
-// Bid orders are sorted by price descending.
+// Returns a list of the top 100 <em>bids</em> and <em>asks</em> for the currency pair specified in the Order Book.
+//
+// Ask Orders are sorted by price ascending.
+//
+// Bid Orders are sorted by price descending.
+//
 // Orders of the same price are aggregated.
 func (cl *Client) GetOrderBook(ctx context.Context, req *GetOrderBookRequest) (*GetOrderBookResponse, error) {
 	var res GetOrderBookResponse
@@ -498,7 +527,7 @@ func (cl *Client) GetOrderBook(ctx context.Context, req *GetOrderBookRequest) (*
 
 // GetOrderBookFullRequest is the request struct for GetOrderBookFull.
 type GetOrderBookFullRequest struct {
-	// Currency pair
+	// Currency pair of the Orders to retrieve
 	//
 	// required: true
 	Pair string `json:"pair" url:"pair"`
@@ -513,13 +542,17 @@ type GetOrderBookFullResponse struct {
 
 // GetOrderBookFull makes a call to GET /api/1/orderbook.
 //
-// Returns a list of all bids and asks in the order book.
+// This request returns a list of all <em>bids</em> and <em>asks</em> for the currency pair specified in the Order Book.
+//
 // Ask orders are sorted by price ascending.
+//
 // Bid orders are sorted by price descending.
+//
 // Multiple orders at the same price are not aggregated.
 //
-// Warning: This may return a large amount of data. Generally you should rather
-// use GetOrderBook or the Streaming API.
+// <b>Warning:</b> This may return a large amount of data.
+// Users are recommended to use the <a href="#operation/getOrderBook">top 100 bids and asks</a>
+// or the <a href="#tag/streaming-API-(beta)">Streaming API</a>.
 func (cl *Client) GetOrderBookFull(ctx context.Context, req *GetOrderBookFullRequest) (*GetOrderBookFullResponse, error) {
 	var res GetOrderBookFullResponse
 	err := cl.do(ctx, "GET", "/api/1/orderbook", req, &res, false)
@@ -534,7 +567,7 @@ type GetQuoteRequest struct {
 	// ID of the quote to retrieve.
 	//
 	// required: true
-	Id string `json:"id" url:"id"`
+	Id int64 `json:"id" url:"id"`
 }
 
 // GetQuoteResponse is the response struct for GetQuote.
@@ -627,7 +660,7 @@ type GetWithdrawalRequest struct {
 	// Withdrawal ID to retrieve.
 	//
 	// required: true
-	Id string `json:"id" url:"id"`
+	Id int64 `json:"id" url:"id"`
 }
 
 // GetWithdrawalResponse is the response struct for GetWithdrawal.
@@ -658,17 +691,17 @@ func (cl *Client) GetWithdrawal(ctx context.Context, req *GetWithdrawalRequest) 
 
 // ListOrdersRequest is the request struct for ListOrders.
 type ListOrdersRequest struct {
+	// Filter to only orders of this state
+	State OrderState `json:"state" url:"state"`
+
+	// Filter to only orders of this currency pair
+	Pair string `json:"pair" url:"pair"`
+
 	// Filter to orders created before this timestamp (Unix milliseconds)
 	CreatedBefore int64 `json:"created_before" url:"created_before"`
 
 	// Limit to this many orders
 	Limit int64 `json:"limit" url:"limit"`
-
-	// Filter to only orders of this currency pair
-	Pair string `json:"pair" url:"pair"`
-
-	// Filter to only orders of this state
-	State OrderState `json:"state" url:"state"`
 }
 
 // ListOrdersResponse is the response struct for ListOrders.
@@ -678,10 +711,10 @@ type ListOrdersResponse struct {
 
 // ListOrders makes a call to GET /api/1/listorders.
 //
-// Returns a list of the most recently placed orders. You can specify an
-// optional <code>state=PENDING</code> parameter to restrict the results to only
-// open orders. You can also specify the market by using the optional pair
-// parameter. The list is truncated after 100 items.
+// Returns a list of the most recently placed Orders.
+// Users can specify an optional <code>state=PENDING</code> parameter to restrict the results to only open Orders.
+// Users can also specify the market by using the optional currency pair parameter.
+// The list is truncated after 100 items.
 //
 // Permissions required: <code>Perm_R_Orders</code>
 func (cl *Client) ListOrders(ctx context.Context, req *ListOrdersRequest) (*ListOrdersResponse, error) {
@@ -698,29 +731,23 @@ type ListPendingTransactionsRequest struct {
 	// Account ID
 	//
 	// required: true
-	Id string `json:"id" url:"id"`
+	Id int64 `json:"id" url:"id"`
 }
 
 // ListPendingTransactionsResponse is the response struct for ListPendingTransactions.
 type ListPendingTransactionsResponse struct {
-	Balance          AccountBalance      `json:"balance"`
-	Capabilities     AccountCapabilities `json:"capabilities"`
-	Currency         string              `json:"currency"`
-	Icon             string              `json:"icon"`
-	Id               string              `json:"id"`
-	IsDefault        bool                `json:"is_default"`
-	Name             string              `json:"name"`
-	Pending          []Transaction       `json:"pending"`
-	ReceiveAddresses []ReceiveAddress    `json:"receive_addresses"`
-	Transactions     []Transaction       `json:"transactions"`
+	Currency     string        `json:"currency"`
+	Id           string        `json:"id"`
+	Name         string        `json:"name"`
+	Pending      []Transaction `json:"pending"`
+	Transactions []Transaction `json:"transactions"`
 }
 
 // ListPendingTransactions makes a call to GET /api/1/accounts/{id}/pending.
 //
-// Return a list of all pending transactions related to the account.
+// Return a list of all transactions that have not completed for the Account.
 //
-// Unlike account entries, pending transactions are not numbered, and may be
-// reordered, deleted or updated at any time.
+// Pending transactions are not numbered, and may be reordered, deleted or updated at any time.
 //
 // Permissions required: <code>Perm_R_Transactions</code>
 func (cl *Client) ListPendingTransactions(ctx context.Context, req *ListPendingTransactionsRequest) (*ListPendingTransactionsResponse, error) {
@@ -751,8 +778,8 @@ type ListTradesResponse struct {
 
 // ListTrades makes a call to GET /api/1/trades.
 //
-// Returns a list of the most recent trades. At most 100 results are returned
-// per call.
+// Returns a list of the most recent trades that happened in the last 24h. At
+// most 100 results are returned per call.
 func (cl *Client) ListTrades(ctx context.Context, req *ListTradesRequest) (*ListTradesResponse, error) {
 	var res ListTradesResponse
 	err := cl.do(ctx, "GET", "/api/1/trades", req, &res, false)
@@ -764,34 +791,29 @@ func (cl *Client) ListTrades(ctx context.Context, req *ListTradesRequest) (*List
 
 // ListTransactionsRequest is the request struct for ListTransactions.
 type ListTransactionsRequest struct {
-	// Account ID
+	// Account ID - the unique identifier for the specific Account.
 	//
 	// required: true
-	Id string `json:"id" url:"id"`
-
-	// Maximum of the row range to return (exclusive)
-	//
-	// required: true
-	MaxRow int64 `json:"max_row" url:"max_row"`
+	Id int64 `json:"id" url:"id"`
 
 	// Minimum of the row range to return (inclusive)
 	//
 	// required: true
 	MinRow int64 `json:"min_row" url:"min_row"`
+
+	// Maximum of the row range to return (exclusive)
+	//
+	// required: true
+	MaxRow int64 `json:"max_row" url:"max_row"`
 }
 
 // ListTransactionsResponse is the response struct for ListTransactions.
 type ListTransactionsResponse struct {
-	Balance          AccountBalance      `json:"balance"`
-	Capabilities     AccountCapabilities `json:"capabilities"`
-	Currency         string              `json:"currency"`
-	Icon             string              `json:"icon"`
-	Id               string              `json:"id"`
-	IsDefault        bool                `json:"is_default"`
-	Name             string              `json:"name"`
-	Pending          []Transaction       `json:"pending"`
-	ReceiveAddresses []ReceiveAddress    `json:"receive_addresses"`
-	Transactions     []Transaction       `json:"transactions"`
+	Currency     string        `json:"currency"`
+	Id           string        `json:"id"`
+	Name         string        `json:"name"`
+	Pending      []Transaction `json:"pending"`
+	Transactions []Transaction `json:"transactions"`
 }
 
 // ListTransactions makes a call to GET /api/1/accounts/{id}/transactions.
@@ -824,26 +846,26 @@ type ListUserTradesRequest struct {
 	// required: true
 	Pair string `json:"pair" url:"pair"`
 
-	// Filter to trades from (including) this sequence number.
-	// Default behaviour is not to include this filter.
-	AfterSeq int64 `json:"after_seq" url:"after_seq"`
+	// Filter to trades on or after this timestamp.
+	Since Time `json:"since" url:"since"`
 
 	// Filter to trades before this timestamp.
 	Before Time `json:"before" url:"before"`
+
+	// Filter to trades from (including) this sequence number.
+	// Default behaviour is not to include this filter.
+	AfterSeq int64 `json:"after_seq" url:"after_seq"`
 
 	// Filter to trades before (excluding) this sequence number.
 	// Default behaviour is not to include this filter.
 	BeforeSeq int64 `json:"before_seq" url:"before_seq"`
 
-	// Limit to this number of trades (default 100).
-	Limit int64 `json:"limit" url:"limit"`
-
-	// Filter to trades on or after this timestamp.
-	Since Time `json:"since" url:"since"`
-
 	// If set to true, sorts trades in descending order, otherwise ascending
 	// order will be assumed.
 	SortDesc bool `json:"sort_desc" url:"sort_desc"`
+
+	// Limit to this number of trades (default 100).
+	Limit int64 `json:"limit" url:"limit"`
 }
 
 // ListUserTradesResponse is the response struct for ListUserTrades.
@@ -853,16 +875,13 @@ type ListUserTradesResponse struct {
 
 // ListUserTrades makes a call to GET /api/1/listtrades.
 //
-// Returns a list of your recent trades for a given pair, sorted by oldest
-// first. If <code>before</code> is specified, then the trades are returned
-// sorted by most-recent first.
+// Returns a list of the recent Trades for a given currency pair for this user, sorted by oldest first.
+// If <code>before</code> is specified, then Trades are returned sorted by most-recent first.
 //
-// <code>type</code> in the response indicates the type of order that you placed
-// in order to participate in the trade. Possible types: <code>BID</code>,
-// <code>ASK</code>.
+// <code>type</code> in the response indicates the type of Order that was placed to participate in the trade.
+// Possible types: <code>BID</code>, <code>ASK</code>.
 //
-// If <code>is_buy</code> in the response is true, then the order which
-// completed the trade (market taker) was a bid order.
+// If <code>is_buy</code> in the response is true, then the Order which completed the trade (market taker) was a Bid Order.
 //
 // Results of this query may lag behind the latest data.
 //
@@ -906,28 +925,11 @@ type PostLimitOrderRequest struct {
 	// required: true
 	Pair string `json:"pair" url:"pair"`
 
-	// Limit price as a decimal string in units of ZAR/BTC.
-	//
-	// required: true
-	Price decimal.Decimal `json:"price" url:"price"`
-
 	// <code>BID</code> for a bid (buy) limit order<br>
 	// <code>ASK</code> for ab ask (sell) limit order
 	//
 	// required: true
 	Type OrderType `json:"type" url:"type"`
-
-	// Amount of Bitcoin or Ethereum to buy or sell as a decimal string in units
-	// of the currency.
-	//
-	// required: true
-	Volume decimal.Decimal `json:"volume" url:"volume"`
-
-	// The base currency account to use in the trade.
-	BaseAccountId string `json:"base_account_id" url:"base_account_id"`
-
-	// The counter currency account to use in the trade.
-	CounterAccountId string `json:"counter_account_id" url:"counter_account_id"`
 
 	// Post-only orders will be cancelled if they would otherwise have traded
 	// immediately. For example, if there's a bid at ZAR 100,000 and you place
@@ -935,6 +937,23 @@ type PostLimitOrderRequest struct {
 	// trading. If the best bid is ZAR 100,000 and you place a post-only ask at
 	// ZAR 101,000, your order won't trade but will go into the order book.
 	PostOnly bool `json:"post_only" url:"post_only"`
+
+	// Amount of Bitcoin or Ethereum to buy or sell as a decimal string in units
+	// of the currency.
+	//
+	// required: true
+	Volume decimal.Decimal `json:"volume" url:"volume"`
+
+	// Limit price as a decimal string in units of ZAR/BTC.
+	//
+	// required: true
+	Price decimal.Decimal `json:"price" url:"price"`
+
+	// The base currency account to use in the trade.
+	BaseAccountId int64 `json:"base_account_id" url:"base_account_id"`
+
+	// The counter currency account to use in the trade.
+	CounterAccountId int64 `json:"counter_account_id" url:"counter_account_id"`
 }
 
 // PostLimitOrderResponse is the response struct for PostLimitOrder.
@@ -971,25 +990,23 @@ type PostMarketOrderRequest struct {
 	// required: true
 	Pair string `json:"pair" url:"pair"`
 
-	// <code>BUY</code> to buy Bitcoin or Ethereum<br>
-	// <code>SELL</code> to sell Bitcoin or Ethereum
+	// <code>BUY</code> to buy an asset<br>
+	// <code>SELL</code> to sell an asset
 	//
 	// required: true
 	Type OrderType `json:"type" url:"type"`
 
-	// The base currency account to use in the trade.
-	BaseAccountId string `json:"base_account_id" url:"base_account_id"`
+	// For a <code>BUY</code> order: amount of the counter currency to use (e.g. how much EUR to use to buy BTC in the BTC/EUR market)
+	CounterVolume decimal.Decimal `json:"counter_volume" url:"counter_volume"`
 
-	// For a <code>SELL</code> order: amount of Bitcoin to sell as a decimal
-	// string in units of BTC or ETH.
+	// For a <code>SELL</code> order: amount of the base currency to use (e.g. how much BTC to sell for EUR in the BTC/EUR market)
 	BaseVolume decimal.Decimal `json:"base_volume" url:"base_volume"`
 
-	// The counter currency account to use in the trade.
-	CounterAccountId string `json:"counter_account_id" url:"counter_account_id"`
+	// The base currency account to use in the trade.
+	BaseAccountId int64 `json:"base_account_id" url:"base_account_id"`
 
-	// For a <code>BUY</code> order: amount of local currency (e.g. ZAR, MYR) to
-	// spend as a decimal string in units of the local currency.
-	CounterVolume decimal.Decimal `json:"counter_volume" url:"counter_volume"`
+	// The counter currency account to use in the trade.
+	CounterAccountId int64 `json:"counter_account_id" url:"counter_account_id"`
 }
 
 // PostMarketOrderResponse is the response struct for PostMarketOrder.
@@ -999,18 +1016,15 @@ type PostMarketOrderResponse struct {
 
 // PostMarketOrder makes a call to POST /api/1/marketorder.
 //
-// Create a new market order.
+// Create a new Market Order.
 //
-// A market order executes immediately, and either buys as much Bitcoin or
-// Ethereum that can be bought for a set amount of fiat currency, or sells a
-// set amount of Bitcoin or Ethereum for as much fiat as possible.
+// A Market Order executes immediately, and either buys as much of the asset that can be bought for a set amount of fiat currency, or sells a set amount of the asset for as much as possible.
 //
-// Warning! Orders cannot be reversed once they have executed. Please ensure
-// your program has been thoroughly tested before submitting orders.
+// <b>Warning!</b> Orders cannot be reversed once they have executed.
+// Please ensure your program has been thoroughly tested before submitting Orders.
 //
-// If no base_account_id or counter_account_id are specified, your default base
-// currency or counter currency account will be used. You can find your account
-// IDs by calling the <a href="#operation/getBalances">Balances</a> API.
+// If no <code>base_account_id</code> or <code>counter_account_id</code> are specified, the default base currency or counter currency account will be used.
+// Users can find their account IDs by calling the <a href="#operation/getBalances">Balances</a> request.
 //
 // Permissions required: <code>Perm_W_Orders</code>
 func (cl *Client) PostMarketOrder(ctx context.Context, req *PostMarketOrderRequest) (*PostMarketOrderResponse, error) {
@@ -1022,8 +1036,61 @@ func (cl *Client) PostMarketOrder(ctx context.Context, req *PostMarketOrderReque
 	return &res, nil
 }
 
+// ReceiveLightningRequest is the request struct for ReceiveLightning.
+type ReceiveLightningRequest struct {
+	// Currency to receive (defaults to XBT).
+	Currency string `json:"currency" url:"currency"`
+
+	// Amount to send as a decimal string.
+	//
+	// required: true
+	Amount decimal.Decimal `json:"amount" url:"amount"`
+
+	// Unix expiry timestamp (ms).
+	//
+	// in query
+	ExpiresAt Time `json:"expires_at" url:"expires_at"`
+
+	// User defined description to add to lightning invoice.
+	Description string `json:"description" url:"description"`
+}
+
+// ReceiveLightningResponse is the response struct for ReceiveLightning.
+type ReceiveLightningResponse struct {
+	InvoiceId      string `json:"invoice_id"`
+	PaymentRequest string `json:"payment_request"`
+}
+
+// ReceiveLightning makes a call to POST /api/1/lightning/receive.
+//
+// <b>Alpha warning!</b> The Lightning API is still in Alpha stage.
+// The risks are limited api availability and channel capacity.
+//
+// Create a lightning invoice which can be used to receive
+// BTC payments over the lightning network.
+//
+// Permissions required: <code>Perm_W_Send</code>
+func (cl *Client) ReceiveLightning(ctx context.Context, req *ReceiveLightningRequest) (*ReceiveLightningResponse, error) {
+	var res ReceiveLightningResponse
+	err := cl.do(ctx, "POST", "/api/1/lightning/receive", req, &res, true)
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
 // SendRequest is the request struct for Send.
 type SendRequest struct {
+	// Amount to send as a decimal string.
+	//
+	// required: true
+	Amount decimal.Decimal `json:"amount" url:"amount"`
+
+	// Currency to send.
+	//
+	// required: true
+	Currency string `json:"currency" url:"currency"`
+
 	// Destination Bitcoin address or email address, or Ethereum address to send
 	// to.
 	//
@@ -1037,27 +1104,17 @@ type SendRequest struct {
 	// required: true
 	Address string `json:"address" url:"address"`
 
-	// Amount to send as a decimal string.
-	//
-	// required: true
-	Amount decimal.Decimal `json:"amount" url:"amount"`
-
-	// Currency to send.
-	//
-	// required: true
-	Currency string `json:"currency" url:"currency"`
-
 	// Description for the transaction to record on the account statement.
 	Description string `json:"description" url:"description"`
+
+	// Message to send to the recipient. This is only relevant when sending to
+	// an email address.
+	Message string `json:"message" url:"message"`
 
 	// Optional unique ID to associate with this withdrawal. Useful to prevent
 	// duplicate sends in case of failure. It supports all alphanumeric
 	// characters, as well as "-" and "_".
 	ExternalId string `json:"external_id" url:"external_id"`
-
-	// Message to send to the recipient. This is only relevant when sending to
-	// an email address.
-	Message string `json:"message" url:"message"`
 }
 
 // SendResponse is the response struct for Send.
@@ -1081,6 +1138,51 @@ type SendResponse struct {
 func (cl *Client) Send(ctx context.Context, req *SendRequest) (*SendResponse, error) {
 	var res SendResponse
 	err := cl.do(ctx, "POST", "/api/1/send", req, &res, true)
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+// SendLightningRequest is the request struct for SendLightning.
+type SendLightningRequest struct {
+	// Currency to send.
+	Currency string `json:"currency" url:"currency"`
+
+	// Lightning payment request to send to.
+	//
+	// required: true
+	PaymentRequest string `json:"payment_request" url:"payment_request"`
+
+	// Description for the transaction to record on the account statement.
+	Description string `json:"description" url:"description"`
+
+	// Optional unique ID to associate with this withdrawal. Useful to prevent
+	// duplicate sends in case of failure. It supports all alphanumeric
+	// characters, as well as "-" and "_".
+	ExternalId string `json:"external_id" url:"external_id"`
+}
+
+// SendLightningResponse is the response struct for SendLightning.
+type SendLightningResponse struct {
+	Status       string `json:"status"`
+	WithdrawalId string `json:"withdrawal_id"`
+}
+
+// SendLightning makes a call to POST /api/1/lightning/send.
+//
+// <b>Alpha warning!</b> The Lightning API is still in Alpha stage.
+// The risks are limited api availability and channel capacity.
+//
+// Send Bitcoin over the Lightning network from your Bitcoin Account.
+//
+// Warning! Cryptocurrency transactions are irreversible. Please ensure your
+// program has been thoroughly tested before using this call.
+//
+// Permissions required: <code>Perm_W_Send</code>
+func (cl *Client) SendLightning(ctx context.Context, req *SendLightningRequest) (*SendLightningResponse, error) {
+	var res SendLightningResponse
+	err := cl.do(ctx, "POST", "/api/1/lightning/send", req, &res, true)
 	if err != nil {
 		return nil, err
 	}
