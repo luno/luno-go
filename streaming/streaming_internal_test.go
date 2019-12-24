@@ -156,14 +156,13 @@ func TestReceivedUpdate(t *testing.T) {
 				status: luno.StatusActive,
 			}
 			err := c.receivedUpdate(tt.args.u)
-			switch tt.expected.wantErr {
-			case true:
+			if tt.expected.wantErr {
 				if err == nil {
 					t.Error("error expected but nil received")
 				}
-			case false:
-				validateResult(err, t, tt.expected, c)
+				return
 			}
+			validateResult(err, t, tt.expected, c)
 		})
 	}
 }
@@ -238,14 +237,13 @@ func TestReceivedCreate(t *testing.T) {
 				status: luno.StatusActive,
 			}
 			err := c.receivedUpdate(tt.args.u)
-			switch tt.expected.wantErr {
-			case true:
+			if tt.expected.wantErr {
 				if err == nil {
 					t.Error("error expected but nil received")
 				}
-			case false:
-				validateResult(err, t, tt.expected, c)
+				return
 			}
+			validateResult(err, t, tt.expected, c)
 		})
 	}
 }
@@ -302,14 +300,13 @@ func TestReceivedDelete(t *testing.T) {
 				status: luno.StatusActive,
 			}
 			err := c.receivedUpdate(tt.args.u)
-			switch tt.expected.wantErr {
-			case true:
+			if tt.expected.wantErr {
 				if err == nil {
 					t.Error("error expected but nil received")
 				}
-			case false:
-				validateResult(err, t, tt.expected, c)
+				return
 			}
+			validateResult(err, t, tt.expected, c)
 		})
 	}
 }
