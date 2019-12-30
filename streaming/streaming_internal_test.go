@@ -8,11 +8,12 @@ import (
 )
 
 type expected struct {
-	wantErr bool
-	asks    map[string]order
-	bids    map[string]order
-	seq     int64
-	status  luno.Status
+	wantErr   bool
+	asks      map[string]order
+	bids      map[string]order
+	lastTrade TradeUpdate
+	seq       int64
+	status    luno.Status
 }
 
 func TestOrderBook(t *testing.T) {
@@ -87,8 +88,8 @@ func TestReceivedUpdate(t *testing.T) {
 			args: args{
 				u: Update{Sequence: 2,
 					TradeUpdates: []*TradeUpdate{
-						{Base: decimal.NewFromFloat64(0.01, 2),
-							Counter: decimal.NewFromFloat64(0.001, 2), OrderID: "1"},
+						{Base: decimal.NewFromFloat64(0.02, 2),
+							Counter: decimal.NewFromFloat64(0.002, 2), OrderID: "1"},
 						{Base: decimal.NewFromFloat64(0.01, 2),
 							Counter: decimal.NewFromFloat64(0.001, 2), OrderID: "1"},
 					},
@@ -99,6 +100,8 @@ func TestReceivedUpdate(t *testing.T) {
 				asks:    asksMap(),
 				bids: bidsMap(order{ID: "1", Price: decimal.NewFromFloat64(120.0, 1),
 					Volume: decimal.NewFromFloat64(0.08, 2)}),
+				lastTrade: TradeUpdate{Base: decimal.NewFromFloat64(0.01, 2),
+					Counter: decimal.NewFromFloat64(0.001, 2), OrderID: "1"},
 				seq:    2,
 				status: luno.StatusActive,
 			},
@@ -121,6 +124,8 @@ func TestReceivedUpdate(t *testing.T) {
 					Volume: decimal.NewFromFloat64(0.99, 2)}),
 				bids: bidsMap(order{ID: "3", Price: decimal.NewFromFloat64(100.0, 1),
 					Volume: decimal.NewFromFloat64(0.99, 2)}),
+				lastTrade: TradeUpdate{Base: decimal.NewFromFloat64(0.01, 2),
+					Counter: decimal.NewFromFloat64(0.001, 2), OrderID: "3"},
 				seq:    2,
 				status: luno.StatusActive,
 			},
@@ -142,8 +147,10 @@ func TestReceivedUpdate(t *testing.T) {
 			expected: expected{
 				wantErr: false,
 				bids:    bidsMap(),
-				seq:     2,
-				status:  luno.StatusActive,
+				lastTrade: TradeUpdate{Base: decimal.NewFromFloat64(0.1, 1),
+					Counter: decimal.NewFromFloat64(1, 1), OrderID: "6"},
+				seq:    2,
+				status: luno.StatusActive,
 			},
 		},
 	}
@@ -370,12 +377,28 @@ func existsInOtherMap(a, b map[string]order) bool {
 	return true
 }
 
+func compareLastTrade(a, b TradeUpdate) bool {
+	if &a == &b {
+		return true
+	}
+	if a.Base.Cmp(b.Base) != 0 {
+		return false
+	}
+	if a.Counter.Cmp(b.Counter) != 0 {
+		return false
+	}
+	return true
+}
+
 func validateResult(err error, t *testing.T, exp expected, c *Conn) {
 	if err != nil {
 		t.Errorf("Expected success got: %v", err)
 	}
 	if !compareOrderMaps(exp.asks, c.asks) {
 		t.Errorf("Invalid asks. Expected:%v, got:%v", exp.asks, c.asks)
+	}
+	if !compareLastTrade(exp.lastTrade, c.lastTrade) {
+		t.Errorf("Invalid lastTrade. Expected:%v, got:%v", exp.lastTrade, c.lastTrade)
 	}
 	if exp.seq != c.seq {
 		t.Errorf("Invalid seq. Expected:%v, got:%v", exp.seq, c.seq)
