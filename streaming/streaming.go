@@ -346,16 +346,13 @@ func (c *Conn) processTrade(t TradeUpdate) error {
 		return errors.New("streaming: nonpositive trade")
 	}
 
-	last := c.lastTrade
 	c.lastTrade = TradeUpdate{
 		Base:    t.Base,
 		Counter: t.Counter,
-		OrderID: t.OrderID,
 	}
 
 	ok, err := decTrade(c.bids, t.OrderID, t.Base)
 	if err != nil {
-		c.lastTrade = last
 		return err
 	}
 	if ok {
@@ -364,13 +361,11 @@ func (c *Conn) processTrade(t TradeUpdate) error {
 
 	ok, err = decTrade(c.asks, t.OrderID, t.Base)
 	if err != nil {
-		c.lastTrade = last
 		return err
 	}
 	if ok {
 		return nil
 	}
-	c.lastTrade = last
 	return errors.New("streaming: trade for unknown order")
 }
 

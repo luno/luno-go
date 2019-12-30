@@ -387,9 +387,6 @@ func compareLastTrade(a, b TradeUpdate) bool {
 	if a.Counter.Cmp(b.Counter) != 0 {
 		return false
 	}
-	if a.OrderID != b.OrderID {
-		return false
-	}
 	return true
 }
 
