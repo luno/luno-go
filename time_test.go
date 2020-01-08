@@ -17,11 +17,11 @@ func TestTimeUnmarshalJSON(t *testing.T) {
 
 	testCases := []testCase{
 		testCase{
-			err: true,
+			err: false,
 		},
 		testCase{
 			in:  []byte{},
-			err: true,
+			err: false,
 		},
 		testCase{
 			in:  []byte("abc"),
@@ -50,6 +50,13 @@ func TestTimeUnmarshalJSON(t *testing.T) {
 			t.Errorf("Expected %q to unmarshal as %v, got %v",
 				string(test.in), test.exp, act)
 		}
+		mct, err := act.MarshalJSON()
+		if err != nil {
+			t.Errorf("Expected marshalling unmarshalled %q to succeed", string(test.in))
+		}
+		if string(mct) != string(test.in) {
+			t.Errorf("Expected marshalling unmarshalled %q to have original value %q", string(mct), string(test.in))
+		}
 	}
 }
 
@@ -63,8 +70,7 @@ func TestTimeMarshalJSON(t *testing.T) {
 
 	testCases := []testCase{
 		testCase{
-			in:  luno.Time{},
-			exp: strconv.FormatInt(time.Time{}.UnixNano()/1e6, 10),
+			in: luno.Time{},
 		},
 		testCase{
 			in:  luno.Time(now),
