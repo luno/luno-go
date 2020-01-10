@@ -29,9 +29,8 @@ func (t Time) String() string {
 }
 
 func (t Time) QueryValue() string {
-	ts := time.Time(t).UnixNano() / 1e6
-	if ts < 0 {
-		return "0"
+	if time.Time(t).IsZero() {
+		return ""
 	}
-	return strconv.FormatInt(ts, 10)
+	return strconv.FormatInt(time.Time(t).UnixNano()/1e6, 10)
 }

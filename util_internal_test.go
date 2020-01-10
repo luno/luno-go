@@ -54,7 +54,7 @@ func TestMakeURLValues(t *testing.T) {
 				TS:  S("foo"),
 				T:   Time(time.Time{}),
 			},
-			expected: "aby=foo&b=true&f32=42.4200&f64=42.4200&i=42&i64=42&s=foo&t=0&ts=foo",
+			expected: "aby=foo&b=true&f32=42.4200&f64=42.4200&i=42&i64=42&s=foo&t=&ts=foo",
 		},
 	}
 
