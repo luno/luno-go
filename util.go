@@ -23,9 +23,9 @@ func makeURLValues(v interface{}) (url.Values, error) {
 
 		fieldValue := valElem.Field(i)
 
-		stringer, ok := fieldValue.Interface().(fmt.Stringer)
+		stringer, ok := fieldValue.Interface().(QueryValuer)
 		if ok {
-			values.Set(urlTag, stringer.String())
+			values.Set(urlTag, stringer.QueryValue())
 			continue
 		}
 
@@ -55,4 +55,8 @@ func makeURLValues(v interface{}) (url.Values, error) {
 	}
 
 	return values, nil
+}
+
+type QueryValuer interface {
+	QueryValue() string
 }

@@ -1,7 +1,6 @@
 package luno_test
 
 import (
-	"strconv"
 	"testing"
 	"time"
 
@@ -17,11 +16,11 @@ func TestTimeUnmarshalJSON(t *testing.T) {
 
 	testCases := []testCase{
 		testCase{
-			err: false,
+			err: true,
 		},
 		testCase{
 			in:  []byte{},
-			err: false,
+			err: true,
 		},
 		testCase{
 			in:  []byte("abc"),
@@ -50,13 +49,6 @@ func TestTimeUnmarshalJSON(t *testing.T) {
 			t.Errorf("Expected %q to unmarshal as %v, got %v",
 				string(test.in), test.exp, act)
 		}
-		mct, err := act.MarshalJSON()
-		if err != nil {
-			t.Errorf("Expected marshalling unmarshalled %q to succeed", string(test.in))
-		}
-		if string(mct) != string(test.in) {
-			t.Errorf("Expected marshalling unmarshalled %q to have original value %q", string(mct), string(test.in))
-		}
 	}
 }
 
@@ -70,15 +62,16 @@ func TestTimeMarshalJSON(t *testing.T) {
 
 	testCases := []testCase{
 		testCase{
-			in: luno.Time{},
+			in:  luno.Time{},
+			exp: time.Time{}.String(),
 		},
 		testCase{
 			in:  luno.Time(now),
-			exp: strconv.FormatInt(now.UnixNano()/1e6, 10),
+			exp: now.String(),
 		},
 		testCase{
 			in:  luno.Time(time.Date(2006, 1, 2, 3, 4, 5, 999, time.UTC)),
-			exp: "1136171045000",
+			exp: time.Date(2006, 1, 2, 3, 4, 5, 999, time.UTC).String(),
 		},
 	}
 
