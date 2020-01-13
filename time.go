@@ -25,5 +25,12 @@ func (t Time) MarshalJSON() ([]byte, error) {
 }
 
 func (t Time) String() string {
+	return time.Time(t).String()
+}
+
+func (t Time) QueryValue() string {
+	if time.Time(t).IsZero() {
+		return ""
+	}
 	return strconv.FormatInt(time.Time(t).UnixNano()/1e6, 10)
 }
