@@ -11,6 +11,11 @@ type AccountBalance struct {
 	Unconfirmed decimal.Decimal `json:"unconfirmed"`
 }
 
+type AddressMeta struct {
+	Label string `json:"label"`
+	Value string `json:"value"`
+}
+
 type CryptoDetails struct {
 	Address string `json:"address"`
 	Txid    string `json:"txid"`

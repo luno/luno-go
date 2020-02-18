@@ -28,8 +28,8 @@ type CancelWithdrawalResponse struct {
 
 // CancelWithdrawal makes a call to DELETE /api/1/withdrawals/{id}.
 //
-// Cancel a withdrawal request. This can only be done if the request is still
-// in state <code>PENDING</code>.
+// Cancel a withdrawal request.
+// This can only be done if the request is still in state <code>PENDING</code>.
 //
 // Permissions required: <code>Perm_W_Withdrawals</code>
 func (cl *Client) CancelWithdrawal(ctx context.Context, req *CancelWithdrawalRequest) (*CancelWithdrawalResponse, error) {
@@ -96,9 +96,11 @@ type CreateFundingAddressRequest struct {
 type CreateFundingAddressResponse struct {
 	AccountId        string          `json:"account_id"`
 	Address          string          `json:"address"`
+	AddressMeta      []AddressMeta   `json:"address_meta"`
 	Asset            string          `json:"asset"`
 	AssignedAt       Time            `json:"assigned_at"`
 	Name             string          `json:"name"`
+	QrCodeUri        string          `json:"qr_code_uri"`
 	ReceiveFee       decimal.Decimal `json:"receive_fee"`
 	TotalReceived    decimal.Decimal `json:"total_received"`
 	TotalUnconfirmed decimal.Decimal `json:"total_unconfirmed"`
@@ -122,11 +124,6 @@ func (cl *Client) CreateFundingAddress(ctx context.Context, req *CreateFundingAd
 
 // CreateQuoteRequest is the request struct for CreateQuote.
 type CreateQuoteRequest struct {
-	// <code>BUY</code> or <code>SELL</code>.
-	//
-	// required: true
-	Type string `json:"type" url:"type"`
-
 	// Amount to buy or sell in the pair base currency.
 	//
 	// required: true
@@ -138,10 +135,15 @@ type CreateQuoteRequest struct {
 	// required: true
 	Pair string `json:"pair" url:"pair"`
 
-	// Optional account for the pair's base currency.
+	// <code>BUY</code> or <code>SELL</code>.
+	//
+	// required: true
+	Type string `json:"type" url:"type"`
+
+	// Optional Account for the pair's base currency.
 	BaseAccountId int64 `json:"base_account_id" url:"base_account_id"`
 
-	// Optional account for the pair's counter currency.
+	// Optional Account for the pair's counter currency.
 	CounterAccountId int64 `json:"counter_account_id" url:"counter_account_id"`
 }
 
@@ -160,20 +162,17 @@ type CreateQuoteResponse struct {
 
 // CreateQuote makes a call to POST /api/1/quotes.
 //
-// Creates a new quote to buy or sell a particular amount.
+// Creates a new quote to buy or sell a particular amount of a base currency for a counter currency.
 //
-// You can specify either the exact amount that you want to pay or the exact
-// amount that you want too receive.
+// Users can specify either the exact amount to pay or the exact amount to receive.
 //
-// For example, to buy exactly 0.1 Bitcoin using ZAR, you would create a quote
-// to BUY 0.1 XBTZAR. The returned quote includes the appropriate ZAR amount. To
-// buy Bitcoin using exactly ZAR 100, you would create a quote to SELL 100
-// ZARXBT. The returned quote specifies the Bitcoin as the counter amount that
-// will be returned.
+// For example, to buy exactly 0.1 Bitcoin using ZAR, you would create a quote to BUY 0.1 XBTZAR.
+// The returned quote includes the appropriate ZAR amount.
+// To buy Bitcoin using exactly ZAR 100, create a quote to SELL 100 ZARXBT.
+// The returned quote specifies the Bitcoin as the counter amount returned.
 //
-// An error is returned if your account is not verified for the currency pair,
-// or if your account would have insufficient balance to ever exercise the
-// quote.
+// An error is returned if the Account is not verified for the currency pair,
+// or if the Account would have insufficient balance to ever exercise the quote.
 //
 // Permissions required: <code>Perm_W_Orders</code>
 func (cl *Client) CreateQuote(ctx context.Context, req *CreateQuoteRequest) (*CreateQuoteResponse, error) {
@@ -187,29 +186,28 @@ func (cl *Client) CreateQuote(ctx context.Context, req *CreateQuoteRequest) (*Cr
 
 // CreateWithdrawalRequest is the request struct for CreateWithdrawal.
 type CreateWithdrawalRequest struct {
+	// Amount to withdraw. The currency withdrawn depends on the type setting.
+	//
+	// required: true
+	Amount decimal.Decimal `json:"amount" url:"amount"`
+
 	// Withdrawal type.
 	//
 	// required: true
 	Type string `json:"type" url:"type"`
 
-	// Amount to withdraw. The currency depends on the type.
-	//
-	// required: true
-	Amount decimal.Decimal `json:"amount" url:"amount"`
-
-	// The beneficiary ID of the bank account the withdrawal will be paid out
-	// to. This parameter is required if you have multiple bank accounts. Your
-	// bank account beneficiary ID can be found by clicking on the beneficiary
-	// name on the <a href="/wallet/beneficiaries">Beneficiaries</a> page.
+	// The beneficiary ID of the bank account the withdrawal will be paid out to.
+	// This parameter is required if the user has set up multiple beneficiaries.
+	// The beneficiary ID can be found by selecting on the beneficiary name on the user’s <a href="/wallet/beneficiaries">Beneficiaries</a> page.
 	BeneficiaryId int64 `json:"beneficiary_id" url:"beneficiary_id"`
+
+	// Optional unique ID to associate with this withdrawal.
+	// Useful to prevent duplicate sends.
+	// This field supports all alphanumeric characters including "-" and "_".
+	ExternalId string `json:"external_id" url:"external_id"`
 
 	// For internal use.
 	Reference string `json:"reference" url:"reference"`
-
-	// Optional unique ID to associate with this withdrawal. Useful to prevent
-	// duplicate sends in case of failure. It supports all alphanumeric
-	// characters, as well as "-" and "_".
-	ExternalId string `json:"external_id" url:"external_id"`
 }
 
 // CreateWithdrawalResponse is the response struct for CreateWithdrawal.
@@ -226,7 +224,7 @@ type CreateWithdrawalResponse struct {
 
 // CreateWithdrawal makes a call to POST /api/1/withdrawals.
 //
-// Creates a new withdrawal request.
+// Creates a new withdrawal request to the specified beneficiary.
 //
 // Permissions required: <code>Perm_W_Withdrawals</code>
 func (cl *Client) CreateWithdrawal(ctx context.Context, req *CreateWithdrawalRequest) (*CreateWithdrawalResponse, error) {
@@ -261,8 +259,8 @@ type DiscardQuoteResponse struct {
 
 // DiscardQuote makes a call to DELETE /api/1/quotes/{id}.
 //
-// Discard a quote. Once a quote has been discarded, it cannot be exercised even
-// if it has not expired yet.
+// Discard a Quote.
+// Once a Quote has been discarded, it cannot be exercised even if it has not expired.
 //
 // Permissions required: <code>Perm_W_Orders</code>
 func (cl *Client) DiscardQuote(ctx context.Context, req *DiscardQuoteRequest) (*DiscardQuoteResponse, error) {
@@ -297,12 +295,11 @@ type ExerciseQuoteResponse struct {
 
 // ExerciseQuote makes a call to PUT /api/1/quotes/{id}.
 //
-// Exercise a quote to perform the trade. If there is sufficient balance
-// available in your account, it will be debited and the counter amount
-// credited.
+// Exercise a quote to perform the Trade.
+// If there is sufficient balance available in the Account,
+// it will be debited and the counter amount credited.
 //
-// An error is returned if the quote has expired or if you have insufficient
-// available balance.
+// An error is returned if the quote has expired or if the Account has insufficient available balance.
 //
 // Permissions required: <code>Perm_W_Orders</code>
 func (cl *Client) ExerciseQuote(ctx context.Context, req *ExerciseQuoteRequest) (*ExerciseQuoteResponse, error) {
@@ -385,9 +382,11 @@ type GetFundingAddressRequest struct {
 type GetFundingAddressResponse struct {
 	AccountId        string          `json:"account_id"`
 	Address          string          `json:"address"`
+	AddressMeta      []AddressMeta   `json:"address_meta"`
 	Asset            string          `json:"asset"`
 	AssignedAt       Time            `json:"assigned_at"`
 	Name             string          `json:"name"`
+	QrCodeUri        string          `json:"qr_code_uri"`
 	ReceiveFee       decimal.Decimal `json:"receive_fee"`
 	TotalReceived    decimal.Decimal `json:"total_received"`
 	TotalUnconfirmed decimal.Decimal `json:"total_unconfirmed"`
@@ -480,7 +479,7 @@ type GetOrderResponse struct {
 
 // GetOrder makes a call to GET /api/1/orders/{id}.
 //
-// Get an order by its ID.
+// Get an Order's details by its ID.
 //
 // Permissions required: <code>Perm_R_Orders</code>
 func (cl *Client) GetOrder(ctx context.Context, req *GetOrderRequest) (*GetOrderResponse, error) {
@@ -585,7 +584,7 @@ type GetQuoteResponse struct {
 
 // GetQuote makes a call to GET /api/1/quotes/{id}.
 //
-// Get the latest status of a quote.
+// Get the latest status of a quote by its id.
 //
 // Permissions required: <code>Perm_R_Orders</code>
 func (cl *Client) GetQuote(ctx context.Context, req *GetQuoteRequest) (*GetQuoteResponse, error) {
@@ -624,7 +623,9 @@ type GetTickerResponse struct {
 
 // GetTicker makes a call to GET /api/1/ticker.
 //
-// Returns the latest ticker indicators.
+// Returns the latest ticker indicators for the specified currency pair.
+//
+// Please see the <a href="#tag/currency ">Currency list</a> for the complete list of supported currency pairs.
 func (cl *Client) GetTicker(ctx context.Context, req *GetTickerRequest) (*GetTickerResponse, error) {
 	var res GetTickerResponse
 	err := cl.do(ctx, "GET", "/api/1/ticker", req, &res, false)
@@ -646,6 +647,8 @@ type GetTickersResponse struct {
 // GetTickers makes a call to GET /api/1/tickers.
 //
 // Returns the latest ticker indicators from all active Luno exchanges.
+//
+// Please see the <a href="#tag/currency ">Currency list</a> for the complete list of supported currency pairs.
 func (cl *Client) GetTickers(ctx context.Context, req *GetTickersRequest) (*GetTickersResponse, error) {
 	var res GetTickersResponse
 	err := cl.do(ctx, "GET", "/api/1/tickers", req, &res, false)
@@ -689,19 +692,42 @@ func (cl *Client) GetWithdrawal(ctx context.Context, req *GetWithdrawalRequest) 
 	return &res, nil
 }
 
+// ListBeneficiariesResponseRequest is the request struct for ListBeneficiariesResponse.
+type ListBeneficiariesResponseRequest struct {
+}
+
+// ListBeneficiariesResponseResponse is the response struct for ListBeneficiariesResponse.
+type ListBeneficiariesResponseResponse struct {
+	Beneficiaries []beneficiary `json:"beneficiaries"`
+}
+
+// ListBeneficiariesResponse makes a call to GET /api/1/beneficiaries.
+//
+// Returns a list of bank beneficiaries.
+//
+// Permissions required: <code>Perm_R_Beneficiaries</code>
+func (cl *Client) ListBeneficiariesResponse(ctx context.Context, req *ListBeneficiariesResponseRequest) (*ListBeneficiariesResponseResponse, error) {
+	var res ListBeneficiariesResponseResponse
+	err := cl.do(ctx, "GET", "/api/1/beneficiaries", req, &res, true)
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
 // ListOrdersRequest is the request struct for ListOrders.
 type ListOrdersRequest struct {
-	// Filter to only orders of this state
-	State OrderState `json:"state" url:"state"`
-
-	// Filter to only orders of this currency pair
-	Pair string `json:"pair" url:"pair"`
-
 	// Filter to orders created before this timestamp (Unix milliseconds)
 	CreatedBefore int64 `json:"created_before" url:"created_before"`
 
 	// Limit to this many orders
 	Limit int64 `json:"limit" url:"limit"`
+
+	// Filter to only orders of this currency pair
+	Pair string `json:"pair" url:"pair"`
+
+	// Filter to only orders of this state
+	State OrderState `json:"state" url:"state"`
 }
 
 // ListOrdersResponse is the response struct for ListOrders.
@@ -778,8 +804,10 @@ type ListTradesResponse struct {
 
 // ListTrades makes a call to GET /api/1/trades.
 //
-// Returns a list of the most recent trades that happened in the last 24h. At
-// most 100 results are returned per call.
+// Returns a list of the most recent Trades for the specified currency pair in the last 24 hours.
+// At most 100 results are returned per call.
+//
+// Please see the <a href="#tag/currency ">Currency list</a> for the complete list of supported currency pairs.
 func (cl *Client) ListTrades(ctx context.Context, req *ListTradesRequest) (*ListTradesResponse, error) {
 	var res ListTradesResponse
 	err := cl.do(ctx, "GET", "/api/1/trades", req, &res, false)
@@ -796,15 +824,15 @@ type ListTransactionsRequest struct {
 	// required: true
 	Id int64 `json:"id" url:"id"`
 
-	// Minimum of the row range to return (inclusive)
-	//
-	// required: true
-	MinRow int64 `json:"min_row" url:"min_row"`
-
 	// Maximum of the row range to return (exclusive)
 	//
 	// required: true
 	MaxRow int64 `json:"max_row" url:"max_row"`
+
+	// Minimum of the row range to return (inclusive)
+	//
+	// required: true
+	MinRow int64 `json:"min_row" url:"min_row"`
 }
 
 // ListTransactionsResponse is the response struct for ListTransactions.
@@ -846,26 +874,26 @@ type ListUserTradesRequest struct {
 	// required: true
 	Pair string `json:"pair" url:"pair"`
 
-	// Filter to trades on or after this timestamp.
-	Since Time `json:"since" url:"since"`
-
-	// Filter to trades before this timestamp.
-	Before Time `json:"before" url:"before"`
-
 	// Filter to trades from (including) this sequence number.
 	// Default behaviour is not to include this filter.
 	AfterSeq int64 `json:"after_seq" url:"after_seq"`
+
+	// Filter to trades before this timestamp.
+	Before Time `json:"before" url:"before"`
 
 	// Filter to trades before (excluding) this sequence number.
 	// Default behaviour is not to include this filter.
 	BeforeSeq int64 `json:"before_seq" url:"before_seq"`
 
+	// Limit to this number of trades (default 100).
+	Limit int64 `json:"limit" url:"limit"`
+
+	// Filter to trades on or after this timestamp.
+	Since Time `json:"since" url:"since"`
+
 	// If set to true, sorts trades in descending order, otherwise ascending
 	// order will be assumed.
 	SortDesc bool `json:"sort_desc" url:"sort_desc"`
-
-	// Limit to this number of trades (default 100).
-	Limit int64 `json:"limit" url:"limit"`
 }
 
 // ListUserTradesResponse is the response struct for ListUserTrades.
@@ -925,35 +953,35 @@ type PostLimitOrderRequest struct {
 	// required: true
 	Pair string `json:"pair" url:"pair"`
 
-	// <code>BID</code> for a bid (buy) limit order<br>
-	// <code>ASK</code> for ab ask (sell) limit order
-	//
-	// required: true
-	Type OrderType `json:"type" url:"type"`
-
-	// Post-only orders will be cancelled if they would otherwise have traded
-	// immediately. For example, if there's a bid at ZAR 100,000 and you place
-	// a post-only ask at ZAR 100,000, your order will be cancelled instead of
-	// trading. If the best bid is ZAR 100,000 and you place a post-only ask at
-	// ZAR 101,000, your order won't trade but will go into the order book.
-	PostOnly bool `json:"post_only" url:"post_only"`
-
-	// Amount of Bitcoin or Ethereum to buy or sell as a decimal string in units
-	// of the currency.
-	//
-	// required: true
-	Volume decimal.Decimal `json:"volume" url:"volume"`
-
 	// Limit price as a decimal string in units of ZAR/BTC.
 	//
 	// required: true
 	Price decimal.Decimal `json:"price" url:"price"`
 
-	// The base currency account to use in the trade.
+	// <code>BID</code> for a bid (buy) limit order<br>
+	// <code>ASK</code> for an ask (sell) limit order
+	//
+	// required: true
+	Type OrderType `json:"type" url:"type"`
+
+	// Amount of cryptocurrency to buy or sell as a decimal string in units of the currency.
+	//
+	// required: true
+	Volume decimal.Decimal `json:"volume" url:"volume"`
+
+	// The base currency Account to use in the trade.
 	BaseAccountId int64 `json:"base_account_id" url:"base_account_id"`
 
-	// The counter currency account to use in the trade.
+	// The counter currency Account to use in the trade.
 	CounterAccountId int64 `json:"counter_account_id" url:"counter_account_id"`
+
+	// Post-only Orders will be cancelled if they would otherwise have traded
+	// immediately.
+	// For example, if there's a bid at ZAR 100,000 and you place a post-only ask at ZAR 100,000,
+	// your order will be cancelled instead of trading.
+	// If the best bid is ZAR 100,000 and you place a post-only ask at ZAR 101,000,
+	// your order won't trade but will go into the order book.
+	PostOnly bool `json:"post_only" url:"post_only"`
 }
 
 // PostLimitOrderResponse is the response struct for PostLimitOrder.
@@ -963,15 +991,14 @@ type PostLimitOrderResponse struct {
 
 // PostLimitOrder makes a call to POST /api/1/postorder.
 //
-// Create a new trade order.
+// Create a new Trade Order.
 //
-// Warning! Orders cannot be reversed once they have executed. Please ensure
-// your program has been thoroughly tested before submitting orders.
+// <b>Warning!</b> Orders cannot be reversed once they have executed.
+// Please ensure your program has been thoroughly tested before submitting Orders.
 //
-// If no <code>base_account_id</code> or <code>counter_account_id</code> are
-// specified, your default base currency or counter currency account will be
-// used. You can find your account IDs by calling the
-// <a href="#operation/getBalances">Balances</a> API.
+// If no <code>base_account_id</code> or <code>counter_account_id</code> are specified,
+// your default base currency or counter currency account will be used.
+// You can find your Account IDs by calling the <a href="#operation/getBalances">Balances</a> API.
 //
 // Permissions required: <code>Perm_W_Orders</code>
 func (cl *Client) PostLimitOrder(ctx context.Context, req *PostLimitOrderRequest) (*PostLimitOrderResponse, error) {
@@ -996,17 +1023,17 @@ type PostMarketOrderRequest struct {
 	// required: true
 	Type OrderType `json:"type" url:"type"`
 
-	// For a <code>BUY</code> order: amount of the counter currency to use (e.g. how much EUR to use to buy BTC in the BTC/EUR market)
-	CounterVolume decimal.Decimal `json:"counter_volume" url:"counter_volume"`
+	// The base currency account to use in the trade.
+	BaseAccountId int64 `json:"base_account_id" url:"base_account_id"`
 
 	// For a <code>SELL</code> order: amount of the base currency to use (e.g. how much BTC to sell for EUR in the BTC/EUR market)
 	BaseVolume decimal.Decimal `json:"base_volume" url:"base_volume"`
 
-	// The base currency account to use in the trade.
-	BaseAccountId int64 `json:"base_account_id" url:"base_account_id"`
-
 	// The counter currency account to use in the trade.
 	CounterAccountId int64 `json:"counter_account_id" url:"counter_account_id"`
+
+	// For a <code>BUY</code> order: amount of the counter currency to use (e.g. how much EUR to use to buy BTC in the BTC/EUR market)
+	CounterVolume decimal.Decimal `json:"counter_volume" url:"counter_volume"`
 }
 
 // PostMarketOrderResponse is the response struct for PostMarketOrder.
@@ -1038,21 +1065,21 @@ func (cl *Client) PostMarketOrder(ctx context.Context, req *PostMarketOrderReque
 
 // ReceiveLightningRequest is the request struct for ReceiveLightning.
 type ReceiveLightningRequest struct {
-	// Currency to receive (defaults to XBT).
-	Currency string `json:"currency" url:"currency"`
-
 	// Amount to send as a decimal string.
 	//
 	// required: true
 	Amount decimal.Decimal `json:"amount" url:"amount"`
 
+	// Currency to receive (defaults to XBT).
+	Currency string `json:"currency" url:"currency"`
+
+	// User defined description to add to lightning invoice.
+	Description string `json:"description" url:"description"`
+
 	// Unix expiry timestamp (ms).
 	//
 	// in query
 	ExpiresAt Time `json:"expires_at" url:"expires_at"`
-
-	// User defined description to add to lightning invoice.
-	Description string `json:"description" url:"description"`
 }
 
 // ReceiveLightningResponse is the response struct for ReceiveLightning.
@@ -1081,6 +1108,18 @@ func (cl *Client) ReceiveLightning(ctx context.Context, req *ReceiveLightningReq
 
 // SendRequest is the request struct for Send.
 type SendRequest struct {
+	// Destination address or email address.
+	//
+	// <b>Note</b>:
+	// <ul>
+	// <li>Ethereum addresses must be
+	// <a href="https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md" target="_blank" rel="nofollow">checksummed</a>.</li>
+	// <li>Ethereum sends to email addresses are not supported.</li>
+	// </ul>
+	//
+	// required: true
+	Address string `json:"address" url:"address"`
+
 	// Amount to send as a decimal string.
 	//
 	// required: true
@@ -1091,30 +1130,17 @@ type SendRequest struct {
 	// required: true
 	Currency string `json:"currency" url:"currency"`
 
-	// Destination Bitcoin address or email address, or Ethereum address to send
-	// to.
-	//
-	// Note:
-	// <ul>
-	// <li>Ethereum addresses must be
-	// <a href="https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md" target="_blank" rel="nofollow">checksummed</a>.</li>
-	// <li>Ethereum sends to email addresses are not supported.</li>
-	// </ul>
-	//
-	// required: true
-	Address string `json:"address" url:"address"`
-
-	// Description for the transaction to record on the account statement.
+	// User description for the transaction to record on the account statement.
 	Description string `json:"description" url:"description"`
 
-	// Message to send to the recipient. This is only relevant when sending to
-	// an email address.
-	Message string `json:"message" url:"message"`
-
-	// Optional unique ID to associate with this withdrawal. Useful to prevent
-	// duplicate sends in case of failure. It supports all alphanumeric
-	// characters, as well as "-" and "_".
+	// Optional unique ID to associate with this withdrawal.
+	// Useful to prevent duplicate sends in case of failure.
+	// This supports all alphanumeric characters, as well as "-" and "_".
 	ExternalId string `json:"external_id" url:"external_id"`
+
+	// Message to send to the recipient.
+	// This is only relevant when sending to an email address.
+	Message string `json:"message" url:"message"`
 }
 
 // SendResponse is the response struct for Send.
@@ -1125,14 +1151,9 @@ type SendResponse struct {
 
 // Send makes a call to POST /api/1/send.
 //
-// Send Bitcoin from your account to a Bitcoin address or email address. Send
-// Ethereum from your account to an Ethereum address.
+// Send assets from an Account. Please note that the asset type sent must match the receive address of the same cryptocurrency of the same type - Bitcoin to Bitcoin, Ethereum to Ethereum, etc.
 //
-// If the email address is not associated with an existing Luno account, an
-// invitation to create an account and claim the funds will be sent.
-//
-// Warning! Cryptocurrency transactions are irreversible. Please ensure your
-// program has been thoroughly tested before using this call.
+// Sends can be to a cryptocurrency receive address, or the email address of another Luno platform user.
 //
 // Permissions required: <code>Perm_W_Send</code>
 func (cl *Client) Send(ctx context.Context, req *SendRequest) (*SendResponse, error) {
@@ -1146,13 +1167,13 @@ func (cl *Client) Send(ctx context.Context, req *SendRequest) (*SendResponse, er
 
 // SendLightningRequest is the request struct for SendLightning.
 type SendLightningRequest struct {
-	// Currency to send.
-	Currency string `json:"currency" url:"currency"`
-
 	// Lightning payment request to send to.
 	//
 	// required: true
 	PaymentRequest string `json:"payment_request" url:"payment_request"`
+
+	// Currency to send.
+	Currency string `json:"currency" url:"currency"`
 
 	// Description for the transaction to record on the account statement.
 	Description string `json:"description" url:"description"`
@@ -1191,7 +1212,7 @@ func (cl *Client) SendLightning(ctx context.Context, req *SendLightningRequest) 
 
 // StopOrderRequest is the request struct for StopOrder.
 type StopOrderRequest struct {
-	// The order reference as a string.
+	// The Order identifier as a string.
 	//
 	// required: true
 	OrderId string `json:"order_id" url:"order_id"`
@@ -1204,12 +1225,47 @@ type StopOrderResponse struct {
 
 // StopOrder makes a call to POST /api/1/stoporder.
 //
-// Request to stop an order.
+// Request to stop an Order.
+//
+// <b>Note!</b>: Once as Order has been completed, it can not be reversed.
+// The return value from this request will indicate if the Stop request was successful or not.
 //
 // Permissions required: <code>Perm_W_Orders</code>
 func (cl *Client) StopOrder(ctx context.Context, req *StopOrderRequest) (*StopOrderResponse, error) {
 	var res StopOrderResponse
 	err := cl.do(ctx, "POST", "/api/1/stoporder", req, &res, true)
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+// UpdateAccountNameRequest is the request struct for UpdateAccountName.
+type UpdateAccountNameRequest struct {
+	// Account ID - the unique identifier for the specific Account.
+	//
+	// required: true
+	Id int64 `json:"id" url:"id"`
+
+	// The label to use for this account
+	//
+	// required: true
+	Name string `json:"name" url:"name"`
+}
+
+// UpdateAccountNameResponse is the response struct for UpdateAccountName.
+type UpdateAccountNameResponse struct {
+	Success bool `json:"success"`
+}
+
+// UpdateAccountName makes a call to PUT /api/1/accounts/{id}/name.
+//
+// Update the name of an account with a given ID.
+//
+// Permissions required: <code>Perm_W_Addresses</code>
+func (cl *Client) UpdateAccountName(ctx context.Context, req *UpdateAccountNameRequest) (*UpdateAccountNameResponse, error) {
+	var res UpdateAccountNameResponse
+	err := cl.do(ctx, "PUT", "/api/1/accounts/{id}/name", req, &res, true)
 	if err != nil {
 		return nil, err
 	}
