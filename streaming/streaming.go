@@ -31,7 +31,7 @@ import (
 	"golang.org/x/net/websocket"
 
 	"github.com/luno/luno-go"
-	"github.com/luno/luno-go/decimal"
+	"github.com/shopspring/decimal"
 )
 
 func convertOrders(ol []*order) (map[string]order, error) {

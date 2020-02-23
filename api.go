@@ -3,7 +3,7 @@ package luno
 import (
 	"context"
 
-	"github.com/luno/luno-go/decimal"
+	"github.com/shopspring/decimal"
 )
 
 // CancelWithdrawalRequest is the request struct for CancelWithdrawal.
