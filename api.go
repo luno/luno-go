@@ -1133,10 +1133,16 @@ type SendRequest struct {
 	// User description for the transaction to record on the account statement.
 	Description string `json:"description" url:"description"`
 
+	// Optional XRP destination tag. Note that HasDestinationTag must be true if this value is provided.
+	DestinationTag int64 `json:"destination_tag" url:"destination_tag"`
+
 	// Optional unique ID to associate with this withdrawal.
 	// Useful to prevent duplicate sends in case of failure.
 	// This supports all alphanumeric characters, as well as "-" and "_".
 	ExternalId string `json:"external_id" url:"external_id"`
+
+	// Optional boolean flag indicating that a XRP destination tag is provided (even if zero).
+	HasDestinationTag bool `json:"has_destination_tag" url:"has_destination_tag"`
 
 	// Message to send to the recipient.
 	// This is only relevant when sending to an email address.
