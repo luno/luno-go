@@ -97,6 +97,10 @@ func (d Decimal) String() string {
 	return sign + s
 }
 
+func (d Decimal) QueryValue() string {
+	return d.String()
+}
+
 // Float64 converts the decimal d to a float64.
 func (d Decimal) Float64() float64 {
 	return float64(d.i.Int64()) * math.Pow(float64(10), float64(-d.scale))
