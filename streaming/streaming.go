@@ -234,6 +234,7 @@ func sendPings(ws *websocket.Conn) {
 	for {
 		ws.SetWriteDeadline(time.Now().Add(websocketTimeout))
 		if err := websocket.Message.Send(ws, ""); err != nil {
+			log.Printf("luno/streaming: failed to ping server: %v", err)
 			return
 		}
 		time.Sleep(time.Minute)
