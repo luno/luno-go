@@ -196,7 +196,7 @@ func (c *Conn) connect() error {
 		c.ws.SetReadDeadline(time.Now().Add(websocketTimeout))
 		err := websocket.Message.Receive(c.ws, &data)
 		if err != nil {
-			return fmt.Errorf("failed to receive messge: %v", err)
+			return fmt.Errorf("failed to receive message: %v", err)
 		}
 
 		if string(data) == "\"\"" {
@@ -211,7 +211,7 @@ func (c *Conn) connect() error {
 		if ob.Asks != nil || ob.Bids != nil {
 			// Received an order book.
 			if err := c.receivedOrderBook(ob); err != nil {
-				return fmt.Errorf("fialed to process order book: %v", err)
+				return fmt.Errorf("failed to process order book: %v", err)
 			}
 			if c.connectCallback != nil {
 				c.connectCallback(c)
