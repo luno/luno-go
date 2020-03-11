@@ -34,6 +34,8 @@ import (
 	"github.com/luno/luno-go/decimal"
 )
 
+const websocketTimeout = time.Minute
+
 func convertOrders(ol []*order) (map[string]order, error) {
 	r := make(map[string]order)
 	for _, o := range ol {
@@ -191,9 +193,10 @@ func (c *Conn) connect() error {
 
 	for {
 		var data []byte
+		c.ws.SetReadDeadline(time.Now().Add(websocketTimeout))
 		err := websocket.Message.Receive(c.ws, &data)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to receive message: %v", err)
 		}
 
 		if string(data) == "\"\"" {
@@ -203,12 +206,12 @@ func (c *Conn) connect() error {
 
 		var ob orderBook
 		if err := json.Unmarshal(data, &ob); err != nil {
-			return err
+			return fmt.Errorf("failed to unmarshal order book: %v", err)
 		}
 		if ob.Asks != nil || ob.Bids != nil {
 			// Received an order book.
 			if err := c.receivedOrderBook(ob); err != nil {
-				return err
+				return fmt.Errorf("failed to process order book: %v", err)
 			}
 			if c.connectCallback != nil {
 				c.connectCallback(c)
@@ -218,10 +221,10 @@ func (c *Conn) connect() error {
 
 		var u Update
 		if err := json.Unmarshal(data, &u); err != nil {
-			return err
+			return fmt.Errorf("failed to unmarshal update: %v", err)
 		}
 		if err := c.receivedUpdate(u); err != nil {
-			return err
+			return fmt.Errorf("failed to process update: %v", err)
 		}
 	}
 }
@@ -229,7 +232,9 @@ func (c *Conn) connect() error {
 func sendPings(ws *websocket.Conn) {
 	defer ws.Close()
 	for {
+		ws.SetWriteDeadline(time.Now().Add(websocketTimeout))
 		if err := websocket.Message.Send(ws, ""); err != nil {
+			log.Printf("luno/streaming: Failed to ping server: %v", err)
 			return
 		}
 		time.Sleep(time.Minute)
