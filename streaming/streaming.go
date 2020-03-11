@@ -34,7 +34,7 @@ import (
 	"github.com/luno/luno-go/decimal"
 )
 
-const websocketTimeout = 5 * time.Minute
+const websocketTimeout = time.Minute
 
 func convertOrders(ol []*order) (map[string]order, error) {
 	r := make(map[string]order)
@@ -234,7 +234,7 @@ func sendPings(ws *websocket.Conn) {
 	for {
 		ws.SetWriteDeadline(time.Now().Add(websocketTimeout))
 		if err := websocket.Message.Send(ws, ""); err != nil {
-			log.Printf("luno/streaming: failed to ping server: %v", err)
+			log.Printf("luno/streaming: Failed to ping server: %v", err)
 			return
 		}
 		time.Sleep(time.Minute)
