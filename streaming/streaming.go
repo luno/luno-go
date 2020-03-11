@@ -153,6 +153,8 @@ func (c *Conn) manageForever() {
 	}
 }
 
+var websocket_timeout = flag.Int64("luno_websocket_timeout", 300, "Luno websocket timeout in seconds after which it will close the connection and try to reconnect")
+
 func (c *Conn) connect() error {
 	url := *wsHost + "/api/1/stream/" + c.pair
 	ws, err := websocket.Dial(url, "", "http://localhost/")
@@ -191,9 +193,10 @@ func (c *Conn) connect() error {
 
 	for {
 		var data []byte
+		c.ws.SetDeadline(time.Now().Add(time.Duration(*websocket_timeout) * time.Second))
 		err := websocket.Message.Receive(c.ws, &data)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to receive messge: %v", err)
 		}
 
 		if string(data) == "\"\"" {
@@ -203,12 +206,12 @@ func (c *Conn) connect() error {
 
 		var ob orderBook
 		if err := json.Unmarshal(data, &ob); err != nil {
-			return err
+			return fmt.Errorf("failed to unmarshal order book: %v", err)
 		}
 		if ob.Asks != nil || ob.Bids != nil {
 			// Received an order book.
 			if err := c.receivedOrderBook(ob); err != nil {
-				return err
+				return fmt.Errorf("fialed to process order book: %v", err)
 			}
 			if c.connectCallback != nil {
 				c.connectCallback(c)
@@ -218,10 +221,10 @@ func (c *Conn) connect() error {
 
 		var u Update
 		if err := json.Unmarshal(data, &u); err != nil {
-			return err
+			return fmt.Errorf("failed to unmarshal update: %v", err)
 		}
 		if err := c.receivedUpdate(u); err != nil {
-			return err
+			return fmt.Errorf("failed to process update: %v", err)
 		}
 	}
 }
