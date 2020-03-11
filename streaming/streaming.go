@@ -34,6 +34,8 @@ import (
 	"github.com/luno/luno-go/decimal"
 )
 
+const websocketTimeout = 5 * time.Minute
+
 func convertOrders(ol []*order) (map[string]order, error) {
 	r := make(map[string]order)
 	for _, o := range ol {
@@ -153,8 +155,6 @@ func (c *Conn) manageForever() {
 	}
 }
 
-var websocket_timeout = flag.Int64("luno_websocket_timeout", 300, "Luno websocket timeout in seconds after which it will close the connection and try to reconnect")
-
 func (c *Conn) connect() error {
 	url := *wsHost + "/api/1/stream/" + c.pair
 	ws, err := websocket.Dial(url, "", "http://localhost/")
@@ -193,7 +193,7 @@ func (c *Conn) connect() error {
 
 	for {
 		var data []byte
-		c.ws.SetDeadline(time.Now().Add(time.Duration(*websocket_timeout) * time.Second))
+		c.ws.SetReadDeadline(time.Now().Add(websocketTimeout))
 		err := websocket.Message.Receive(c.ws, &data)
 		if err != nil {
 			return fmt.Errorf("failed to receive messge: %v", err)
@@ -232,6 +232,7 @@ func (c *Conn) connect() error {
 func sendPings(ws *websocket.Conn) {
 	defer ws.Close()
 	for {
+		ws.SetWriteDeadline(time.Now().Add(websocketTimeout))
 		if err := websocket.Message.Send(ws, ""); err != nil {
 			return
 		}
