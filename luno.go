@@ -39,7 +39,7 @@ type Client struct {
 	debug        bool
 }
 
-const defaultBaseURL = "https://api.mybitx.com"
+const defaultBaseURL = "https://api.luno.com"
 
 const defaultTimeout = 10 * time.Second
 
