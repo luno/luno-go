@@ -63,8 +63,8 @@ And then access them in Go like so:
 
 import "os"
 
-var API_KEY_ID string = os.Getenv("LUNO_KEY_ID")
-var API_KEY_SECRET string = os.Getenv("LUNO_KEY_SECRET")
+var API_KEY_ID string = os.Getenv("LUNO_API_ID")
+var API_KEY_SECRET string = os.Getenv("LUNO_API_SECRET")
 
 ```
 
