@@ -31,7 +31,7 @@ import (
   "log"
   "context"
   "time"
-  luno "github.com/luno/luno-go"
+  "github.com/luno/luno-go"
 )
 
 func main() {
