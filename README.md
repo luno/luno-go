@@ -50,12 +50,12 @@ func main() {
 }
 ```
 
-Remember to substitute `<API_KEY_ID>` and `<API_KEY_SECRET>` for your own Id and Secret.
+Remember to substitute `<id>` and `<secret>` for your own Id and Secret.
 
 We recommend using environment variables rather than including your credentials in plaintext. In Bash you do so as follows:
 ```
-$ export LUNO_API_ID="<API_KEY_ID>"
-$ export LUNO_API_SECRET="<API_KEY_SECRET>"
+$ export LUNO_API_ID="<id>"
+$ export LUNO_API_SECRET="<secret>"
 ```
 
 And then access them in Go like so:
