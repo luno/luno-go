@@ -4,17 +4,17 @@
 
 This Go package provides a wrapper for the [Luno API](https://www.luno.com/api).
 
-### Documentation
+## Documentation
 
 Please visit [godoc.org](https://godoc.org/github.com/luno/luno-go) for the full
 package documentation.
 
-### Authentication
+## Authentication
 
 Please visit the [Settings](https://www.luno.com/wallet/settings/api_keys) page
 to generate an API key.
 
-### Installation
+## Installation
 
 ```
 go get github.com/luno/luno-go
@@ -67,6 +67,6 @@ var API_KEY_ID string = os.Getenv("LUNO_API_ID")
 var API_KEY_SECRET string = os.Getenv("LUNO_API_SECRET")
 ```
 
-### License
+## License
 
 [MIT](https://github.com/luno/luno-go/blob/master/LICENSE.md)
