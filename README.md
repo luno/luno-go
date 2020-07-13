@@ -27,47 +27,45 @@ A full working example of this library in action.
 ```go
 package main
 
-import luno "github.com/luno/luno-go"
 import (
   "log"
   "context"
   "time"
+  luno "github.com/luno/luno-go"
 )
 
-lunoClient := luno.NewClient()
-lunoClient.SetAuth("<API_KEY_ID>", "<API_KEY_SECRET>")
+func main() {
+  lunoClient := luno.NewClient()
+  lunoClient.SetAuth("<id>", "<secret>")
 
-req := luno.GetOrderBookRequest{Pair: "XBTZAR"}
-ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(10 * time.Second))
-defer cancel()
+  req := luno.GetOrderBookRequest{Pair: "XBTZAR"}
+  ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(10 * time.Second))
+  defer cancel()
 
-res, err := lunoClient.GetOrderBook(ctx, &req)
-if err != nil {
-  log.Fatal(err)
+  res, err := lunoClient.GetOrderBook(ctx, &req)
+  if err != nil {
+    log.Fatal(err)
+  }
+  log.Println(res)
 }
-log.Println(res)
 ```
 
 Remember to substitute `<API_KEY_ID>` and `<API_KEY_SECRET>` for your own Id and Secret.
 
-It is also recommended to set these as environment variables rather than include them in plaintext. You can do this on `BASH` with:
-
+We recommend using environment variables rather than including your credentials in plaintext. In Bash you do so as follows:
 ```
-$ set LUNO_API_ID="<API_KEY_ID>"
-$ set LUNO_API_SECRET="<API_KEY_SECRET>"
+$ export LUNO_API_ID="<API_KEY_ID>"
+$ export LUNO_API_SECRET="<API_KEY_SECRET>"
 ```
 
 And then access them in Go like so:
 
 ```go
-
 import "os"
 
 var API_KEY_ID string = os.Getenv("LUNO_API_ID")
 var API_KEY_SECRET string = os.Getenv("LUNO_API_SECRET")
-
 ```
-
 
 ### License
 
