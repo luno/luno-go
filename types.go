@@ -72,12 +72,87 @@ const (
 	OrderTypeSell OrderType = "SELL"
 )
 
+type OrderV2 struct {
+	// Amount of base filled
+	Base decimal.Decimal `json:"base"`
+
+	// Time of order completion in milliseconds
+	CompletedTimestamp Time `json:"completed_timestamp"`
+
+	// Amount of counter filled
+	Counter decimal.Decimal `json:"counter"`
+
+	// Time of order creation in milliseconds
+	CreationTimestamp Time `json:"creation_timestamp"`
+
+	// Time of order expiration in milliseconds
+	ExpirationTimestamp Time `json:"expiration_timestamp"`
+
+	// Base amount of fees to be charged
+	FeeBase decimal.Decimal `json:"fee_base"`
+
+	// Counter amount of fees to be charged
+	FeeCounter decimal.Decimal `json:"fee_counter"`
+
+	// Limit price to transact
+	LimitPrice decimal.Decimal `json:"limit_price"`
+
+	// Limit volume to transact
+	LimitVolume decimal.Decimal `json:"limit_volume"`
+
+	// The order reference
+	OrderId string `json:"order_id"`
+
+	// Specifies the market
+	Pair string `json:"pair"`
+
+	// The order intention
+	Side Side `json:"side"`
+
+	// The current state of the order
+	//
+	// Status meaning:<br>
+	// <code>AWAITING</code> The order is awaiting to enter the order book.<br>
+	// <code>PENDING</code> The order is in the order book. Some trades may
+	// have taken place but the order is not filled yet.<br>
+	// <code>COMPLETE</code> The order is no longer in the order book. It has
+	// been settled/filled or has been cancelled.
+	Status Status `json:"status"`
+
+	// Direction to trigger the order
+	StopDirection StopDirection `json:"stop_direction"`
+
+	// Price to trigger the order
+	StopPrice decimal.Decimal `json:"stop_price"`
+
+	// The order type
+	Type Type `json:"type"`
+}
+
+type Side string
+
+const (
+	SideBuy  Side = "BUY"
+	SideSell Side = "SELL"
+)
+
 type Status string
 
 const (
 	StatusActive   Status = "ACTIVE"
+	StatusAwaiting Status = "AWAITING"
+	StatusComplete Status = "COMPLETE"
 	StatusDisabled Status = "DISABLED"
+	StatusPending  Status = "PENDING"
 	StatusPostonly Status = "POSTONLY"
+)
+
+type StopDirection string
+
+const (
+	StopDirectionAbove               StopDirection = "ABOVE"
+	StopDirectionBelow               StopDirection = "BELOW"
+	StopDirectionRelative_last_trade StopDirection = "RELATIVE_LAST_TRADE"
 )
 
 type Ticker struct {
@@ -130,6 +205,14 @@ type Transaction struct {
 	RowIndex  int64             `json:"row_index"`
 	Timestamp Time              `json:"timestamp"`
 }
+
+type Type string
+
+const (
+	TypeLimit      Type = "LIMIT"
+	TypeMarket     Type = "MARKET"
+	TypeStop_limit Type = "STOP_LIMIT"
+)
 
 type Withdrawal struct {
 	Amount     decimal.Decimal `json:"amount"`
