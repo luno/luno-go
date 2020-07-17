@@ -561,6 +561,88 @@ func (cl *Client) GetOrderBookFull(ctx context.Context, req *GetOrderBookFullReq
 	return &res, nil
 }
 
+// GetOrderV2Request is the request struct for GetOrderV2.
+type GetOrderV2Request struct {
+	// Order reference
+	//
+	// required: true
+	Id string `json:"id" url:"id"`
+}
+
+// GetOrderV2Response is the response struct for GetOrderV2.
+type GetOrderV2Response struct {
+	// Amount of base filled
+	Base decimal.Decimal `json:"base"`
+
+	// Time of order completion in milliseconds
+	CompletedTimestamp Time `json:"completed_timestamp"`
+
+	// Amount of counter filled
+	Counter decimal.Decimal `json:"counter"`
+
+	// Time of order creation in milliseconds
+	CreationTimestamp Time `json:"creation_timestamp"`
+
+	// Time of order expiration in milliseconds
+	ExpirationTimestamp Time `json:"expiration_timestamp"`
+
+	// Base amount of fees to be charged
+	FeeBase decimal.Decimal `json:"fee_base"`
+
+	// Counter amount of fees to be charged
+	FeeCounter decimal.Decimal `json:"fee_counter"`
+
+	// Limit price to transact
+	LimitPrice decimal.Decimal `json:"limit_price"`
+
+	// Limit volume to transact
+	LimitVolume decimal.Decimal `json:"limit_volume"`
+
+	// The order reference
+	OrderId string `json:"order_id"`
+
+	// Specifies the market
+	Pair string `json:"pair"`
+
+	// The order intention
+	Side Side `json:"side"`
+
+	// The current state of the order
+	//
+	// Status meaning:<br>
+	// <code>AWAITING</code> The order is awaiting to enter the order book.<br>
+	// <code>PENDING</code> The order is in the order book. Some trades may
+	// have taken place but the order is not filled yet.<br>
+	// <code>COMPLETE</code> The order is no longer in the order book. It has
+	// been settled/filled or has been cancelled.
+	Status Status `json:"status"`
+
+	// Direction to trigger the order
+	StopDirection StopDirection `json:"stop_direction"`
+
+	// Price to trigger the order
+	StopPrice decimal.Decimal `json:"stop_price"`
+
+	// The order type
+	Type Type `json:"type"`
+}
+
+// GetOrderV2 makes a call to GET /api/exchange/2/orders/{id}.
+//
+// Get the details for an order.<br>
+// This endpoint is in BETA, behaviour and specification may change without
+// any previous notice.
+//
+// Permissions required: <code>Perm_R_Orders</code>
+func (cl *Client) GetOrderV2(ctx context.Context, req *GetOrderV2Request) (*GetOrderV2Response, error) {
+	var res GetOrderV2Response
+	err := cl.do(ctx, "GET", "/api/exchange/2/orders/{id}", req, &res, true)
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
 // GetQuoteRequest is the request struct for GetQuote.
 type GetQuoteRequest struct {
 	// ID of the quote to retrieve.
@@ -746,6 +828,43 @@ type ListOrdersResponse struct {
 func (cl *Client) ListOrders(ctx context.Context, req *ListOrdersRequest) (*ListOrdersResponse, error) {
 	var res ListOrdersResponse
 	err := cl.do(ctx, "GET", "/api/1/listorders", req, &res, true)
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+// ListOrdersV2Request is the request struct for ListOrdersV2.
+type ListOrdersV2Request struct {
+	// Filter to orders created before this timestamp (Unix milliseconds)
+	CreatedBefore int64 `json:"created_before" url:"created_before"`
+
+	// Limit to this many orders
+	Limit int64 `json:"limit" url:"limit"`
+
+	// Filter to only orders of this currency pair
+	Pair string `json:"pair" url:"pair"`
+
+	// Filter to only orders of this status
+	Status Status `json:"status" url:"status"`
+}
+
+// ListOrdersV2Response is the response struct for ListOrdersV2.
+type ListOrdersV2Response struct {
+	Orders []OrderV2 `json:"orders"`
+}
+
+// ListOrdersV2 makes a call to GET /api/exchange/2/listorders.
+//
+// Returns a list of the most recently placed orders. The list is truncated
+// after 100 items by default<br>
+// This endpoint is in BETA, behaviour and specification may change without
+// any previous notice.
+//
+// Permissions required: <Code>Perm_R_Orders</Code>
+func (cl *Client) ListOrdersV2(ctx context.Context, req *ListOrdersV2Request) (*ListOrdersV2Response, error) {
+	var res ListOrdersV2Response
+	err := cl.do(ctx, "GET", "/api/exchange/2/listorders", req, &res, true)
 	if err != nil {
 		return nil, err
 	}
@@ -982,6 +1101,19 @@ type PostLimitOrderRequest struct {
 	// If the best bid is ZAR 100,000 and you place a post-only ask at ZAR 101,000,
 	// your order won't trade but will go into the order book.
 	PostOnly bool `json:"post_only" url:"post_only"`
+
+	// Side of the trigger price to activate the order. This should be set if `stop_price` is also
+	// set.
+	//
+	// `RELATIVE_LAST_TRADE` will automatically infer the direction based on the last
+	// trade price and the stop price. If last trade price is less than stop price then stop
+	// direction is ABOVE otherwise is BELOW.
+	StopDirection StopDirection `json:"stop_direction" url:"stop_direction"`
+
+	// Trigger trade price to activate this order as a decimal string. If this
+	// is set then this is treated as a Stop Limit Order and `stop_direction`
+	// is expected to be set too.
+	StopPrice decimal.Decimal `json:"stop_price" url:"stop_price"`
 }
 
 // PostLimitOrderResponse is the response struct for PostLimitOrder.
@@ -1233,7 +1365,7 @@ type StopOrderResponse struct {
 //
 // Request to stop an Order.
 //
-// <b>Note!</b>: Once as Order has been completed, it can not be reversed.
+// <b>Note!</b>: Once an Order has been completed, it can not be reversed.
 // The return value from this request will indicate if the Stop request was successful or not.
 //
 // Permissions required: <code>Perm_W_Orders</code>
