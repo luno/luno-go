@@ -23,6 +23,59 @@ type CryptoDetails struct {
 
 type DetailFields struct {
 	CryptoDetails CryptoDetails `json:"crypto_details"`
+	TradeDetails  TradeDetails  `json:"trade_details"`
+}
+
+type Kind string
+
+const (
+	KindExchange Kind = "EXCHANGE"
+	KindFee      Kind = "FEE"
+	KindInterest Kind = "INTEREST"
+	KindTransfer Kind = "TRANSFER"
+)
+
+type MarketInfo struct {
+	// Maximum order price
+	MaxPrice decimal.Decimal `json:"MaxPrice"`
+
+	// Minimum order price
+	MinPrice decimal.Decimal `json:"MinPrice"`
+
+	// Base currency code
+	BaseCurrency string `json:"base_currency"`
+
+	// Counter currency code
+	CounterCurrency string `json:"counter_currency"`
+
+	// Fee decimal places
+	FeeScale int64 `json:"fee_scale"`
+
+	// Unique identifier for the market
+	MarketId string `json:"market_id"`
+
+	// Maximum order volume
+	MaxVolume decimal.Decimal `json:"max_volume"`
+
+	// Minimum order volume
+	MinVolume decimal.Decimal `json:"min_volume"`
+
+	// Price decimal places
+	PriceScale int64 `json:"price_scale"`
+
+	// Current market trading status:<br>
+	// <code>POST_ONLY</code> Trading is indefinitely suspended. This state is
+	// commonly used when new markets are being launched to give traders enough
+	// time to setup their orders before trading begins. When in this status,
+	// orders can only be posted as post-only.<br>
+	// <code>ACTIVE</code> Trading is fully enabled.<br>
+	// <code>SUSPENDED</code> Trading has been temporarily suspended due to very
+	// high volatility. When in this status, orders can only be posted as
+	// post-only.<br>
+	TradingStatus TradingStatus `json:"trading_status"`
+
+	// Volume decimal places
+	VolumeScale int64 `json:"volume_scale"`
 }
 
 type Order struct {
@@ -186,6 +239,28 @@ type Trade struct {
 	Volume     decimal.Decimal `json:"volume"`
 }
 
+type TradeDetails struct {
+	// Pair of the market
+	Pair string `json:"pair"`
+
+	// Price at which the volume traded for
+	Price decimal.Decimal `json:"price"`
+
+	// Sequence identifies the trade within a market
+	Sequence int64 `json:"sequence"`
+
+	// Volume is the amount of base traded
+	Volume decimal.Decimal `json:"volume"`
+}
+
+type TradingStatus string
+
+const (
+	TradingStatusPost_only TradingStatus = "POST_ONLY"
+	TradingStatusActive    TradingStatus = "ACTIVE"
+	TradingStatusSuspended TradingStatus = "SUSPENDED"
+)
+
 type Transaction struct {
 	AccountId      string          `json:"account_id"`
 	Available      decimal.Decimal `json:"available"`
@@ -201,9 +276,17 @@ type Transaction struct {
 	DetailFields DetailFields `json:"detail_fields"`
 
 	// Human-readable label-value attributes.
-	Details   map[string]string `json:"details"`
-	RowIndex  int64             `json:"row_index"`
-	Timestamp Time              `json:"timestamp"`
+	Details map[string]string `json:"details"`
+
+	// The kind of the transaction indicates the transaction flow
+	//
+	// Kinds explained:<br>
+	// <code>FEE</code> when transaction is towards Luno fees<br>
+	// <code>TRANSFER</code> when the transaction is a one way flow of funds, e.g. a deposit or crypto send<br>
+	// <code>EXCHANGE</code> when the transaction is part of a two way exchange, e.g. a trade or instant buy
+	Kind      Kind  `json:"kind"`
+	RowIndex  int64 `json:"row_index"`
+	Timestamp Time  `json:"timestamp"`
 }
 
 type Type string
