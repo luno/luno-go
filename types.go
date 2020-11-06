@@ -36,12 +36,6 @@ const (
 )
 
 type MarketInfo struct {
-	// Maximum order price
-	MaxPrice decimal.Decimal `json:"MaxPrice"`
-
-	// Minimum order price
-	MinPrice decimal.Decimal `json:"MinPrice"`
-
 	// Base currency code
 	BaseCurrency string `json:"base_currency"`
 
@@ -54,8 +48,14 @@ type MarketInfo struct {
 	// Unique identifier for the market
 	MarketId string `json:"market_id"`
 
+	// Maximum order price
+	MaxPrice decimal.Decimal `json:"max_price"`
+
 	// Maximum order volume
 	MaxVolume decimal.Decimal `json:"max_volume"`
+
+	// Minimum order price
+	MinPrice decimal.Decimal `json:"min_price"`
 
 	// Minimum order volume
 	MinVolume decimal.Decimal `json:"min_volume"`
@@ -105,7 +105,10 @@ type Order struct {
 }
 
 type OrderBookEntry struct {
-	Price  decimal.Decimal `json:"price"`
+	// Limit price
+	Price decimal.Decimal `json:"price"`
+
+	// Volume available
 	Volume decimal.Decimal `json:"volume"`
 }
 
