@@ -469,9 +469,14 @@ type GetOrderBookRequest struct {
 
 // GetOrderBookResponse is the response struct for GetOrderBook.
 type GetOrderBookResponse struct {
-	Asks      []OrderBookEntry `json:"asks"`
-	Bids      []OrderBookEntry `json:"bids"`
-	Timestamp int64            `json:"timestamp"`
+	// List of asks sorted from lowest to highest price
+	Asks []OrderBookEntry `json:"asks"`
+
+	// List of bids sorted from highest to lowest price
+	Bids []OrderBookEntry `json:"bids"`
+
+	// Unix timestamp in milliseconds
+	Timestamp int64 `json:"timestamp"`
 }
 
 // GetOrderBook makes a call to GET /api/1/orderbook_top.
@@ -500,9 +505,14 @@ type GetOrderBookFullRequest struct {
 
 // GetOrderBookFullResponse is the response struct for GetOrderBookFull.
 type GetOrderBookFullResponse struct {
-	Asks      []OrderBookEntry `json:"asks"`
-	Bids      []OrderBookEntry `json:"bids"`
-	Timestamp int64            `json:"timestamp"`
+	// List of asks sorted from lowest to highest price
+	Asks []OrderBookEntry `json:"asks"`
+
+	// List of bids sorted from highest to lowest price
+	Bids []OrderBookEntry `json:"bids"`
+
+	// Unix timestamp in milliseconds
+	Timestamp int64 `json:"timestamp"`
 }
 
 // GetOrderBookFull makes a call to GET /api/1/orderbook.
@@ -652,20 +662,30 @@ type GetTickerRequest struct {
 
 // GetTickerResponse is the response struct for GetTicker.
 type GetTickerResponse struct {
-	Ask                 decimal.Decimal `json:"ask"`
-	Bid                 decimal.Decimal `json:"bid"`
-	CurrencyPair        string          `json:"currency_pair"`
-	LastTrade           decimal.Decimal `json:"last_trade"`
-	Pair                string          `json:"pair"`
+	// The lowest ask price
+	Ask decimal.Decimal `json:"ask"`
+
+	// The highest bid price
+	Bid decimal.Decimal `json:"bid"`
+
+	// Last trade price
+	LastTrade decimal.Decimal `json:"last_trade"`
+	Pair      string          `json:"pair"`
+
+	// 24h rolling trade volume
 	Rolling24HourVolume decimal.Decimal `json:"rolling_24_hour_volume"`
 
+	// Market current status
+	// 
 	// <code>ACTIVE</code> when the market is trading normally
 	// 
 	// <code>POSTONLY</code> when the market has been suspended and only post-only orders will be accepted
 	// 
 	// <code>DISABLED</code> when the market is shutdown and no orders can be accepted
-	Status    Status `json:"status"`
-	Timestamp Time   `json:"timestamp"`
+	Status Status `json:"status"`
+
+	// Unix timestamp in milliseconds of the tick
+	Timestamp Time `json:"timestamp"`
 }
 
 // GetTicker makes a call to GET /api/1/ticker.

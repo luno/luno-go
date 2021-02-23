@@ -122,7 +122,7 @@ type OrderBookEntry struct {
 	// Limit price at which orders are trading at
 	Price decimal.Decimal `json:"price"`
 
-	// Volume available at the limit price
+	// The volume available at the limit price
 	Volume decimal.Decimal `json:"volume"`
 }
 
@@ -226,20 +226,30 @@ const (
 )
 
 type Ticker struct {
-	Ask                 decimal.Decimal `json:"ask"`
-	Bid                 decimal.Decimal `json:"bid"`
-	CurrencyPair        string          `json:"currency_pair"`
-	LastTrade           decimal.Decimal `json:"last_trade"`
-	Pair                string          `json:"pair"`
+	// The lowest ask price
+	Ask decimal.Decimal `json:"ask"`
+
+	// The highest bid price
+	Bid decimal.Decimal `json:"bid"`
+
+	// Last trade price
+	LastTrade decimal.Decimal `json:"last_trade"`
+	Pair      string          `json:"pair"`
+
+	// 24h rolling trade volume
 	Rolling24HourVolume decimal.Decimal `json:"rolling_24_hour_volume"`
 
+	// Market current status
+	// 
 	// <code>ACTIVE</code> when the market is trading normally
 	// 
 	// <code>POSTONLY</code> when the market has been suspended and only post-only orders will be accepted
 	// 
 	// <code>DISABLED</code> when the market is shutdown and no orders can be accepted
-	Status    Status `json:"status"`
-	Timestamp Time   `json:"timestamp"`
+	Status Status `json:"status"`
+
+	// Unix timestamp in milliseconds of the tick
+	Timestamp Time `json:"timestamp"`
 }
 
 type Trade struct {
