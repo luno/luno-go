@@ -30,7 +30,7 @@ type CancelWithdrawalResponse struct {
 //
 // Cancel a withdrawal request.
 // This can only be done if the request is still in state <code>PENDING</code>.
-//
+// 
 // Permissions required: <code>Perm_W_Withdrawals</code>
 func (cl *Client) CancelWithdrawal(ctx context.Context, req *CancelWithdrawalRequest) (*CancelWithdrawalResponse, error) {
 	var res CancelWithdrawalResponse
@@ -44,9 +44,9 @@ func (cl *Client) CancelWithdrawal(ctx context.Context, req *CancelWithdrawalReq
 // CreateAccountRequest is the request struct for CreateAccount.
 type CreateAccountRequest struct {
 	// The currency code for the Account you want to create.  Please see the Currency section for a detailed list of currencies supported by the Luno platform.
-	//
+	// 
 	// Users must be verified to trade currency in order to be able to create an Account.  For more information on the verification process, please see <a href="/help/en/articles/1000168396">How do I verify my identity?</a>.
-	//
+	// 
 	// Users have a limit of 4 accounts per currency.
 	//
 	// required: true
@@ -70,7 +70,7 @@ type CreateAccountResponse struct {
 // CreateAccount makes a call to POST /api/1/accounts.
 //
 // This request creates an Account for the specified currency.  Please note that the balances for the Account will be displayed based on the <code>asset</code> value, which is the currency the Account is based on.
-//
+// 
 // Permissions required: <code>Perm_W_Addresses</code>
 func (cl *Client) CreateAccount(ctx context.Context, req *CreateAccountRequest) (*CreateAccountResponse, error) {
 	var res CreateAccountResponse
@@ -111,7 +111,7 @@ type CreateFundingAddressResponse struct {
 // Allocates a new receive address to your account. There is a rate limit of 1
 // address per hour, but bursts of up to 10 addresses are allowed. Only 1
 // Ethereum receive address can be created.
-//
+// 
 // Permissions required: <code>Perm_W_Addresses</code>
 func (cl *Client) CreateFundingAddress(ctx context.Context, req *CreateFundingAddressRequest) (*CreateFundingAddressResponse, error) {
 	var res CreateFundingAddressResponse
@@ -163,17 +163,17 @@ type CreateQuoteResponse struct {
 // CreateQuote makes a call to POST /api/1/quotes.
 //
 // Creates a new quote to buy or sell a particular amount of a base currency for a counter currency.
-//
+// 
 // Users can specify either the exact amount to pay or the exact amount to receive.
-//
+// 
 // For example, to buy exactly 0.1 Bitcoin using ZAR, you would create a quote to BUY 0.1 XBTZAR.
 // The returned quote includes the appropriate ZAR amount.
 // To buy Bitcoin using exactly ZAR 100, create a quote to SELL 100 ZARXBT.
 // The returned quote specifies the Bitcoin as the counter amount returned.
-//
+// 
 // An error is returned if the Account is not verified for the currency pair,
 // or if the Account would have insufficient balance to ever exercise the quote.
-//
+// 
 // Permissions required: <code>Perm_W_Orders</code>
 func (cl *Client) CreateQuote(ctx context.Context, req *CreateQuoteRequest) (*CreateQuoteResponse, error) {
 	var res CreateQuoteResponse
@@ -225,7 +225,7 @@ type CreateWithdrawalResponse struct {
 // CreateWithdrawal makes a call to POST /api/1/withdrawals.
 //
 // Creates a new withdrawal request to the specified beneficiary.
-//
+// 
 // Permissions required: <code>Perm_W_Withdrawals</code>
 func (cl *Client) CreateWithdrawal(ctx context.Context, req *CreateWithdrawalRequest) (*CreateWithdrawalResponse, error) {
 	var res CreateWithdrawalResponse
@@ -261,7 +261,7 @@ type DiscardQuoteResponse struct {
 //
 // Discard a Quote.
 // Once a Quote has been discarded, it cannot be exercised even if it has not expired.
-//
+// 
 // Permissions required: <code>Perm_W_Orders</code>
 func (cl *Client) DiscardQuote(ctx context.Context, req *DiscardQuoteRequest) (*DiscardQuoteResponse, error) {
 	var res DiscardQuoteResponse
@@ -298,9 +298,9 @@ type ExerciseQuoteResponse struct {
 // Exercise a quote to perform the Trade.
 // If there is sufficient balance available in the Account,
 // it will be debited and the counter amount credited.
-//
+// 
 // An error is returned if the quote has expired or if the Account has insufficient available balance.
-//
+// 
 // Permissions required: <code>Perm_W_Orders</code>
 func (cl *Client) ExerciseQuote(ctx context.Context, req *ExerciseQuoteRequest) (*ExerciseQuoteResponse, error) {
 	var res ExerciseQuoteResponse
@@ -326,7 +326,7 @@ type GetBalancesResponse struct {
 // GetBalances makes a call to GET /api/1/balance.
 //
 // The list of all Accounts and their respective balances for the requesting user.
-//
+// 
 // Permissions required: <code>Perm_R_Balance</code>
 func (cl *Client) GetBalances(ctx context.Context, req *GetBalancesRequest) (*GetBalancesResponse, error) {
 	var res GetBalancesResponse
@@ -355,7 +355,7 @@ type GetFeeInfoResponse struct {
 // GetFeeInfo makes a call to GET /api/1/fee_info.
 //
 // Returns the fees and 30 day trading volume (as of midnight) for a given currency pair.  For complete details, please see <a href="en/countries">Fees & Features</a>.
-//
+// 
 // Permissions required: <code>Perm_R_Orders</code>
 func (cl *Client) GetFeeInfo(ctx context.Context, req *GetFeeInfoRequest) (*GetFeeInfoResponse, error) {
 	var res GetFeeInfoResponse
@@ -396,10 +396,10 @@ type GetFundingAddressResponse struct {
 //
 // Returns the default receive address associated with your account and the
 // amount received via the address. Users can specify an optional address parameter to return information for a non-default receive address.
-//
+// 
 // In the response, <code>total_received</code> is the total confirmed amount received excluding unconfirmed transactions.
 // <code>total_unconfirmed</code> is the total sum of unconfirmed receive transactions.
-//
+// 
 // Permissions required: <code>Perm_R_Addresses</code>
 func (cl *Client) GetFundingAddress(ctx context.Context, req *GetFundingAddressRequest) (*GetFundingAddressResponse, error) {
 	var res GetFundingAddressResponse
@@ -448,44 +448,11 @@ type GetOrderResponse struct {
 // GetOrder makes a call to GET /api/1/orders/{id}.
 //
 // Get an Order's details by its ID.
-//
+// 
 // Permissions required: <code>Perm_R_Orders</code>
 func (cl *Client) GetOrder(ctx context.Context, req *GetOrderRequest) (*GetOrderResponse, error) {
 	var res GetOrderResponse
 	err := cl.do(ctx, "GET", "/api/1/orders/{id}", req, &res, true)
-	if err != nil {
-		return nil, err
-	}
-	return &res, nil
-}
-
-// GetOrderBookRequest is the request struct for GetOrderBook.
-type GetOrderBookRequest struct {
-	// Currency pair of the Orders to retrieve
-	//
-	// required: true
-	Pair string `json:"pair" url:"pair"`
-}
-
-// GetOrderBookResponse is the response struct for GetOrderBook.
-type GetOrderBookResponse struct {
-	Asks      []OrderBookEntry `json:"asks"`
-	Bids      []OrderBookEntry `json:"bids"`
-	Timestamp int64            `json:"timestamp"`
-}
-
-// GetOrderBook makes a call to GET /api/1/orderbook_top.
-//
-// Returns a list of the top 100 <em>bids</em> and <em>asks</em> for the currency pair specified in the Order Book.
-//
-// Ask Orders are sorted by price ascending.
-//
-// Bid Orders are sorted by price descending.
-//
-// Orders of the same price are aggregated.
-func (cl *Client) GetOrderBook(ctx context.Context, req *GetOrderBookRequest) (*GetOrderBookResponse, error) {
-	var res GetOrderBookResponse
-	err := cl.do(ctx, "GET", "/api/1/orderbook_top", req, &res, false)
 	if err != nil {
 		return nil, err
 	}
@@ -509,20 +476,45 @@ type GetOrderBookFullResponse struct {
 
 // GetOrderBookFull makes a call to GET /api/1/orderbook.
 //
-// This request returns a list of all <em>bids</em> and <em>asks</em> for the currency pair specified in the Order Book.
-//
-// Ask orders are sorted by price ascending.
-//
-// Bid orders are sorted by price descending.
-//
-// Multiple orders at the same price are not aggregated.
-//
-// <b>Warning:</b> This may return a large amount of data.
-// Users are recommended to use the <a href="#operation/getOrderBook">top 100 bids and asks</a>
-// or the <a href="#tag/streaming-API-(beta)">Streaming API</a>.
+// This request returns all `bids` and `asks`, for the currency pair specified, in the Order Book.
+// 
+// `asks` are sorted by price ascending and `bids` are sorted by price descending.
+// 
+// Multiple orders at the same price are aggregated.
+// 
+// <b>WARNING:</b> This may return a large amount of data.
+// Users are recommended to use the <a href="#operation/getOrderBookTop">top 100 bids and asks</a>
+// or the <a href="#tag/Streaming-API">Streaming API</a>.
 func (cl *Client) GetOrderBookFull(ctx context.Context, req *GetOrderBookFullRequest) (*GetOrderBookFullResponse, error) {
 	var res GetOrderBookFullResponse
 	err := cl.do(ctx, "GET", "/api/1/orderbook", req, &res, false)
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+// GetOrderBookTopRequest is the request struct for GetOrderBookTop.
+type GetOrderBookTopRequest struct {
+}
+
+// GetOrderBookTopResponse is the response struct for GetOrderBookTop.
+type GetOrderBookTopResponse struct {
+	Asks      []OrderBookEntry `json:"asks"`
+	Bids      []OrderBookEntry `json:"bids"`
+	Timestamp int64            `json:"timestamp"`
+}
+
+// GetOrderBookTop makes a call to GET /api/1/orderbook_top.
+//
+// This request returns the best 100 `bids` and `asks`, for the currency pair specified, in the Order Book.
+// 
+// `asks` are sorted by price ascending and `bids` are sorted by price descending.
+// 
+// Multiple orders at the same price are aggregated.
+func (cl *Client) GetOrderBookTop(ctx context.Context, req *GetOrderBookTopRequest) (*GetOrderBookTopResponse, error) {
+	var res GetOrderBookTopResponse
+	err := cl.do(ctx, "GET", "/api/1/orderbook_top", req, &res, false)
 	if err != nil {
 		return nil, err
 	}
@@ -576,7 +568,7 @@ type GetOrderV2Response struct {
 	Side Side `json:"side"`
 
 	// The current state of the order
-	//
+	// 
 	// Status meaning:<br>
 	// <code>AWAITING</code> The order is awaiting to enter the order book.<br>
 	// <code>PENDING</code> The order is in the order book. Some trades may
@@ -600,7 +592,7 @@ type GetOrderV2Response struct {
 // Get the details for an order.<br>
 // This endpoint is in BETA, behaviour and specification may change without
 // any previous notice.
-//
+// 
 // Permissions required: <code>Perm_R_Orders</code>
 func (cl *Client) GetOrderV2(ctx context.Context, req *GetOrderV2Request) (*GetOrderV2Response, error) {
 	var res GetOrderV2Response
@@ -635,7 +627,7 @@ type GetQuoteResponse struct {
 // GetQuote makes a call to GET /api/1/quotes/{id}.
 //
 // Get the latest status of a quote by its id.
-//
+// 
 // Permissions required: <code>Perm_R_Orders</code>
 func (cl *Client) GetQuote(ctx context.Context, req *GetQuoteRequest) (*GetQuoteResponse, error) {
 	var res GetQuoteResponse
@@ -658,14 +650,15 @@ type GetTickerRequest struct {
 type GetTickerResponse struct {
 	Ask                 decimal.Decimal `json:"ask"`
 	Bid                 decimal.Decimal `json:"bid"`
+	CurrencyPair        string          `json:"currency_pair"`
 	LastTrade           decimal.Decimal `json:"last_trade"`
 	Pair                string          `json:"pair"`
 	Rolling24HourVolume decimal.Decimal `json:"rolling_24_hour_volume"`
 
 	// <code>ACTIVE</code> when the market is trading normally
-	//
+	// 
 	// <code>POSTONLY</code> when the market has been suspended and only post-only orders will be accepted
-	//
+	// 
 	// <code>DISABLED</code> when the market is shutdown and no orders can be accepted
 	Status    Status `json:"status"`
 	Timestamp Time   `json:"timestamp"`
@@ -674,7 +667,7 @@ type GetTickerResponse struct {
 // GetTicker makes a call to GET /api/1/ticker.
 //
 // Returns the latest ticker indicators for the specified currency pair.
-//
+// 
 // Please see the <a href="#tag/currency ">Currency list</a> for the complete list of supported currency pairs.
 func (cl *Client) GetTicker(ctx context.Context, req *GetTickerRequest) (*GetTickerResponse, error) {
 	var res GetTickerResponse
@@ -697,7 +690,7 @@ type GetTickersResponse struct {
 // GetTickers makes a call to GET /api/1/tickers.
 //
 // Returns the latest ticker indicators from all active Luno exchanges.
-//
+// 
 // Please see the <a href="#tag/currency ">Currency list</a> for the complete list of supported currency pairs.
 func (cl *Client) GetTickers(ctx context.Context, req *GetTickersRequest) (*GetTickersResponse, error) {
 	var res GetTickersResponse
@@ -731,7 +724,7 @@ type GetWithdrawalResponse struct {
 // GetWithdrawal makes a call to GET /api/1/withdrawals/{id}.
 //
 // Returns the status of a particular withdrawal request.
-//
+// 
 // Permissions required: <code>Perm_R_Withdrawals</code>
 func (cl *Client) GetWithdrawal(ctx context.Context, req *GetWithdrawalRequest) (*GetWithdrawalResponse, error) {
 	var res GetWithdrawalResponse
@@ -754,7 +747,7 @@ type ListBeneficiariesResponseResponse struct {
 // ListBeneficiariesResponse makes a call to GET /api/1/beneficiaries.
 //
 // Returns a list of bank beneficiaries.
-//
+// 
 // Permissions required: <code>Perm_R_Beneficiaries</code>
 func (cl *Client) ListBeneficiariesResponse(ctx context.Context, req *ListBeneficiariesResponseRequest) (*ListBeneficiariesResponseResponse, error) {
 	var res ListBeneficiariesResponseResponse
@@ -791,7 +784,7 @@ type ListOrdersResponse struct {
 // Users can specify an optional <code>state=PENDING</code> parameter to restrict the results to only open Orders.
 // Users can also specify the market by using the optional currency pair parameter.
 // The list is truncated after 100 items.
-//
+// 
 // Permissions required: <code>Perm_R_Orders</code>
 func (cl *Client) ListOrders(ctx context.Context, req *ListOrdersRequest) (*ListOrdersResponse, error) {
 	var res ListOrdersResponse
@@ -824,11 +817,12 @@ type ListOrdersV2Response struct {
 
 // ListOrdersV2 makes a call to GET /api/exchange/2/listorders.
 //
-// Returns a list of the most recently placed orders. This endpoint will list
-// up to 100 open orders by default.<br>
+// Returns a list of the most recently placed orders ordered from newest to
+// oldest. This endpoint will list up to 100 most recent open orders by
+// default.<br>
 // This endpoint is in BETA, behaviour and specification may change without
 // any previous notice.
-//
+// 
 // Permissions required: <Code>Perm_R_Orders</Code>
 func (cl *Client) ListOrdersV2(ctx context.Context, req *ListOrdersV2Request) (*ListOrdersV2Response, error) {
 	var res ListOrdersV2Response
@@ -859,9 +853,9 @@ type ListPendingTransactionsResponse struct {
 // ListPendingTransactions makes a call to GET /api/1/accounts/{id}/pending.
 //
 // Return a list of all transactions that have not completed for the Account.
-//
+// 
 // Pending transactions are not numbered, and may be reordered, deleted or updated at any time.
-//
+// 
 // Permissions required: <code>Perm_R_Transactions</code>
 func (cl *Client) ListPendingTransactions(ctx context.Context, req *ListPendingTransactionsRequest) (*ListPendingTransactionsResponse, error) {
 	var res ListPendingTransactionsResponse
@@ -893,7 +887,7 @@ type ListTradesResponse struct {
 //
 // Returns a list of the most recent Trades for the specified currency pair in the last 24 hours.
 // At most 100 results are returned per call.
-//
+// 
 // Please see the <a href="#tag/currency ">Currency list</a> for the complete list of supported currency pairs.
 func (cl *Client) ListTrades(ctx context.Context, req *ListTradesRequest) (*ListTradesResponse, error) {
 	var res ListTradesResponse
@@ -934,20 +928,68 @@ type ListTransactionsResponse struct {
 // ListTransactions makes a call to GET /api/1/accounts/{id}/transactions.
 //
 // Return a list of transaction entries from an account.
-//
+// 
 // Transaction entry rows are numbered sequentially starting from 1, where 1 is
 // the oldest entry. The range of rows to return are specified with the
 // <code>min_row</code> (inclusive) and <code>max_row</code> (exclusive)
 // parameters. At most 1000 rows can be requested per call.
-//
+// 
 // If <code>min_row</code> or <code>max_row</code> is non-positive, the range
 // wraps around the most recent row. For example, to fetch the 100 most recent
 // rows, use <code>min_row=-100</code> and <code>max_row=0</code>.
-//
+// 
 // Permissions required: <code>Perm_R_Transactions</code>
 func (cl *Client) ListTransactions(ctx context.Context, req *ListTransactionsRequest) (*ListTransactionsResponse, error) {
 	var res ListTransactionsResponse
 	err := cl.do(ctx, "GET", "/api/1/accounts/{id}/transactions", req, &res, true)
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+// ListTransfersRequest is the request struct for ListTransfers.
+type ListTransfersRequest struct {
+	// Unique identifier of the account to list the transfers from.
+	//
+	// required: true
+	AccountId int64 `json:"account_id" url:"account_id"`
+
+	// Filter to transfers created before this timestamp (Unix milliseconds).
+	// The default value (0) will return the latest transfers on the account.
+	Before int64 `json:"before" url:"before"`
+
+	// Limit to this many transfers.
+	Limit int64 `json:"limit" url:"limit"`
+}
+
+// ListTransfersResponse is the response struct for ListTransfers.
+type ListTransfersResponse struct {
+	Transfers []Transfer `json:"transfers"`
+}
+
+// ListTransfers makes a call to GET /api/exchange/1/transfers.
+//
+// Returns a list of the most recent confirmed transfers ordered from newest to
+// oldest.
+// This includes bank transfers, card payments, or on-chain transactions that
+// have been reflected on your account available balance.
+// 
+// Note that the Transfer `amount` is always a positive value and you should
+// use the `inbound` flag to determine the direction of the transfer.
+// 
+// If you need to paginate the results you can set the `before` parameter to
+// the last returned transfer `created_at` field value and repeat the request
+// until you have all the transfers you need.
+// This endpoint will list up to 100 transfers at a time by default.
+// 
+// This endpoint is in BETA, behaviour and specification may change without
+// any previous notice.
+// 
+// Permissions required: <Code>Perm_R_Transfers</Code>
+func (cl *Client) ListTransfers(ctx context.Context, req *ListTransfersRequest) (*ListTransfersResponse, error) {
+	var res ListTransfersResponse
+	err := cl.do(ctx, "GET", "/api/exchange/1/transfers", req, &res, true)
 	if err != nil {
 		return nil, err
 	}
@@ -992,14 +1034,14 @@ type ListUserTradesResponse struct {
 //
 // Returns a list of the recent Trades for a given currency pair for this user, sorted by oldest first.
 // If <code>before</code> is specified, then Trades are returned sorted by most-recent first.
-//
+// 
 // <code>type</code> in the response indicates the type of Order that was placed to participate in the trade.
 // Possible types: <code>BID</code>, <code>ASK</code>.
-//
+// 
 // If <code>is_buy</code> in the response is true, then the Order which completed the trade (market taker) was a Bid Order.
-//
+// 
 // Results of this query may lag behind the latest data.
-//
+// 
 // Permissions required: <code>Perm_R_Orders</code>
 func (cl *Client) ListUserTrades(ctx context.Context, req *ListUserTradesRequest) (*ListUserTradesResponse, error) {
 	var res ListUserTradesResponse
@@ -1022,7 +1064,7 @@ type ListWithdrawalsResponse struct {
 // ListWithdrawals makes a call to GET /api/1/withdrawals.
 //
 // Returns a list of withdrawal requests.
-//
+// 
 // Permissions required: <code>Perm_R_Withdrawals</code>
 func (cl *Client) ListWithdrawals(ctx context.Context, req *ListWithdrawalsRequest) (*ListWithdrawalsResponse, error) {
 	var res ListWithdrawalsResponse
@@ -1044,8 +1086,8 @@ type MarketsResponse struct {
 
 // Markets makes a call to GET /api/exchange/1/markets.
 //
-// Get all supported markets parameter information like price scale, min and
-// max volumes and market ID.
+// List all supported markets parameter information like price scale, min and
+// max order volumes and market ID.
 func (cl *Client) Markets(ctx context.Context, req *MarketsRequest) (*MarketsResponse, error) {
 	var res MarketsResponse
 	err := cl.do(ctx, "GET", "/api/exchange/1/markets", req, &res, false)
@@ -1094,7 +1136,7 @@ type PostLimitOrderRequest struct {
 
 	// Side of the trigger price to activate the order. This should be set if `stop_price` is also
 	// set.
-	//
+	// 
 	// `RELATIVE_LAST_TRADE` will automatically infer the direction based on the last
 	// trade price and the stop price. If last trade price is less than stop price then stop
 	// direction is ABOVE otherwise is BELOW.
@@ -1114,14 +1156,14 @@ type PostLimitOrderResponse struct {
 // PostLimitOrder makes a call to POST /api/1/postorder.
 //
 // Create a new Trade Order.
-//
+// 
 // <b>Warning!</b> Orders cannot be reversed once they have executed.
 // Please ensure your program has been thoroughly tested before submitting Orders.
-//
+// 
 // If no <code>base_account_id</code> or <code>counter_account_id</code> are specified,
 // your default base currency or counter currency account will be used.
 // You can find your Account IDs by calling the <a href="#operation/getBalances">Balances</a> API.
-//
+// 
 // Permissions required: <code>Perm_W_Orders</code>
 func (cl *Client) PostLimitOrder(ctx context.Context, req *PostLimitOrderRequest) (*PostLimitOrderResponse, error) {
 	var res PostLimitOrderResponse
@@ -1166,15 +1208,15 @@ type PostMarketOrderResponse struct {
 // PostMarketOrder makes a call to POST /api/1/marketorder.
 //
 // Create a new Market Order.
-//
+// 
 // A Market Order executes immediately, and either buys as much of the asset that can be bought for a set amount of fiat currency, or sells a set amount of the asset for as much as possible.
-//
+// 
 // <b>Warning!</b> Orders cannot be reversed once they have executed.
 // Please ensure your program has been thoroughly tested before submitting Orders.
-//
+// 
 // If no <code>base_account_id</code> or <code>counter_account_id</code> are specified, the default base currency or counter currency account will be used.
 // Users can find their account IDs by calling the <a href="#operation/getBalances">Balances</a> request.
-//
+// 
 // Permissions required: <code>Perm_W_Orders</code>
 func (cl *Client) PostMarketOrder(ctx context.Context, req *PostMarketOrderRequest) (*PostMarketOrderResponse, error) {
 	var res PostMarketOrderResponse
@@ -1188,7 +1230,7 @@ func (cl *Client) PostMarketOrder(ctx context.Context, req *PostMarketOrderReque
 // SendRequest is the request struct for Send.
 type SendRequest struct {
 	// Destination address or email address.
-	//
+	// 
 	// <b>Note</b>:
 	// <ul>
 	// <li>Ethereum addresses must be
@@ -1237,9 +1279,9 @@ type SendResponse struct {
 // Send makes a call to POST /api/1/send.
 //
 // Send assets from an Account. Please note that the asset type sent must match the receive address of the same cryptocurrency of the same type - Bitcoin to Bitcoin, Ethereum to Ethereum, etc.
-//
+// 
 // Sends can be to a cryptocurrency receive address, or the email address of another Luno platform user.
-//
+// 
 // Permissions required: <code>Perm_W_Send</code>
 func (cl *Client) Send(ctx context.Context, req *SendRequest) (*SendResponse, error) {
 	var res SendResponse
@@ -1266,10 +1308,10 @@ type StopOrderResponse struct {
 // StopOrder makes a call to POST /api/1/stoporder.
 //
 // Request to stop an Order.
-//
+// 
 // <b>Note!</b>: Once an Order has been completed, it can not be reversed.
 // The return value from this request will indicate if the Stop request was successful or not.
-//
+// 
 // Permissions required: <code>Perm_W_Orders</code>
 func (cl *Client) StopOrder(ctx context.Context, req *StopOrderRequest) (*StopOrderResponse, error) {
 	var res StopOrderResponse
@@ -1301,7 +1343,7 @@ type UpdateAccountNameResponse struct {
 // UpdateAccountName makes a call to PUT /api/1/accounts/{id}/name.
 //
 // Update the name of an account with a given ID.
-//
+// 
 // Permissions required: <code>Perm_W_Addresses</code>
 func (cl *Client) UpdateAccountName(ctx context.Context, req *UpdateAccountNameRequest) (*UpdateAccountNameResponse, error) {
 	var res UpdateAccountNameResponse

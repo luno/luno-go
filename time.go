@@ -34,3 +34,7 @@ func (t Time) QueryValue() string {
 	}
 	return strconv.FormatInt(time.Time(t).UnixNano()/1e6, 10)
 }
+
+func (t Time) AsTime() time.Time {
+	return time.Time(t)
+}

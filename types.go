@@ -3,11 +3,25 @@ package luno
 import "github.com/luno/luno-go/decimal"
 
 type AccountBalance struct {
-	AccountId   string          `json:"account_id"`
-	Asset       string          `json:"asset"`
-	Balance     decimal.Decimal `json:"balance"`
-	Name        string          `json:"name"`
-	Reserved    decimal.Decimal `json:"reserved"`
+	// ID of the account.
+	AccountId string `json:"account_id"`
+
+	// Currency code for the asset held in this account.
+	Asset string `json:"asset"`
+
+	// The amount available to send or trade.
+	Balance decimal.Decimal `json:"balance"`
+
+	// The name set by the user upon creating the account.
+	Name string `json:"name"`
+
+	// Amount locked by Luno and cannot be sent or traded. This could be due to
+	// open orders.
+	Reserved decimal.Decimal `json:"reserved"`
+
+	// Amount that is awaiting some sort of verification to be credited to this
+	// account. This could be an on-chain transaction that Luno is waiting for
+	// further block verifications to happen.
 	Unconfirmed decimal.Decimal `json:"unconfirmed"`
 }
 
@@ -105,10 +119,10 @@ type Order struct {
 }
 
 type OrderBookEntry struct {
-	// Limit price
+	// Limit price at which orders are trading at
 	Price decimal.Decimal `json:"price"`
 
-	// Volume available
+	// Aggregated volume available at the limit price
 	Volume decimal.Decimal `json:"volume"`
 }
 
@@ -166,7 +180,7 @@ type OrderV2 struct {
 	Side Side `json:"side"`
 
 	// The current state of the order
-	//
+	// 
 	// Status meaning:<br>
 	// <code>AWAITING</code> The order is awaiting to enter the order book.<br>
 	// <code>PENDING</code> The order is in the order book. Some trades may
@@ -214,14 +228,15 @@ const (
 type Ticker struct {
 	Ask                 decimal.Decimal `json:"ask"`
 	Bid                 decimal.Decimal `json:"bid"`
+	CurrencyPair        string          `json:"currency_pair"`
 	LastTrade           decimal.Decimal `json:"last_trade"`
 	Pair                string          `json:"pair"`
 	Rolling24HourVolume decimal.Decimal `json:"rolling_24_hour_volume"`
 
 	// <code>ACTIVE</code> when the market is trading normally
-	//
+	// 
 	// <code>POSTONLY</code> when the market has been suspended and only post-only orders will be accepted
-	//
+	// 
 	// <code>DISABLED</code> when the market is shutdown and no orders can be accepted
 	Status    Status `json:"status"`
 	Timestamp Time   `json:"timestamp"`
@@ -282,7 +297,7 @@ type Transaction struct {
 	Details map[string]string `json:"details"`
 
 	// The kind of the transaction indicates the transaction flow
-	//
+	// 
 	// Kinds explained:<br>
 	// <code>FEE</code> when transaction is towards Luno fees<br>
 	// <code>TRANSFER</code> when the transaction is a one way flow of funds, e.g. a deposit or crypto send<br>
@@ -290,6 +305,32 @@ type Transaction struct {
 	Kind      Kind  `json:"kind"`
 	RowIndex  int64 `json:"row_index"`
 	Timestamp Time  `json:"timestamp"`
+}
+
+type Transfer struct {
+	// Amount that has been credited or debited on the account. This is always a
+	// positive value regardless of the transfer direction.
+	Amount decimal.Decimal `json:"amount"`
+
+	// Unix time the transfer was initiated, in milliseconds
+	CreatedAt Time `json:"created_at"`
+
+	// Fee that has been charged by Luno with regards to this transfer.
+	// This is not included in the `amount`.
+	// For example, if you receive a transaction with the raw amount of 1 BTC
+	// and we charge a `fee` of 0.003 BTC on this transaction you will be
+	// credited the `amount` of 0.997 BTC.
+	Fee decimal.Decimal `json:"fee"`
+
+	// Transfer unique identifier
+	Id string `json:"id"`
+
+	// True for credit transfers, false for debits.
+	Inbound bool `json:"inbound"`
+
+	// When the transfer reflects an on-chain transaction this field will have
+	// the transaction ID.
+	TransactionId string `json:"transaction_id"`
 }
 
 type Type string
