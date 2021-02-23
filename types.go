@@ -122,7 +122,7 @@ type OrderBookEntry struct {
 	// Limit price at which orders are trading at
 	Price decimal.Decimal `json:"price"`
 
-	// Aggregated volume available at the limit price
+	// Volume available at the limit price
 	Volume decimal.Decimal `json:"volume"`
 }
 
