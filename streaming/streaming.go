@@ -446,6 +446,14 @@ func (c *Conn) Snapshot() Snapshot {
 	}
 }
 
+// Status returns the currenct status of the streaming connection.
+func (c *Conn) Status() luno.Status {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	return c.status
+}
+
 // Close the connection.
 func (c *Conn) Close() {
 	c.mu.Lock()
