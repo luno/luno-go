@@ -410,38 +410,6 @@ func (cl *Client) GetFundingAddress(ctx context.Context, req *GetFundingAddressR
 	return &res, nil
 }
 
-// GetLightningReceiveRequest is the request struct for GetLightningReceive.
-type GetLightningReceiveRequest struct {
-	// ID of invoice.
-	//
-	// required: true
-	Id int64 `json:"id" url:"id"`
-}
-
-// GetLightningReceiveResponse is the response struct for GetLightningReceive.
-type GetLightningReceiveResponse struct {
-	PaymentRequest string          `json:"payment_request"`
-	SettledAmount  decimal.Decimal `json:"settled_amount"`
-	Status         string          `json:"status"`
-}
-
-// GetLightningReceive makes a call to GET /api/1/lightning/receive/{id}.
-//
-// <b>Alpha warning!</b> The Lightning API is still in Alpha stage.
-// The risks are limited api availability and channel capacity.
-//
-// Lookup the status of a Lightning Receive Invoice.
-//
-// Permissions required: <code>Perm_W_Send</code>
-func (cl *Client) GetLightningReceive(ctx context.Context, req *GetLightningReceiveRequest) (*GetLightningReceiveResponse, error) {
-	var res GetLightningReceiveResponse
-	err := cl.do(ctx, "GET", "/api/1/lightning/receive/{id}", req, &res, true)
-	if err != nil {
-		return nil, err
-	}
-	return &res, nil
-}
-
 // GetOrderRequest is the request struct for GetOrder.
 type GetOrderRequest struct {
 	// The order ID.
@@ -555,6 +523,88 @@ type GetOrderBookFullResponse struct {
 func (cl *Client) GetOrderBookFull(ctx context.Context, req *GetOrderBookFullRequest) (*GetOrderBookFullResponse, error) {
 	var res GetOrderBookFullResponse
 	err := cl.do(ctx, "GET", "/api/1/orderbook", req, &res, false)
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+// GetOrderV2Request is the request struct for GetOrderV2.
+type GetOrderV2Request struct {
+	// Order reference
+	//
+	// required: true
+	Id string `json:"id" url:"id"`
+}
+
+// GetOrderV2Response is the response struct for GetOrderV2.
+type GetOrderV2Response struct {
+	// Amount of base filled
+	Base decimal.Decimal `json:"base"`
+
+	// Time of order completion in milliseconds
+	CompletedTimestamp Time `json:"completed_timestamp"`
+
+	// Amount of counter filled
+	Counter decimal.Decimal `json:"counter"`
+
+	// Time of order creation in milliseconds
+	CreationTimestamp Time `json:"creation_timestamp"`
+
+	// Time of order expiration in milliseconds
+	ExpirationTimestamp Time `json:"expiration_timestamp"`
+
+	// Base amount of fees to be charged
+	FeeBase decimal.Decimal `json:"fee_base"`
+
+	// Counter amount of fees to be charged
+	FeeCounter decimal.Decimal `json:"fee_counter"`
+
+	// Limit price to transact
+	LimitPrice decimal.Decimal `json:"limit_price"`
+
+	// Limit volume to transact
+	LimitVolume decimal.Decimal `json:"limit_volume"`
+
+	// The order reference
+	OrderId string `json:"order_id"`
+
+	// Specifies the market
+	Pair string `json:"pair"`
+
+	// The order intention
+	Side Side `json:"side"`
+
+	// The current state of the order
+	//
+	// Status meaning:<br>
+	// <code>AWAITING</code> The order is awaiting to enter the order book.<br>
+	// <code>PENDING</code> The order is in the order book. Some trades may
+	// have taken place but the order is not filled yet.<br>
+	// <code>COMPLETE</code> The order is no longer in the order book. It has
+	// been settled/filled or has been cancelled.
+	Status Status `json:"status"`
+
+	// Direction to trigger the order
+	StopDirection StopDirection `json:"stop_direction"`
+
+	// Price to trigger the order
+	StopPrice decimal.Decimal `json:"stop_price"`
+
+	// The order type
+	Type Type `json:"type"`
+}
+
+// GetOrderV2 makes a call to GET /api/exchange/2/orders/{id}.
+//
+// Get the details for an order.<br>
+// This endpoint is in BETA, behaviour and specification may change without
+// any previous notice.
+//
+// Permissions required: <code>Perm_R_Orders</code>
+func (cl *Client) GetOrderV2(ctx context.Context, req *GetOrderV2Request) (*GetOrderV2Response, error) {
+	var res GetOrderV2Response
+	err := cl.do(ctx, "GET", "/api/exchange/2/orders/{id}", req, &res, true)
 	if err != nil {
 		return nil, err
 	}
@@ -746,6 +796,43 @@ type ListOrdersResponse struct {
 func (cl *Client) ListOrders(ctx context.Context, req *ListOrdersRequest) (*ListOrdersResponse, error) {
 	var res ListOrdersResponse
 	err := cl.do(ctx, "GET", "/api/1/listorders", req, &res, true)
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+// ListOrdersV2Request is the request struct for ListOrdersV2.
+type ListOrdersV2Request struct {
+	// If true, will return closed orders instead of open orders.
+	Closed bool `json:"closed" url:"closed"`
+
+	// Filter to orders created before this timestamp (Unix milliseconds)
+	CreatedBefore int64 `json:"created_before" url:"created_before"`
+
+	// Limit to this many orders
+	Limit int64 `json:"limit" url:"limit"`
+
+	// Filter to only orders of this currency pair.
+	Pair string `json:"pair" url:"pair"`
+}
+
+// ListOrdersV2Response is the response struct for ListOrdersV2.
+type ListOrdersV2Response struct {
+	Orders []OrderV2 `json:"orders"`
+}
+
+// ListOrdersV2 makes a call to GET /api/exchange/2/listorders.
+//
+// Returns a list of the most recently placed orders. This endpoint will list
+// up to 100 open orders by default.<br>
+// This endpoint is in BETA, behaviour and specification may change without
+// any previous notice.
+//
+// Permissions required: <Code>Perm_R_Orders</Code>
+func (cl *Client) ListOrdersV2(ctx context.Context, req *ListOrdersV2Request) (*ListOrdersV2Response, error) {
+	var res ListOrdersV2Response
+	err := cl.do(ctx, "GET", "/api/exchange/2/listorders", req, &res, true)
 	if err != nil {
 		return nil, err
 	}
@@ -946,6 +1033,28 @@ func (cl *Client) ListWithdrawals(ctx context.Context, req *ListWithdrawalsReque
 	return &res, nil
 }
 
+// MarketsRequest is the request struct for Markets.
+type MarketsRequest struct {
+}
+
+// MarketsResponse is the response struct for Markets.
+type MarketsResponse struct {
+	Markets []MarketInfo `json:"markets"`
+}
+
+// Markets makes a call to GET /api/exchange/1/markets.
+//
+// Get all supported markets parameter information like price scale, min and
+// max volumes and market ID.
+func (cl *Client) Markets(ctx context.Context, req *MarketsRequest) (*MarketsResponse, error) {
+	var res MarketsResponse
+	err := cl.do(ctx, "GET", "/api/exchange/1/markets", req, &res, false)
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
 // PostLimitOrderRequest is the request struct for PostLimitOrder.
 type PostLimitOrderRequest struct {
 	// The currency pair to trade.
@@ -982,6 +1091,19 @@ type PostLimitOrderRequest struct {
 	// If the best bid is ZAR 100,000 and you place a post-only ask at ZAR 101,000,
 	// your order won't trade but will go into the order book.
 	PostOnly bool `json:"post_only" url:"post_only"`
+
+	// Side of the trigger price to activate the order. This should be set if `stop_price` is also
+	// set.
+	//
+	// `RELATIVE_LAST_TRADE` will automatically infer the direction based on the last
+	// trade price and the stop price. If last trade price is less than stop price then stop
+	// direction is ABOVE otherwise is BELOW.
+	StopDirection StopDirection `json:"stop_direction" url:"stop_direction"`
+
+	// Trigger trade price to activate this order as a decimal string. If this
+	// is set then this is treated as a Stop Limit Order and `stop_direction`
+	// is expected to be set too.
+	StopPrice decimal.Decimal `json:"stop_price" url:"stop_price"`
 }
 
 // PostLimitOrderResponse is the response struct for PostLimitOrder.
@@ -1063,49 +1185,6 @@ func (cl *Client) PostMarketOrder(ctx context.Context, req *PostMarketOrderReque
 	return &res, nil
 }
 
-// ReceiveLightningRequest is the request struct for ReceiveLightning.
-type ReceiveLightningRequest struct {
-	// Amount to send as a decimal string.
-	//
-	// required: true
-	Amount decimal.Decimal `json:"amount" url:"amount"`
-
-	// Currency to receive (defaults to XBT).
-	Currency string `json:"currency" url:"currency"`
-
-	// User defined description to add to lightning invoice.
-	Description string `json:"description" url:"description"`
-
-	// Unix expiry timestamp (ms).
-	//
-	// in query
-	ExpiresAt Time `json:"expires_at" url:"expires_at"`
-}
-
-// ReceiveLightningResponse is the response struct for ReceiveLightning.
-type ReceiveLightningResponse struct {
-	InvoiceId      string `json:"invoice_id"`
-	PaymentRequest string `json:"payment_request"`
-}
-
-// ReceiveLightning makes a call to POST /api/1/lightning/receive.
-//
-// <b>Alpha warning!</b> The Lightning API is still in Alpha stage.
-// The risks are limited api availability and channel capacity.
-//
-// Create a lightning invoice which can be used to receive
-// BTC payments over the lightning network.
-//
-// Permissions required: <code>Perm_W_Send</code>
-func (cl *Client) ReceiveLightning(ctx context.Context, req *ReceiveLightningRequest) (*ReceiveLightningResponse, error) {
-	var res ReceiveLightningResponse
-	err := cl.do(ctx, "POST", "/api/1/lightning/receive", req, &res, true)
-	if err != nil {
-		return nil, err
-	}
-	return &res, nil
-}
-
 // SendRequest is the request struct for Send.
 type SendRequest struct {
 	// Destination address or email address.
@@ -1171,51 +1250,6 @@ func (cl *Client) Send(ctx context.Context, req *SendRequest) (*SendResponse, er
 	return &res, nil
 }
 
-// SendLightningRequest is the request struct for SendLightning.
-type SendLightningRequest struct {
-	// Lightning payment request to send to.
-	//
-	// required: true
-	PaymentRequest string `json:"payment_request" url:"payment_request"`
-
-	// Currency to send.
-	Currency string `json:"currency" url:"currency"`
-
-	// Description for the transaction to record on the account statement.
-	Description string `json:"description" url:"description"`
-
-	// Optional unique ID to associate with this withdrawal. Useful to prevent
-	// duplicate sends in case of failure. It supports all alphanumeric
-	// characters, as well as "-" and "_".
-	ExternalId string `json:"external_id" url:"external_id"`
-}
-
-// SendLightningResponse is the response struct for SendLightning.
-type SendLightningResponse struct {
-	Status       string `json:"status"`
-	WithdrawalId string `json:"withdrawal_id"`
-}
-
-// SendLightning makes a call to POST /api/1/lightning/send.
-//
-// <b>Alpha warning!</b> The Lightning API is still in Alpha stage.
-// The risks are limited api availability and channel capacity.
-//
-// Send Bitcoin over the Lightning network from your Bitcoin Account.
-//
-// Warning! Cryptocurrency transactions are irreversible. Please ensure your
-// program has been thoroughly tested before using this call.
-//
-// Permissions required: <code>Perm_W_Send</code>
-func (cl *Client) SendLightning(ctx context.Context, req *SendLightningRequest) (*SendLightningResponse, error) {
-	var res SendLightningResponse
-	err := cl.do(ctx, "POST", "/api/1/lightning/send", req, &res, true)
-	if err != nil {
-		return nil, err
-	}
-	return &res, nil
-}
-
 // StopOrderRequest is the request struct for StopOrder.
 type StopOrderRequest struct {
 	// The Order identifier as a string.
@@ -1233,7 +1267,7 @@ type StopOrderResponse struct {
 //
 // Request to stop an Order.
 //
-// <b>Note!</b>: Once as Order has been completed, it can not be reversed.
+// <b>Note!</b>: Once an Order has been completed, it can not be reversed.
 // The return value from this request will indicate if the Stop request was successful or not.
 //
 // Permissions required: <code>Perm_W_Orders</code>
