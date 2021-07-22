@@ -32,7 +32,7 @@ func main() {
 	defaultSpec := "https://api.luno.com/api/exchange/1/schema"
 
 	opts := options{
-		spec:       flag.String("spec", defaultSpec, "Path to swagger spec"),
+		spec:       flag.String("spec", defaultSpec, "URL of swagger spec"),
 		lang:       flag.String("lang", "", "Language to generate"),
 		outdir:     flag.String("outdir", "", "Directory to write the client to"),
 		dryrun:     flag.Bool("dryrun", false, "Just output the generated files"),
