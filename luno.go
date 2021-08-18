@@ -16,20 +16,6 @@ import (
 	"time"
 )
 
-// Error is a Luno API error.
-type Error struct {
-	// Code can be used to identify errors even if the error message is
-	// localised.
-	Code string `json:"error_code"`
-
-	// Message may be localised for authenticated API calls.
-	Message string `json:"error"`
-}
-
-func (e *Error) Error() string {
-	return e.Message
-}
-
 // Client is a Luno API client.
 type Client struct {
 	httpClient   *http.Client
@@ -97,10 +83,7 @@ func (cl *Client) do(ctx context.Context, method, path string,
 	var contentType string
 	var body io.Reader
 	if req != nil {
-		values, err := makeURLValues(req)
-		if err != nil {
-			return err
-		}
+		values := makeURLValues(req)
 		if strings.Contains(path, "{id}") {
 			url = strings.Replace(url, "{id}", values.Get("id"), -1)
 			values.Del("id")
@@ -153,12 +136,13 @@ func (cl *Client) do(ctx context.Context, method, path string,
 	}
 
 	if httpRes.StatusCode != http.StatusOK {
-		var e Error
-		if err := json.NewDecoder(body).Decode(&e); err != nil {
+		var e lunoError
+		err := json.NewDecoder(body).Decode(&e)
+		if err != nil {
 			return fmt.Errorf("luno: error decoding response (%d %s)",
 				httpRes.StatusCode, http.StatusText(httpRes.StatusCode))
 		}
-		return fmt.Errorf("luno: %s (%s)", e.Message, e.Code)
+		return e
 	}
 
 	return json.NewDecoder(body).Decode(res)
