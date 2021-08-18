@@ -22,6 +22,8 @@ func (e lunoError) Code() string {
 	return e.ErrorCode
 }
 
+// IsErrorCode returns whether an error is identifiable by a given code. This can be used to handle luno.Client errors.
+// Any other errors will cause this to return false.
 func IsErrorCode(err error, code string) bool {
 	if err == nil {
 		return false
