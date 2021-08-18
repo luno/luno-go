@@ -7,15 +7,15 @@ import (
 
 func TestLunoError(t *testing.T) {
 	err := lunoError{
-		ErrorCode: "ErrFoo",
-		Message:   "Example error message!",
+		Code:    "ErrFoo",
+		Message: "Example error message!",
 	}
 
 	 if err.Error() != "Example error message! (ErrFoo)" {
 	 	t.Errorf("Unexpected error formatting")
 	 }
 
-	 if err.Code() != "ErrFoo" {
+	 if err.ErrCode() != "ErrFoo" {
 	 	t.Errorf("Unexpected error code")
 	 }
 }
@@ -36,8 +36,8 @@ func TestIsErrorCode(t *testing.T) {
 		{
 			name: "luno error with code present",
 			err:  lunoError{
-				ErrorCode: "ErrFoo",
-				Message:   "example error message",
+				Code:    "ErrFoo",
+				Message: "example error message",
 			},
 			code: "ErrFoo",
 			exp:  true,
@@ -45,8 +45,8 @@ func TestIsErrorCode(t *testing.T) {
 		{
 			name: "luno error with different code",
 			err:  lunoError{
-				ErrorCode: "ErrBar",
-				Message:   "example error message",
+				Code:    "ErrBar",
+				Message: "example error message",
 			},
 			code: "ErrFoo",
 			exp:  false,
