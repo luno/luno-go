@@ -8,7 +8,7 @@ import (
 )
 
 // makeURLValues converts a request struct into a url.Values map.
-func makeURLValues(v interface{}) (url.Values, error) {
+func makeURLValues(v interface{}) url.Values {
 	values := make(url.Values)
 
 	valElem := reflect.ValueOf(v).Elem()
@@ -54,7 +54,7 @@ func makeURLValues(v interface{}) (url.Values, error) {
 		values.Set(urlTag, s)
 	}
 
-	return values, nil
+	return values
 }
 
 type QueryValuer interface {
