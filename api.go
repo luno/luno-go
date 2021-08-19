@@ -829,7 +829,7 @@ type ListOrdersV2Response struct {
 // This endpoint is in BETA, behaviour and specification may change without
 // any previous notice.
 //
-// Permissions required: <ErrCode>Perm_R_Orders</ErrCode>
+// Permissions required: <Code>Perm_R_Orders</Code>
 func (cl *Client) ListOrdersV2(ctx context.Context, req *ListOrdersV2Request) (*ListOrdersV2Response, error) {
 	var res ListOrdersV2Response
 	err := cl.do(ctx, "GET", "/api/exchange/2/listorders", req, &res, true)
