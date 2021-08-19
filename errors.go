@@ -1,17 +1,12 @@
 package luno
 
 import (
+	"errors"
 	"fmt"
 )
 
-// Error shouldn't be used anymore. Please use IsErrorCode if you want to check for a specific error code.
-// Deprecated
+// Error is a Luno API error.
 type Error struct {
-	lunoError
-}
-
-// lunoError is a Luno API error.
-type lunoError struct {
 	// Code can be used to identify errors even if the error message is
 	// localised.
 	Code string `json:"error_code"`
@@ -20,11 +15,11 @@ type lunoError struct {
 	Message string `json:"error"`
 }
 
-func (e lunoError) Error() string {
+func (e Error) Error() string {
 	return fmt.Sprintf("%s (%s)", e.Message, e.Code)
 }
 
-func (e lunoError) ErrCode() string {
+func (e Error) ErrCode() string {
 	return e.Code
 }
 
@@ -35,7 +30,8 @@ func IsErrorCode(err error, code string) bool {
 		return false
 	}
 
-	if lErr, ok := err.(lunoError); ok {
+	var lErr Error
+	if errors.As(err, &lErr) {
 		return lErr.ErrCode() == code
 	}
 

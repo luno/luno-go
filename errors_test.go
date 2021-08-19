@@ -5,8 +5,8 @@ import (
 	"testing"
 )
 
-func TestLunoError(t *testing.T) {
-	err := lunoError{
+func TestError(t *testing.T) {
+	err := Error{
 		Code:    "ErrFoo",
 		Message: "Example error message!",
 	}
@@ -35,7 +35,7 @@ func TestIsErrorCode(t *testing.T) {
 		},
 		{
 			name: "luno error with code present",
-			err:  lunoError{
+			err:  Error{
 				Code:    "ErrFoo",
 				Message: "example error message",
 			},
@@ -44,7 +44,7 @@ func TestIsErrorCode(t *testing.T) {
 		},
 		{
 			name: "luno error with different code",
-			err:  lunoError{
+			err:  Error{
 				Code:    "ErrBar",
 				Message: "example error message",
 			},
