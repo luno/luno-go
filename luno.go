@@ -136,7 +136,7 @@ func (cl *Client) do(ctx context.Context, method, path string,
 	}
 
 	if httpRes.StatusCode != http.StatusOK {
-		var e lunoError
+		var e Error
 		err := json.NewDecoder(body).Decode(&e)
 		if err != nil {
 			return fmt.Errorf("luno: error decoding response (%d %s)",

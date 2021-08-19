@@ -1,25 +1,26 @@
 package luno
 
 import (
+	"errors"
 	"fmt"
 )
 
-// lunoError is a Luno API error.
-type lunoError struct {
-	// ErrorCode can be used to identify errors even if the error message is
+// Error is a Luno API error.
+type Error struct {
+	// Code can be used to identify errors even if the error message is
 	// localised.
-	ErrorCode string `json:"error_code"`
+	Code string `json:"error_code"`
 
 	// Message may be localised for authenticated API calls.
 	Message string `json:"error"`
 }
 
-func (e lunoError) Error() string {
-	return fmt.Sprintf("%s (%s)", e.Message, e.ErrorCode)
+func (e Error) Error() string {
+	return fmt.Sprintf("%s (%s)", e.Message, e.Code)
 }
 
-func (e lunoError) Code() string {
-	return e.ErrorCode
+func (e Error) ErrCode() string {
+	return e.Code
 }
 
 // IsErrorCode returns whether an error is identifiable by a given code. This can be used to handle luno.Client errors.
@@ -29,8 +30,9 @@ func IsErrorCode(err error, code string) bool {
 		return false
 	}
 
-	if lErr, ok := err.(lunoError); ok {
-		return lErr.Code() == code
+	var lErr Error
+	if errors.As(err, &lErr) {
+		return lErr.ErrCode() == code
 	}
 
 	return false
