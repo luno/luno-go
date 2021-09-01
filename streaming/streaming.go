@@ -22,6 +22,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"math/rand"
 	"sort"
@@ -195,6 +196,10 @@ func (c *Conn) connect() error {
 		var data []byte
 		c.ws.SetReadDeadline(time.Now().Add(websocketTimeout))
 		err := websocket.Message.Receive(c.ws, &data)
+		if errors.Is(err, io.EOF) {
+			// Server closed the connection. Return gracefully.
+			return nil
+		}
 		if err != nil {
 			return fmt.Errorf("failed to receive message: %v", err)
 		}
