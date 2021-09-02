@@ -22,6 +22,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"math/rand"
 	"sort"
@@ -159,7 +160,7 @@ func (c *Conn) connect() error {
 	url := *wsHost + "/api/1/stream/" + c.pair
 	ws, err := websocket.Dial(url, "", "http://localhost/")
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to dial server: %w", err)
 	}
 	defer func() {
 		ws.Close()
@@ -183,7 +184,7 @@ func (c *Conn) connect() error {
 
 	cred := credentials{c.keyID, c.keySecret}
 	if err := websocket.JSON.Send(ws, cred); err != nil {
-		return err
+		return fmt.Errorf("failed to send credentials: %w", err)
 	}
 
 	log.Printf("luno/streaming: Connection established key=%s pair=%s",
@@ -195,8 +196,12 @@ func (c *Conn) connect() error {
 		var data []byte
 		c.ws.SetReadDeadline(time.Now().Add(websocketTimeout))
 		err := websocket.Message.Receive(c.ws, &data)
+		if errors.Is(err, io.EOF) {
+			// Server closed the connection. Return gracefully.
+			return nil
+		}
 		if err != nil {
-			return fmt.Errorf("failed to receive message: %v", err)
+			return fmt.Errorf("failed to receive message: %w", err)
 		}
 
 		if string(data) == "\"\"" {
@@ -206,12 +211,12 @@ func (c *Conn) connect() error {
 
 		var ob orderBook
 		if err := json.Unmarshal(data, &ob); err != nil {
-			return fmt.Errorf("failed to unmarshal order book: %v", err)
+			return fmt.Errorf("failed to unmarshal order book: %w", err)
 		}
 		if ob.Asks != nil || ob.Bids != nil {
 			// Received an order book.
 			if err := c.receivedOrderBook(ob); err != nil {
-				return fmt.Errorf("failed to process order book: %v", err)
+				return fmt.Errorf("failed to process order book: %w", err)
 			}
 			if c.connectCallback != nil {
 				c.connectCallback(c)
@@ -221,10 +226,10 @@ func (c *Conn) connect() error {
 
 		var u Update
 		if err := json.Unmarshal(data, &u); err != nil {
-			return fmt.Errorf("failed to unmarshal update: %v", err)
+			return fmt.Errorf("failed to unmarshal update: %w", err)
 		}
 		if err := c.receivedUpdate(u); err != nil {
-			return fmt.Errorf("failed to process update: %v", err)
+			return fmt.Errorf("failed to process update: %w", err)
 		}
 	}
 }
