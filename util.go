@@ -31,6 +31,7 @@ func makeURLValues(v interface{}) url.Values {
 
 		k := fieldValue.Kind()
 		var s string
+		ss := make([]string, 0)
 		switch k {
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32,
 			reflect.Int64:
@@ -43,15 +44,23 @@ func makeURLValues(v interface{}) url.Values {
 		case reflect.Float64:
 			s = strconv.FormatFloat(fieldValue.Float(), 'f', 4, 64)
 		case reflect.Slice:
-			if field.Type.Elem().Kind() == reflect.Uint8 {
-				s = string(fieldValue.Bytes())
+			 if field.Type.Elem().Kind() == reflect.String {
+				for i := 0; i < fieldValue.Len(); i++ {
+					ss = append(ss, fieldValue.Index(i).String())
+				}
 			}
 		case reflect.String:
 			s = fieldValue.String()
 		case reflect.Bool:
 			s = fmt.Sprintf("%v", fieldValue.Bool())
 		}
-		values.Set(urlTag, s)
+		if len(ss) > 0 {
+			for _, str := range ss {
+				values.Add(urlTag, str)
+			}
+		} else {
+			values.Set(urlTag, s)
+		}
 	}
 
 	return values
