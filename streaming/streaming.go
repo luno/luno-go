@@ -18,6 +18,7 @@ Example:
 package streaming
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -82,7 +83,6 @@ type Conn struct {
 	connectCallback  ConnectCallback
 	updateCallback   UpdateCallback
 
-	ws     *websocket.Conn
 	closed bool
 
 	seq  int64
@@ -125,18 +125,14 @@ func (c *Conn) manageForever() {
 	attempts := 0
 	var lastAttempt time.Time
 	for {
-		c.mu.Lock()
-		closed := c.closed
-		c.mu.Unlock()
-		if closed {
-			return
-		}
-
 		lastAttempt = time.Now()
 		attempts++
 		if err := c.connect(); err != nil {
 			log.Printf("luno/streaming: Connection error key=%s pair=%s: %v",
 				c.keyID, c.pair, err)
+		}
+		if c.IsClosed() {
+			return
 		}
 
 		if time.Now().Sub(lastAttempt) > time.Hour {
@@ -163,24 +159,9 @@ func (c *Conn) connect() error {
 		return fmt.Errorf("unable to dial server: %w", err)
 	}
 	defer func() {
-		ws.Close()
-		c.mu.Lock()
-		c.ws = nil
-		c.seq = 0
-		c.bids = nil
-		c.asks = nil
-		c.status = ""
-		c.mu.Unlock()
+		_ = ws.Close()
+		c.reset()
 	}()
-
-	c.mu.Lock()
-	if c.closed {
-		c.mu.Unlock()
-		return nil
-	} else {
-		c.ws = ws
-		c.mu.Unlock()
-	}
 
 	cred := credentials{c.keyID, c.keySecret}
 	if err := websocket.JSON.Send(ws, cred); err != nil {
@@ -190,12 +171,18 @@ func (c *Conn) connect() error {
 	log.Printf("luno/streaming: Connection established key=%s pair=%s",
 		c.keyID, c.pair)
 
-	go sendPings(ws)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	go c.sendPings(ctx, ws)
 
 	for {
+		if c.IsClosed() {
+			return nil
+		}
+
 		var data []byte
-		c.ws.SetReadDeadline(time.Now().Add(websocketTimeout))
-		err := websocket.Message.Receive(c.ws, &data)
+		_ = ws.SetReadDeadline(time.Now().Add(websocketTimeout))
+		err := websocket.Message.Receive(ws, &data)
 		if errors.Is(err, io.EOF) {
 			// Server closed the connection. Return gracefully.
 			return nil
@@ -234,15 +221,24 @@ func (c *Conn) connect() error {
 	}
 }
 
-func sendPings(ws *websocket.Conn) {
-	defer ws.Close()
+func (c *Conn) sendPings(ctx context.Context, ws *websocket.Conn) {
+	timer := time.NewTimer(time.Minute)
+	defer timer.Stop()
+
 	for {
-		ws.SetWriteDeadline(time.Now().Add(websocketTimeout))
-		if err := websocket.Message.Send(ws, ""); err != nil {
-			log.Printf("luno/streaming: Failed to ping server: %v", err)
+		select {
+		case <-ctx.Done():
 			return
+		case <-timer.C:
+			if c.IsClosed() || ws == nil {
+				return
+			}
+			_ = ws.SetWriteDeadline(time.Now().Add(websocketTimeout))
+			if err := websocket.Message.Send(ws, ""); err != nil {
+				log.Printf("luno/streaming: Failed to ping server: %v", err)
+			}
 		}
-		time.Sleep(time.Minute)
+		timer.Reset(time.Minute)
 	}
 }
 
@@ -459,13 +455,29 @@ func (c *Conn) Status() luno.Status {
 	return c.status
 }
 
-// Close the connection.
+// Close the stream. After calling this the client will stop receiving new updates and the results of querying the Conn
+// struct (Snapshot, Status...) will be zeroed values.
 func (c *Conn) Close() {
+	c.mu.Lock()
+	c.closed = true
+	c.mu.Unlock()
+
+	c.reset()
+}
+
+func (c *Conn) reset() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	c.closed = true
-	if c.ws != nil {
-		c.ws.Close()
-	}
+	c.seq = 0
+	c.bids = nil
+	c.asks = nil
+	c.status = ""
+}
+
+// IsClosed returns true if the Conn has been closed.
+func (c *Conn) IsClosed() bool {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return c.closed
 }
