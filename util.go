@@ -30,28 +30,32 @@ func makeURLValues(v interface{}) url.Values {
 		}
 
 		k := fieldValue.Kind()
-		var s string
+		ss := make([]string, 0)
 		switch k {
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32,
 			reflect.Int64:
-			s = strconv.FormatInt(fieldValue.Int(), 10)
+			ss = append(ss, strconv.FormatInt(fieldValue.Int(), 10))
 		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32,
 			reflect.Uint64:
-			s = strconv.FormatUint(fieldValue.Uint(), 10)
+			ss = append(ss, strconv.FormatUint(fieldValue.Uint(), 10))
 		case reflect.Float32:
-			s = strconv.FormatFloat(fieldValue.Float(), 'f', 4, 32)
+			ss = append(ss, strconv.FormatFloat(fieldValue.Float(), 'f', 4, 32))
 		case reflect.Float64:
-			s = strconv.FormatFloat(fieldValue.Float(), 'f', 4, 64)
+			ss = append(ss, strconv.FormatFloat(fieldValue.Float(), 'f', 4, 64))
 		case reflect.Slice:
-			if field.Type.Elem().Kind() == reflect.Uint8 {
-				s = string(fieldValue.Bytes())
+			 if field.Type.Elem().Kind() == reflect.String {
+				for i := 0; i < fieldValue.Len(); i++ {
+					ss = append(ss, fieldValue.Index(i).String())
+				}
 			}
 		case reflect.String:
-			s = fieldValue.String()
+			ss = append(ss, fieldValue.String())
 		case reflect.Bool:
-			s = fmt.Sprintf("%v", fieldValue.Bool())
+			ss = append(ss, fmt.Sprintf("%v", fieldValue.Bool()))
 		}
-		values.Set(urlTag, s)
+		for _, str := range ss {
+			values.Add(urlTag, str)
+		}
 	}
 
 	return values

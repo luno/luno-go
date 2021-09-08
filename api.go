@@ -687,6 +687,8 @@ func (cl *Client) GetTicker(ctx context.Context, req *GetTickerRequest) (*GetTic
 
 // GetTickersRequest is the request struct for GetTickers.
 type GetTickersRequest struct {
+	// Currency pairs
+	Pair []string `json:"pair" url:"pair"`
 }
 
 // GetTickersResponse is the response struct for GetTickers.
