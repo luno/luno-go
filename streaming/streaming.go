@@ -135,17 +135,13 @@ func (c *Conn) manageForever() {
 			return
 		}
 
-		if time.Now().Sub(lastAttempt) > time.Hour {
+		if time.Now().Sub(lastAttempt) > 30*time.Minute {
 			attempts = 0
 		}
-		if attempts > 5 {
-			attempts = 5
+		if attempts > 10 {
+			attempts = 10
 		}
-		wait := 5
-		for i := 0; i < attempts; i++ {
-			wait = 2 * wait
-		}
-		wait = wait + rand.Intn(wait)
+		wait := attempts*attempts + rand.Intn(1+attempts) // Quadratic backoff (up to 100s) + Jitter (up to 10s)
 		dt := time.Duration(wait) * time.Second
 		log.Printf("luno/streaming: Waiting %s before reconnecting", dt)
 		time.Sleep(dt)
