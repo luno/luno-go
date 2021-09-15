@@ -94,7 +94,7 @@ type Conn struct {
 	lastMessage time.Time
 	lastTrade   TradeUpdate
 
-	mu sync.Mutex
+	mu sync.RWMutex
 }
 
 // Dial initiates a connection to the streaming service and starts processing
@@ -418,8 +418,8 @@ func (c *Conn) processStatus(u StatusUpdate) error {
 func (c *Conn) OrderBookSnapshot() (
 	int64, []luno.OrderBookEntry, []luno.OrderBookEntry) {
 
-	c.mu.Lock()
-	defer c.mu.Unlock()
+	c.mu.RLock()
+	defer c.mu.RUnlock()
 
 	bids := flatten(c.bids, true)
 	asks := flatten(c.asks, false)
@@ -435,8 +435,8 @@ type Snapshot struct {
 
 // Snapshot returns the current state of the streamed data.
 func (c *Conn) Snapshot() Snapshot {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+	c.mu.RLock()
+	defer c.mu.RUnlock()
 
 	return Snapshot{
 		Sequence:  c.seq,
@@ -449,8 +449,8 @@ func (c *Conn) Snapshot() Snapshot {
 
 // Status returns the currenct status of the streaming connection.
 func (c *Conn) Status() luno.Status {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+	c.mu.RLock()
+	defer c.mu.RUnlock()
 
 	return c.status
 }
@@ -477,7 +477,7 @@ func (c *Conn) reset() {
 
 // IsClosed returns true if the Conn has been closed.
 func (c *Conn) IsClosed() bool {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+	c.mu.RLock()
+	defer c.mu.RUnlock()
 	return c.closed
 }
