@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math"
 	"math/rand"
 	"sort"
 	"sync"
@@ -135,18 +136,12 @@ func (c *Conn) manageForever() {
 			return
 		}
 
-		if time.Now().Sub(lastAttempt) > time.Hour {
+		if time.Now().Sub(lastAttempt) > 30*time.Minute {
 			attempts = 0
 		}
-		if attempts > 5 {
-			attempts = 5
-		}
-		wait := 5
-		for i := 0; i < attempts; i++ {
-			wait = 2 * wait
-		}
-		wait = wait + rand.Intn(wait)
-		dt := time.Duration(wait) * time.Second
+		jitter := time.Duration(rand.Intn(200)-100) * time.Millisecond // ±100ms
+		backoff := time.Duration(math.Min(math.Pow(2, float64(attempts)), 60)) * time.Second // Exponential backoff up to 60s
+		dt := backoff + jitter
 		log.Printf("luno/streaming: Waiting %s before reconnecting", dt)
 		time.Sleep(dt)
 	}
