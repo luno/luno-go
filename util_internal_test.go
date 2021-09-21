@@ -26,12 +26,16 @@ func TestMakeURLValues(t *testing.T) {
 
 	tests := []struct {
 		name     string
-		r        Req
+		r        *Req
 		expected string
 	}{
 		{
+			name: "nil",
+			r: nil,
+		},
+		{
 			name: "valid time",
-			r: Req{
+			r: &Req{
 				S:   "foo",
 				I:   42,
 				I64: 42,
@@ -47,7 +51,7 @@ func TestMakeURLValues(t *testing.T) {
 		},
 		{
 			name: "zero time",
-			r: Req{
+			r: &Req{
 				S:   "foo",
 				I:   42,
 				I64: 42,
@@ -63,7 +67,7 @@ func TestMakeURLValues(t *testing.T) {
 		},
 		{
 			name:"valid amount",
-			r: Req{
+			r: &Req{
 				S:   "foo",
 				I:   42,
 				I64: 42,
@@ -81,11 +85,18 @@ func TestMakeURLValues(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			act := makeURLValues(&(tt.r)).Encode()
+			act := makeURLValues(tt.r).Encode()
 			if act != tt.expected {
 				t.Errorf("Expected %q, got %q", tt.expected, act)
 				return
 			}
 		})
+	}
+}
+
+func TestNilURLValues(t *testing.T) {
+	act := makeURLValues(nil).Encode()
+	if act != "" {
+		t.Errorf("Expected empty url, got %s", act)
 	}
 }

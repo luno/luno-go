@@ -10,8 +10,14 @@ import (
 // makeURLValues converts a request struct into a url.Values map.
 func makeURLValues(v interface{}) url.Values {
 	values := make(url.Values)
-
-	valElem := reflect.ValueOf(v).Elem()
+	if v == nil {
+		return values
+	}
+	val := reflect.ValueOf(v)
+	if val.IsZero() {
+		return values
+	}
+	valElem := val.Elem()
 	typElem := reflect.TypeOf(v).Elem()
 
 	for i := 0; i < typElem.NumField(); i++ {
