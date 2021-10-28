@@ -31,13 +31,17 @@ import (
 	"sync"
 	"time"
 
-	"golang.org/x/net/websocket"
+	"github.com/gorilla/websocket"
 
 	"github.com/luno/luno-go"
 	"github.com/luno/luno-go/decimal"
 )
 
-const websocketTimeout = time.Minute
+const (
+	readTimeout  = time.Minute
+	writeTimeout = 30 * time.Second
+	pingInterval = 20 * time.Second
+)
 
 func convertOrders(ol []*order) (map[string]order, error) {
 	r := make(map[string]order)
@@ -92,8 +96,7 @@ type Conn struct {
 
 	status luno.Status
 
-	lastMessage time.Time
-	lastTrade   TradeUpdate
+	lastTrade TradeUpdate
 
 	mu sync.RWMutex
 }
@@ -139,7 +142,7 @@ func (c *Conn) manageForever() {
 		if time.Now().Sub(lastAttempt) > 30*time.Minute {
 			attempts = 0
 		}
-		jitter := time.Duration(rand.Intn(200)-100) * time.Millisecond // ±100ms
+		jitter := time.Duration(rand.Intn(200)-100) * time.Millisecond                       // ±100ms
 		backoff := time.Duration(math.Min(math.Pow(2, float64(attempts)), 60)) * time.Second // Exponential backoff up to 60s
 		dt := backoff + jitter
 		log.Printf("luno/streaming: Waiting %s before reconnecting", dt)
@@ -149,7 +152,7 @@ func (c *Conn) manageForever() {
 
 func (c *Conn) connect() error {
 	url := *wsHost + "/api/1/stream/" + c.pair
-	ws, err := websocket.Dial(url, "", "http://localhost/")
+	ws, _, err := websocket.DefaultDialer.Dial(url, nil)
 	if err != nil {
 		return fmt.Errorf("unable to dial server: %w", err)
 	}
@@ -159,7 +162,8 @@ func (c *Conn) connect() error {
 	}()
 
 	cred := credentials{c.keyID, c.keySecret}
-	if err := websocket.JSON.Send(ws, cred); err != nil {
+	_ = ws.SetWriteDeadline(time.Now().Add(writeTimeout)) // Safe to ignore error as it's always nil.
+	if err := ws.WriteJSON(cred); err != nil {
 		return fmt.Errorf("failed to send credentials: %w", err)
 	}
 
@@ -175,9 +179,10 @@ func (c *Conn) connect() error {
 			return nil
 		}
 
-		var data []byte
-		_ = ws.SetReadDeadline(time.Now().Add(websocketTimeout))
-		err := websocket.Message.Receive(ws, &data)
+		_, data, err := ws.ReadMessage()
+		if err != nil {
+			return err
+		}
 		if errors.Is(err, io.EOF) {
 			// Server closed the connection. Return gracefully.
 			return nil
@@ -187,7 +192,7 @@ func (c *Conn) connect() error {
 		}
 
 		if string(data) == "\"\"" {
-			c.receivedPing()
+			// Ignore server keep alive messages
 			continue
 		}
 
@@ -217,30 +222,32 @@ func (c *Conn) connect() error {
 }
 
 func (c *Conn) sendPings(ctx context.Context, ws *websocket.Conn) {
-	timer := time.NewTimer(time.Minute)
-	defer timer.Stop()
+	pingTicker := time.NewTicker(pingInterval)
+	defer pingTicker.Stop()
+
+	// Set initial read deadline
+	_ = ws.SetReadDeadline(time.Now().Add(readTimeout))
+
+	ws.SetPongHandler(func(data string) error {
+		// Connection is alive, extend read deadline
+		return ws.SetReadDeadline(time.Now().Add(readTimeout))
+	})
 
 	for {
 		select {
 		case <-ctx.Done():
 			return
-		case <-timer.C:
+		case <-pingTicker.C:
 			if c.IsClosed() || ws == nil {
 				return
 			}
-			_ = ws.SetWriteDeadline(time.Now().Add(websocketTimeout))
-			if err := websocket.Message.Send(ws, ""); err != nil {
+
+			_ = ws.SetWriteDeadline(time.Now().Add(writeTimeout))
+			if err := ws.WriteMessage(websocket.PingMessage, nil); err != nil {
 				log.Printf("luno/streaming: Failed to ping server: %v", err)
 			}
 		}
-		timer.Reset(time.Minute)
 	}
-}
-
-func (c *Conn) receivedPing() {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	c.lastMessage = time.Now()
 }
 
 func (c *Conn) receivedOrderBook(ob orderBook) error {
@@ -257,7 +264,6 @@ func (c *Conn) receivedOrderBook(ob orderBook) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	c.lastMessage = time.Now()
 	c.seq = ob.Sequence
 	c.status = ob.Status
 	c.bids = bids
@@ -310,7 +316,6 @@ func (c *Conn) receivedUpdate(u Update) error {
 		}
 	}
 
-	c.lastMessage = time.Now()
 	c.seq = u.Sequence
 
 	if c.updateCallback != nil {
