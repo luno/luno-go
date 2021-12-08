@@ -7,6 +7,38 @@ import (
 	"github.com/luno/luno-go/decimal"
 )
 
+func TestFloat64(t *testing.T) {
+	type testCase struct {
+		a   string
+		b   string
+		exp float64
+	}
+
+	testCases := []testCase{
+		testCase{
+			a:   "0.17800000",
+			b:   "6750.00000000",
+			exp: 1201.5,
+		},
+		testCase{
+			a:   "0.178000001",
+			b:   "6750.000000001",
+			exp: 1201.500006750178,
+		},
+	}
+
+	for _, test := range testCases {
+		a, _ := decimal.NewFromString(test.a)
+		b, _ := decimal.NewFromString(test.b)
+
+		act := a.Mul(b).Float64()
+
+		if act != test.exp {
+			t.Errorf("Expected %s * %s to stringify as %g, got %g", test.a, test.b, test.exp, act)
+		}
+	}
+}
+
 func TestNewFromInt64(t *testing.T) {
 	type testCase struct {
 		i   int64
