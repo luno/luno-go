@@ -42,7 +42,7 @@ func NewFromString(s string) (Decimal, error) {
 	if strings.IndexByte(s, 'e') > -1 {
 		return Decimal{}, ErrUnsupportedDecimalNotation
 	}
-	
+
 	scale := getScale(s)
 	s = strings.Replace(s, ".", "", 1)
 	i, ok := new(big.Int).SetString(s, 10)
@@ -111,8 +111,6 @@ func (d Decimal) Float64() float64 {
 	scale := big.NewInt(int64(d.scale))
 	scale.Exp(big.NewInt(10), scale, nil)
 
-	fmt.Println("scale")
-	fmt.Println(scale)
 	r := new(big.Rat)
 	r.SetFrac(bigIntDefault(d.i), scale)
 
