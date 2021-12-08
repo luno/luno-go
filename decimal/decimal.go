@@ -42,13 +42,7 @@ func NewFromString(s string) (Decimal, error) {
 	if strings.IndexByte(s, 'e') > -1 {
 		return Decimal{}, ErrUnsupportedDecimalNotation
 	}
-
-	// If we have a decimal point...we will trim out redundant zeros, so we
-	// don't overflow float64 decimal points unnecessarily
-	if strings.IndexByte(s, '.') > -1 {
-		s = strings.TrimRight(strings.TrimRight(s, "0"), ".")
-	}
-
+	
 	scale := getScale(s)
 	s = strings.Replace(s, ".", "", 1)
 	i, ok := new(big.Int).SetString(s, 10)
