@@ -44,7 +44,12 @@ const (
 )
 
 func convertOrders(ol []*order) (map[string]order, error) {
-	r := make(map[string]order)
+	size := len(ol)
+	if size == 0 {
+		return map[string]order{}, nil
+	}
+
+	r := make(map[string]order, size)
 	for _, o := range ol {
 		r[o.ID] = *o
 	}
@@ -64,13 +69,21 @@ func (ol orderList) Len() int {
 }
 
 func flatten(m map[string]order, reverse bool) []luno.OrderBookEntry {
-	var ol []luno.OrderBookEntry
+	size := len(m)
+	if size == 0 {
+		return []luno.OrderBookEntry{}
+	}
+
+	ol := make([]luno.OrderBookEntry, size)
+	i := 0
 	for _, o := range m {
-		ol = append(ol, luno.OrderBookEntry{
+		ol[i] = luno.OrderBookEntry{
 			Price:  o.Price,
 			Volume: o.Volume,
-		})
+		}
+		i++
 	}
+
 	if reverse {
 		sort.Sort(sort.Reverse(orderList(ol)))
 	} else {
