@@ -719,11 +719,15 @@ type GetCandlesRequest struct {
 
 	// Filter to candles starting on or after this timestamp (Unix milliseconds).
 	// Only up to 1000 of the earliest candles are returned.
+	//
+	// required: true
 	Since Time `json:"since" url:"since"`
 
 	// Candle duration in seconds. For example, 300 corresponds to 5m candles.
 	// Currently supported durations are: 60 (1m), 300 (5m), 900 (15m), 1800 (30m),
 	// 3600 (1h), 10800 (3h), 14400 (4h), 28800 (8h), 86400 (24h), 259200 (3d), 604800 (7d).
+	//
+	// required: true
 	Duration int64 `json:"duration" url:"duration"`
 }
 
