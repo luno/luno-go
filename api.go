@@ -710,6 +710,45 @@ func (cl *Client) GetTickers(ctx context.Context, req *GetTickersRequest) (*GetT
 	return &res, nil
 }
 
+// GetCandlesRequest is the request struct for GetCandles.
+type GetCandlesRequest struct {
+	// Currency pair
+	//
+	// required: true
+	Pair string `json:"pair" url:"pair"`
+
+	// Filter to candles starting on or after this timestamp (Unix milliseconds).
+	// Only up to 1000 of the earliest candles are returned.
+	Since Time `json:"since" url:"since"`
+
+	// Candle duration in seconds. For example, 300 corresponds to 5m candles.
+	// Currently supported durations are: 60 (1m), 300 (5m), 900 (15m), 1800 (30m),
+	// 3600 (1h), 10800 (3h), 14400 (4h), 28800 (8h), 86400 (24h), 259200 (3d), 604800 (7d).
+	Duration int64 `json:"duration" url:"duration"`
+}
+
+// GetCandlesResponse is the response struct for GetCandles.
+type GetCandlesResponse struct {
+	Candles  []Candle `json:"candles"`
+	Duration int64    `json:"duration"`
+	Pair     string   `json:"pair"`
+}
+
+// GetCandles makes a call to GET /api/exchange/1/candles.
+//
+// Get candlestick market data from the specified time until now, from the oldest to the most recent.
+//
+// Please see the <a href="#tag/currency ">Currency list</a> for the complete list of supported currency pairs.
+// Permissions required: <code>MP_None</code>
+func (cl *Client) GetCandles(ctx context.Context, req *GetCandlesRequest) (*GetCandlesResponse, error) {
+	var res GetCandlesResponse
+	err := cl.do(ctx, "GET", "/api/exchange/1/candles", req, &res, true)
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
 // GetWithdrawalRequest is the request struct for GetWithdrawal.
 type GetWithdrawalRequest struct {
 	// Withdrawal ID to retrieve.

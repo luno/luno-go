@@ -227,6 +227,15 @@ type Ticker struct {
 	Timestamp Time   `json:"timestamp"`
 }
 
+type Candle struct {
+	Close     decimal.Decimal `json:"close"`
+	High      decimal.Decimal `json:"high"`
+	Low       decimal.Decimal `json:"low"`
+	Open      decimal.Decimal `json:"open"`
+	Timestamp Time            `json:"timestamp"`
+	Volume    decimal.Decimal `json:"volume"`
+}
+
 type Trade struct {
 	Base       decimal.Decimal `json:"base"`
 	Counter    decimal.Decimal `json:"counter"`
