@@ -3,17 +3,51 @@ package luno
 import "github.com/luno/luno-go/decimal"
 
 type AccountBalance struct {
-	AccountId   string          `json:"account_id"`
-	Asset       string          `json:"asset"`
-	Balance     decimal.Decimal `json:"balance"`
-	Name        string          `json:"name"`
-	Reserved    decimal.Decimal `json:"reserved"`
+	// ID of the account.
+	AccountId string `json:"account_id"`
+
+	// Currency code for the asset held in this account.
+	Asset string `json:"asset"`
+
+	// The amount available to send or trade.
+	Balance decimal.Decimal `json:"balance"`
+
+	// The name set by the user upon creating the account.
+	Name string `json:"name"`
+
+	// Amount locked by Luno and cannot be sent or traded. This could be due to
+	// open orders.
+	Reserved decimal.Decimal `json:"reserved"`
+
+	// Amount that is awaiting some sort of verification to be credited to this
+	// account. This could be an on-chain transaction that Luno is waiting for
+	// further block verifications to happen.
 	Unconfirmed decimal.Decimal `json:"unconfirmed"`
 }
 
 type AddressMeta struct {
 	Label string `json:"label"`
 	Value string `json:"value"`
+}
+
+type Candle struct {
+	// Closing price
+	Close decimal.Decimal `json:"close"`
+
+	// High price
+	High decimal.Decimal `json:"high"`
+
+	// Low price
+	Low decimal.Decimal `json:"low"`
+
+	// Opening price
+	Open decimal.Decimal `json:"open"`
+
+	// Unix timestamp in milliseconds
+	Timestamp Time `json:"timestamp"`
+
+	// Volume traded
+	Volume decimal.Decimal `json:"volume"`
 }
 
 type CryptoDetails struct {
@@ -26,13 +60,47 @@ type DetailFields struct {
 	TradeDetails  TradeDetails  `json:"trade_details"`
 }
 
+type FundsMove struct {
+	// The assets quantity to move from the debit account to credit account. This is always a positive value.
+	Amount decimal.Decimal `json:"amount"`
+
+	// User defined unique ID
+	ClientMoveId string `json:"client_move_id"`
+
+	// Unix time the move was initiated, in milliseconds
+	CreatedAt Time `json:"created_at"`
+
+	// The account to credit the funds to.
+	CreditAccountId string `json:"credit_account_id"`
+
+	// The account to debit the funds from.
+	DebitAccountId string `json:"debit_account_id"`
+
+	// Unique ID, defined by Luno
+	Id string `json:"id"`
+
+	// Current status of the move.
+	//
+	// Status meaning:<br>
+	// <code>CREATED</code> The move is awaiting execution.<br>
+	// <code>MOVING</code> The funds have been reserved and the move is being executed.<br>
+	// <code>SUCCESSFUL</code> The move has completed successfully and should be reflected in both accounts available
+	// balance.<br>
+	// <code>FAILED</code> The move has failed. There could be many reasons for this but the most likely is that the
+	// debit account doesn't have enough available funds to move.<br>
+	Status Status `json:"status"`
+
+	// Unix time the move was last updated, in milliseconds
+	UpdatedAt Time `json:"updated_at"`
+}
+
 type Kind string
 
 const (
-	KindExchange Kind = "EXCHANGE"
 	KindFee      Kind = "FEE"
-	KindInterest Kind = "INTEREST"
 	KindTransfer Kind = "TRANSFER"
+	KindExchange Kind = "EXCHANGE"
+	KindInterest Kind = "INTEREST"
 )
 
 type MarketInfo struct {
@@ -79,16 +147,39 @@ type MarketInfo struct {
 }
 
 type Order struct {
-	Base                decimal.Decimal `json:"base"`
-	CompletedTimestamp  Time            `json:"completed_timestamp"`
-	Counter             decimal.Decimal `json:"counter"`
-	CreationTimestamp   Time            `json:"creation_timestamp"`
-	ExpirationTimestamp Time            `json:"expiration_timestamp"`
-	FeeBase             decimal.Decimal `json:"fee_base"`
-	FeeCounter          decimal.Decimal `json:"fee_counter"`
-	LimitPrice          decimal.Decimal `json:"limit_price"`
-	LimitVolume         decimal.Decimal `json:"limit_volume"`
-	OrderId             string          `json:"order_id"`
+	// Amount of base filled, this value is always positive.
+	Base decimal.Decimal `json:"base"`
+
+	// Time of order completion (Unix milliseconds)
+	//
+	// This value is set at the time of this order leaving the order book,
+	// either immediately upon posting or later on due to a trade or cancellation.
+	// Whilst the order is still pending/live it will be 0.
+	CompletedTimestamp Time `json:"completed_timestamp"`
+
+	// Amount of counter filled, this value is always positive.
+	Counter decimal.Decimal `json:"counter"`
+
+	// Time of order creation (Unix milliseconds)
+	CreationTimestamp Time `json:"creation_timestamp"`
+
+	// Time of order expiration (Unix milliseconds)
+	//
+	// This value is set at the time of processing a request from you to cancel the order, otherwise it will be 0.
+	ExpirationTimestamp Time `json:"expiration_timestamp"`
+
+	// Base amount of fees to be charged
+	FeeBase decimal.Decimal `json:"fee_base"`
+
+	// Counter amount of fees to be charged
+	FeeCounter decimal.Decimal `json:"fee_counter"`
+
+	// Limit price to transact
+	LimitPrice decimal.Decimal `json:"limit_price"`
+
+	// Limit volume to transact
+	LimitVolume decimal.Decimal `json:"limit_volume"`
+	OrderId     string          `json:"order_id"`
 
 	// Specifies the market.
 	Pair string `json:"pair"`
@@ -99,16 +190,18 @@ type Order struct {
 	// or has been cancelled.
 	State OrderState `json:"state"`
 
+	// <code>BUY</code> buy market order.<br>
+	// <code>SELL</code> sell market order.<br>
 	// <code>BID</code> bid (buy) limit order.<br>
 	// <code>ASK</code> ask (sell) limit order.
 	Type OrderType `json:"type"`
 }
 
 type OrderBookEntry struct {
-	// Limit price
+	// Limit price at which orders are trading at
 	Price decimal.Decimal `json:"price"`
 
-	// Volume available
+	// The volume available at the limit price
 	Volume decimal.Decimal `json:"volume"`
 }
 
@@ -129,19 +222,32 @@ const (
 )
 
 type OrderV2 struct {
-	// Amount of base filled
+	// Amount of base filled, this value is always positive.
+	//
+	// Use this field and `side` to determine credit or debit of funds.
 	Base decimal.Decimal `json:"base"`
 
-	// Time of order completion in milliseconds
+	// Client Order ID has the value that was passed in when the Order was posted.
+	ClientOrderId string `json:"client_order_id"`
+
+	// Time of order completion (Unix milliseconds)
+	//
+	// This value is set at the time of this order leaving the order book,
+	// either immediately upon posting or later on due to a trade or cancellation.
+	// Whilst the order is still pending/live it will be 0.
 	CompletedTimestamp Time `json:"completed_timestamp"`
 
-	// Amount of counter filled
+	// Amount of counter filled, this value is always positive.
+	//
+	// Use this field and `side` to determine credit or debit of funds.
 	Counter decimal.Decimal `json:"counter"`
 
-	// Time of order creation in milliseconds
+	// Time of order creation (Unix milliseconds)
 	CreationTimestamp Time `json:"creation_timestamp"`
 
-	// Time of order expiration in milliseconds
+	// Time of order expiration (Unix milliseconds)
+	//
+	// This value is set at the time of processing a request from you to cancel the order, otherwise it will be 0.
 	ExpirationTimestamp Time `json:"expiration_timestamp"`
 
 	// Base amount of fees to be charged
@@ -162,7 +268,9 @@ type OrderV2 struct {
 	// Specifies the market
 	Pair string `json:"pair"`
 
-	// The order intention
+	// The intention of the order, whether to buy or sell funds in the market.
+	//
+	// You can use this to determine the flow of funds in the order.
 	Side Side `json:"side"`
 
 	// The current state of the order
@@ -185,6 +293,23 @@ type OrderV2 struct {
 	Type Type `json:"type"`
 }
 
+type PublicTrade struct {
+	// Whether the taker was buying or not.
+	IsBuy bool `json:"is_buy"`
+
+	// Price at which the asset traded at
+	Price decimal.Decimal `json:"price"`
+
+	// The ever incrementing trade identifier within a market
+	Sequence int64 `json:"sequence"`
+
+	// Unix timestamp in milliseconds
+	Timestamp Time `json:"timestamp"`
+
+	// Amount of assets traded
+	Volume decimal.Decimal `json:"volume"`
+}
+
 type Side string
 
 const (
@@ -192,15 +317,61 @@ const (
 	SideSell Side = "SELL"
 )
 
+type StatementEntry struct {
+	AccountId string `json:"account_id"`
+
+	// Amount available
+	Available decimal.Decimal `json:"available"`
+
+	// Change in amount available
+	AvailableDelta decimal.Decimal `json:"available_delta"`
+
+	// Account balance
+	Balance decimal.Decimal `json:"balance"`
+
+	// Change in balance
+	BalanceDelta decimal.Decimal `json:"balance_delta"`
+	Currency     string          `json:"currency"`
+
+	// Human-readable description of the transaction.
+	Description  string       `json:"description"`
+	DetailFields DetailFields `json:"detail_fields"`
+
+	// Human-readable label-value attributes.
+	Details map[string]string `json:"details"`
+
+	// The kind of the transaction indicates the transaction flow
+	//
+	// Kinds explained:<br>
+	// <code>FEE</code> when transaction is towards Luno fees<br>
+	// <code>TRANSFER</code> when the transaction is a one way flow of funds, e.g. a deposit or crypto send<br>
+	// <code>EXCHANGE</code> when the transaction is part of a two way exchange, e.g. a trade or instant buy
+	Kind     Kind  `json:"kind"`
+	RowIndex int64 `json:"row_index"`
+
+	// Unix timestamp, in milliseconds
+	Timestamp Time `json:"timestamp"`
+}
+
 type Status string
 
 const (
-	StatusActive   Status = "ACTIVE"
-	StatusAwaiting Status = "AWAITING"
-	StatusComplete Status = "COMPLETE"
-	StatusDisabled Status = "DISABLED"
-	StatusPending  Status = "PENDING"
-	StatusPostonly Status = "POSTONLY"
+	StatusActive     Status = "ACTIVE"
+	StatusAwaiting   Status = "AWAITING"
+	StatusCancelled  Status = "CANCELLED"
+	StatusCancelling Status = "CANCELLING"
+	StatusComplete   Status = "COMPLETE"
+	StatusCompleted  Status = "COMPLETED"
+	StatusCreated    Status = "CREATED"
+	StatusDisabled   Status = "DISABLED"
+	StatusFailed     Status = "FAILED"
+	StatusMoving     Status = "MOVING"
+	StatusPending    Status = "PENDING"
+	StatusPostonly   Status = "POSTONLY"
+	StatusProcessing Status = "PROCESSING"
+	StatusSuccessful Status = "SUCCESSFUL"
+	StatusUnknown    Status = "UNKNOWN"
+	StatusWaiting    Status = "WAITING"
 )
 
 type StopDirection string
@@ -212,34 +383,30 @@ const (
 )
 
 type Ticker struct {
-	Ask                 decimal.Decimal `json:"ask"`
-	Bid                 decimal.Decimal `json:"bid"`
-	LastTrade           decimal.Decimal `json:"last_trade"`
-	Pair                string          `json:"pair"`
+	// The lowest ask price
+	Ask decimal.Decimal `json:"ask"`
+
+	// The highest bid price
+	Bid decimal.Decimal `json:"bid"`
+
+	// Last trade price
+	LastTrade decimal.Decimal `json:"last_trade"`
+	Pair      string          `json:"pair"`
+
+	// 24h rolling trade volume
 	Rolling24HourVolume decimal.Decimal `json:"rolling_24_hour_volume"`
 
+	// Market current status
+	//
 	// <code>ACTIVE</code> when the market is trading normally
 	//
 	// <code>POSTONLY</code> when the market has been suspended and only post-only orders will be accepted
 	//
 	// <code>DISABLED</code> when the market is shutdown and no orders can be accepted
-	Status    Status `json:"status"`
-	Timestamp Time   `json:"timestamp"`
-}
+	Status Status `json:"status"`
 
-type Trade struct {
-	Base       decimal.Decimal `json:"base"`
-	Counter    decimal.Decimal `json:"counter"`
-	FeeBase    decimal.Decimal `json:"fee_base"`
-	FeeCounter decimal.Decimal `json:"fee_counter"`
-	IsBuy      bool            `json:"is_buy"`
-	OrderId    string          `json:"order_id"`
-	Pair       string          `json:"pair"`
-	Price      decimal.Decimal `json:"price"`
-	Sequence   int64           `json:"sequence"`
-	Timestamp  Time            `json:"timestamp"`
-	Type       OrderType       `json:"type"`
-	Volume     decimal.Decimal `json:"volume"`
+	// Unix timestamp in milliseconds of the tick
+	Timestamp Time `json:"timestamp"`
 }
 
 type TradeDetails struct {
@@ -253,6 +420,43 @@ type TradeDetails struct {
 	Sequence int64 `json:"sequence"`
 
 	// Volume is the amount of base traded
+	Volume decimal.Decimal `json:"volume"`
+}
+
+type TradeV2 struct {
+	// Amount of base filled
+	Base decimal.Decimal `json:"base"`
+
+	// Client Order ID has the value that was passed in when the Order was posted.
+	ClientOrderId string `json:"client_order_id"`
+
+	// Amount of counter filled
+	Counter decimal.Decimal `json:"counter"`
+
+	// Base amount of fees charged
+	FeeBase decimal.Decimal `json:"fee_base"`
+
+	// Counter amount of fees charged
+	FeeCounter decimal.Decimal `json:"fee_counter"`
+	IsBuy      bool            `json:"is_buy"`
+
+	// Unique order identifier
+	OrderId string `json:"order_id"`
+
+	// Currency pair
+	Pair string `json:"pair"`
+
+	// Order price
+	Price    decimal.Decimal `json:"price"`
+	Sequence int64           `json:"sequence"`
+
+	// Unix timestamp in milliseconds
+	Timestamp Time `json:"timestamp"`
+
+	// Order type
+	Type OrderType `json:"type"`
+
+	// Order volume
 	Volume decimal.Decimal `json:"volume"`
 }
 
@@ -279,17 +483,35 @@ type Transaction struct {
 	DetailFields DetailFields `json:"detail_fields"`
 
 	// Human-readable label-value attributes.
-	Details map[string]string `json:"details"`
+	Details   map[string]string `json:"details"`
+	RowIndex  int64             `json:"row_index"`
+	Timestamp Time              `json:"timestamp"`
+}
 
-	// The kind of the transaction indicates the transaction flow
-	//
-	// Kinds explained:<br>
-	// <code>FEE</code> when transaction is towards Luno fees<br>
-	// <code>TRANSFER</code> when the transaction is a one way flow of funds, e.g. a deposit or crypto send<br>
-	// <code>EXCHANGE</code> when the transaction is part of a two way exchange, e.g. a trade or instant buy
-	Kind      Kind  `json:"kind"`
-	RowIndex  int64 `json:"row_index"`
-	Timestamp Time  `json:"timestamp"`
+type Transfer struct {
+	// Amount that has been credited or debited on the account. This is always a
+	// positive value regardless of the transfer direction.
+	Amount decimal.Decimal `json:"amount"`
+
+	// Unix timestamp the transfer was initiated, in milliseconds
+	CreatedAt Time `json:"created_at"`
+
+	// Fee that has been charged by Luno with regards to this transfer.
+	// This is not included in the `amount`.
+	// For example, if you receive a transaction with the raw amount of 1 BTC
+	// and we charge a `fee` of 0.003 BTC on this transaction you will be
+	// credited the `amount` of 0.997 BTC.
+	Fee decimal.Decimal `json:"fee"`
+
+	// Transfer unique identifier
+	Id string `json:"id"`
+
+	// True for credit transfers, false for debits.
+	Inbound bool `json:"inbound"`
+
+	// When the transfer reflects an on-chain transaction this field will have
+	// the transaction ID.
+	TransactionId string `json:"transaction_id"`
 }
 
 type Type string
@@ -301,25 +523,40 @@ const (
 )
 
 type Withdrawal struct {
-	Amount     decimal.Decimal `json:"amount"`
-	CreatedAt  Time            `json:"created_at"`
-	Currency   string          `json:"currency"`
-	ExternalId string          `json:"external_id"`
-	Fee        decimal.Decimal `json:"fee"`
-	Id         string          `json:"id"`
-	Status     string          `json:"status"`
-	Type       string          `json:"type"`
+	// Amount to withdraw
+	Amount decimal.Decimal `json:"amount"`
+
+	// Unix time the withdrawal was initiated, in milliseconds
+	CreatedAt Time `json:"created_at"`
+
+	// Withdrawal currency.
+	Currency string `json:"currency"`
+
+	// External ID has the value that was passed in when the Withdrawal request was posted.
+	ExternalId string `json:"external_id"`
+
+	// Withdrawal fee
+	Fee decimal.Decimal `json:"fee"`
+	Id  string          `json:"id"`
+
+	// Status
+	Status Status `json:"status"`
+
+	// Type distinguishes between different withdrawal methods where more than one is supported
+	// for the given currency.
+	Type string `json:"type"`
 }
 
 type beneficiary struct {
-	BankAccountBranch string `json:"bank_account_branch"`
-	BankAccountNumber string `json:"bank_account_number"`
-	BankAccountType   string `json:"bank_account_type"`
-	BankCountry       string `json:"bank_country"`
-	BankName          string `json:"bank_name"`
-	BankRecipient     string `json:"bank_recipient"`
-	CreatedAt         Time   `json:"created_at"`
-	Id                string `json:"id"`
+	BankAccountBranch       string `json:"bank_account_branch"`
+	BankAccountNumber       string `json:"bank_account_number"`
+	BankAccountType         string `json:"bank_account_type"`
+	BankCountry             string `json:"bank_country"`
+	BankName                string `json:"bank_name"`
+	BankRecipient           string `json:"bank_recipient"`
+	CreatedAt               Time   `json:"created_at"`
+	Id                      string `json:"id"`
+	SupportsFastWithdrawals bool   `json:"supports_fast_withdrawals"`
 }
 
 // vi: ft=go
