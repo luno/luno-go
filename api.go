@@ -143,7 +143,7 @@ type CreateWithdrawalRequest struct {
 	// required: true
 	Amount decimal.Decimal `json:"amount" url:"amount"`
 
-	// Withdrawal method.
+	// Withdrawal type.
 	//
 	// required: true
 	Type string `json:"type" url:"type"`
@@ -341,7 +341,6 @@ type GetFundingAddressResponse struct {
 //
 // Returns the default receive address associated with your account and the
 // amount received via the address. Users can specify an optional address parameter to return information for a non-default receive address.
-//
 // In the response, <code>total_received</code> is the total confirmed amount received excluding unconfirmed transactions.
 // <code>total_unconfirmed</code> is the total sum of unconfirmed receive transactions.
 //
@@ -472,6 +471,14 @@ type GetOrderResponse struct {
 	// <code>COMPLETE</code> The order is no longer active. It has been settled
 	// or has been cancelled.
 	State OrderState `json:"state"`
+
+	// The Time in force option used when the LimitOrder was posted.
+	//
+	// Only returned on limit orders.<br>
+	// <code>GTC</code> Good 'Til Cancelled. The order remains open until it is filled or cancelled by the user. (default)</br>
+	// <code>IOC</code> Immediate Or Cancel. The part of the order that cannot be filled immediately will be cancelled. Cannot be post-only.</br>
+	// <code>FOK</code> Fill Or Kill. If the order cannot be filled immediately and completely it will be cancelled before any trade. Cannot be post-only.
+	TimeInForce string `json:"time_in_force"`
 
 	// <code>BUY</code> buy market order.<br>
 	// <code>SELL</code> sell market order.<br>
@@ -647,6 +654,14 @@ type GetOrderV2Response struct {
 	// Price to trigger the order
 	StopPrice decimal.Decimal `json:"stop_price"`
 
+	// The Time in force option used when the LimitOrder was posted.
+	//
+	// Only returned on limit orders.<br>
+	// <code>GTC</code> Good 'Til Cancelled. The order remains open until it is filled or cancelled by the user. (default)</br>
+	// <code>IOC</code> Immediate Or Cancel. The part of the order that cannot be filled immediately will be cancelled. Cannot be post-only.</br>
+	// <code>FOK</code> Fill Or Kill. If the order cannot be filled immediately and completely it will be cancelled before any trade. Cannot be post-only.
+	TimeInForce string `json:"time_in_force"`
+
 	// The order type
 	Type Type `json:"type"`
 }
@@ -742,6 +757,14 @@ type GetOrderV3Response struct {
 
 	// Price to trigger the order
 	StopPrice decimal.Decimal `json:"stop_price"`
+
+	// The Time in force option used when the LimitOrder was posted.
+	//
+	// Only returned on limit orders.<br>
+	// <code>GTC</code> Good 'Til Cancelled. The order remains open until it is filled or cancelled by the user. (default)</br>
+	// <code>IOC</code> Immediate Or Cancel. The part of the order that cannot be filled immediately will be cancelled. Cannot be post-only.</br>
+	// <code>FOK</code> Fill Or Kill. If the order cannot be filled immediately and completely it will be cancelled before any trade. Cannot be post-only.
+	TimeInForce string `json:"time_in_force"`
 
 	// The order type
 	Type Type `json:"type"`
@@ -1263,6 +1286,8 @@ func (cl *Client) ListWithdrawals(ctx context.Context, req *ListWithdrawalsReque
 
 // MarketsRequest is the request struct for Markets.
 type MarketsRequest struct {
+	// List of market pairs to return. Requesting only the required pairs will improve response times.
+	Pair []string `json:"pair" url:"pair"`
 }
 
 // MarketsResponse is the response struct for Markets.
@@ -1402,6 +1427,11 @@ type PostLimitOrderRequest struct {
 	// is set then this is treated as a Stop Limit Order and `stop_direction`
 	// is expected to be set too.
 	StopPrice decimal.Decimal `json:"stop_price" url:"stop_price"`
+
+	// <code>GTC</code> Good 'Til Cancelled. The order remains open until it is filled or cancelled by the user.</br>
+	// <code>IOC</code> Immediate Or Cancel. The part of the order that cannot be filled immediately will be cancelled. Cannot be post-only.</br>
+	// <code>FOK</code> Fill Or Kill. If the order cannot be filled immediately and completely it will be cancelled before any trade. Cannot be post-only.
+	TimeInForce TimeInForce `json:"time_in_force" url:"time_in_force"`
 
 	// Unix timestamp in milliseconds of when the request was created and sent.
 	Timestamp int64 `json:"timestamp" url:"timestamp"`
