@@ -190,6 +190,14 @@ type Order struct {
 	// or has been cancelled.
 	State OrderState `json:"state"`
 
+	// The Time in force option used when the LimitOrder was posted.
+	//
+	// Only returned on limit orders.<br>
+	// <code>GTC</code> Good 'Til Cancelled. The order remains open until it is filled or cancelled by the user. (default)</br>
+	// <code>IOC</code> Immediate Or Cancel. The part of the order that cannot be filled immediately will be cancelled. Cannot be post-only.</br>
+	// <code>FOK</code> Fill Or Kill. If the order cannot be filled immediately and completely it will be cancelled before any trade. Cannot be post-only.
+	TimeInForce string `json:"time_in_force"`
+
 	// <code>BUY</code> buy market order.<br>
 	// <code>SELL</code> sell market order.<br>
 	// <code>BID</code> bid (buy) limit order.<br>
@@ -288,6 +296,14 @@ type OrderV2 struct {
 
 	// Price to trigger the order
 	StopPrice decimal.Decimal `json:"stop_price"`
+
+	// The Time in force option used when the LimitOrder was posted.
+	//
+	// Only returned on limit orders.<br>
+	// <code>GTC</code> Good 'Til Cancelled. The order remains open until it is filled or cancelled by the user. (default)</br>
+	// <code>IOC</code> Immediate Or Cancel. The part of the order that cannot be filled immediately will be cancelled. Cannot be post-only.</br>
+	// <code>FOK</code> Fill Or Kill. If the order cannot be filled immediately and completely it will be cancelled before any trade. Cannot be post-only.
+	TimeInForce string `json:"time_in_force"`
 
 	// The order type
 	Type Type `json:"type"`
@@ -409,6 +425,14 @@ type Ticker struct {
 	Timestamp Time `json:"timestamp"`
 }
 
+type TimeInForce string
+
+const (
+	TimeInForceGtc TimeInForce = "GTC"
+	TimeInForceIoc TimeInForce = "IOC"
+	TimeInForceFok TimeInForce = "FOK"
+)
+
 type TradeDetails struct {
 	// Pair of the market
 	Pair string `json:"pair"`
@@ -469,12 +493,18 @@ const (
 )
 
 type Transaction struct {
-	AccountId      string          `json:"account_id"`
-	Available      decimal.Decimal `json:"available"`
-	AvailableDelta decimal.Decimal `json:"available_delta"`
-	Balance        decimal.Decimal `json:"balance"`
+	AccountId string `json:"account_id"`
 
-	// Transaction amounts computed for convenience.
+	// Amount available
+	Available decimal.Decimal `json:"available"`
+
+	// Change in amount available
+	AvailableDelta decimal.Decimal `json:"available_delta"`
+
+	// Account balance
+	Balance decimal.Decimal `json:"balance"`
+
+	// Change in balance
 	BalanceDelta decimal.Decimal `json:"balance_delta"`
 	Currency     string          `json:"currency"`
 
@@ -483,9 +513,12 @@ type Transaction struct {
 	DetailFields DetailFields `json:"detail_fields"`
 
 	// Human-readable label-value attributes.
-	Details   map[string]string `json:"details"`
-	RowIndex  int64             `json:"row_index"`
-	Timestamp Time              `json:"timestamp"`
+	Details map[string]string `json:"details"`
+
+	RowIndex int64 `json:"row_index"`
+
+	// Unix timestamp, in milliseconds
+	Timestamp Time `json:"timestamp"`
 }
 
 type Transfer struct {
