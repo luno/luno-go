@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	luno "github.com/luno/luno-go"
+	luno "github.com/edward-yakop/luno-go"
 )
 
 func TestTimeUnmarshalJSON(t *testing.T) {

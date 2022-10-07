@@ -208,6 +208,14 @@ func (d Decimal) Div(y Decimal, scale int) Decimal {
 	return New(new(big.Int).Div(bigIntDefault(d.i), bigIntDefault(y.i)), scale)
 }
 
+func (d Decimal) BigInt() *big.Int {
+	return d.i
+}
+
+func (d Decimal) Scale() int {
+	return d.scale
+}
+
 func getScale(s string) int {
 	i := strings.IndexByte(s, '.')
 	if i == -1 {

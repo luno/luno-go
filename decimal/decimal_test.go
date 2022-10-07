@@ -4,7 +4,7 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/luno/luno-go/decimal"
+	"github.com/edward-yakop/luno-go/decimal"
 )
 
 func TestFloat64(t *testing.T) {

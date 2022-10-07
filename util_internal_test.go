@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/luno/luno-go/decimal"
+	"github.com/edward-yakop/luno-go/decimal"
 )
 
 func TestMakeURLValues(t *testing.T) {
@@ -31,7 +31,7 @@ func TestMakeURLValues(t *testing.T) {
 	}{
 		{
 			name: "nil",
-			r: nil,
+			r:    nil,
 		},
 		{
 			name: "valid time",
@@ -66,7 +66,7 @@ func TestMakeURLValues(t *testing.T) {
 			expected: "amt=0.1&ast=foo&ast=bar&b=true&f32=42.4200&f64=42.4200&i=42&i64=42&s=foo&t=&ts=foo",
 		},
 		{
-			name:"valid amount",
+			name: "valid amount",
 			r: &Req{
 				S:   "foo",
 				I:   42,
@@ -79,7 +79,7 @@ func TestMakeURLValues(t *testing.T) {
 				Amt: decimal.NewFromFloat64(0.0001, 10),
 				T:   Time(time.Date(2018, 1, 1, 0, 0, 0, 0, time.UTC)),
 			},
-			expected:"amt=0.0001000000&ast=foo&ast=bar&b=true&f32=42.4200&f64=42.4200&i=42&i64=42&s=foo&t=1514764800000&ts=foo",
+			expected: "amt=0.0001000000&ast=foo&ast=bar&b=true&f32=42.4200&f64=42.4200&i=42&i64=42&s=foo&t=1514764800000&ts=foo",
 		},
 	}
 

@@ -1,6 +1,6 @@
 package luno
 
-import "github.com/luno/luno-go/decimal"
+import "github.com/edward-yakop/luno-go/decimal"
 
 type AccountBalance struct {
 	// ID of the account.

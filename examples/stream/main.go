@@ -4,7 +4,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/luno/luno-go/streaming"
+	"github.com/edward-yakop/luno-go/streaming"
 )
 
 func printOrderBook(c *streaming.Conn) {

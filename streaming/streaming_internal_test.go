@@ -3,8 +3,8 @@ package streaming
 import (
 	"testing"
 
-	"github.com/luno/luno-go"
-	"github.com/luno/luno-go/decimal"
+	"github.com/edward-yakop/luno-go"
+	"github.com/edward-yakop/luno-go/decimal"
 )
 
 type expected struct {

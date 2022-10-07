@@ -33,8 +33,8 @@ import (
 
 	"github.com/gorilla/websocket"
 
-	"github.com/luno/luno-go"
-	"github.com/luno/luno-go/decimal"
+	"github.com/edward-yakop/luno-go"
+	"github.com/edward-yakop/luno-go/decimal"
 )
 
 const (
