@@ -1573,6 +1573,11 @@ type SendRequest struct {
 	// Message to send to the recipient.
 	// This is only relevant when sending to an email address.
 	Message string `json:"message" url:"message"`
+
+	// Forex notice checks for sending via the API
+	IsForexSend                bool `json:"-" url:"is_forex_send"`
+	IsDRB                      bool `json:"-" url:"is_drb"`
+	ForexNoticeSelfDeclaration bool `json:"-" url:"forex_notice_self_declaration"`
 }
 
 // SendResponse is the response struct for Send.
