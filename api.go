@@ -1575,9 +1575,9 @@ type SendRequest struct {
 	Message string `json:"message" url:"message"`
 
 	// Forex notice checks for sending via the API
-	IsForexSend                bool `json:"-" url:"is_forex_send"`
-	IsDRB                      bool `json:"-" url:"is_drb"`
-	ForexNoticeSelfDeclaration bool `json:"-" url:"forex_notice_self_declaration"`
+	IsForexSend                bool `json:"is_forex_send" url:"is_forex_send"`
+	IsDRB                      bool `json:"is_drb" url:"is_drb"`
+	ForexNoticeSelfDeclaration bool `json:"forex_notice_self_declaration" url:"forex_notice_self_declaration"`
 }
 
 // SendResponse is the response struct for Send.
