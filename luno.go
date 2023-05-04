@@ -16,9 +16,14 @@ import (
 	"time"
 )
 
+type limiter interface {
+	Wait(context.Context) error
+}
+
 // Client is a Luno API client.
 type Client struct {
 	httpClient   *http.Client
+	rateLimiter  limiter
 	baseURL      string
 	apiKeyID     string
 	apiKeySecret string
@@ -52,6 +57,12 @@ func (cl *Client) SetHTTPClient(httpClient *http.Client) {
 	cl.httpClient = httpClient
 }
 
+// SetRateLimiter sets the rate limiter that will be used to throttle calls
+// made through the client.
+func (cl *Client) SetRateLimiter(rateLimiter limiter) {
+	cl.rateLimiter = rateLimiter
+}
+
 // SetTimeout sets the timeout for requests made by this client. Note: if you
 // set a timeout and then call .SetHTTPClient(), the timeout in the new HTTP
 // client will be used.
@@ -72,6 +83,13 @@ func (cl *Client) SetDebug(debug bool) {
 
 func (cl *Client) do(ctx context.Context, method, path string,
 	req, res interface{}, auth bool) error {
+
+	if cl.rateLimiter != nil {
+		err := cl.rateLimiter.Wait(ctx)
+		if err != nil {
+			return err
+		}
+	}
 
 	url := cl.baseURL + "/" + strings.TrimLeft(path, "/")
 
