@@ -16,14 +16,14 @@ import (
 	"time"
 )
 
-type limiter interface {
+type Limiter interface {
 	Wait(context.Context) error
 }
 
 // Client is a Luno API client.
 type Client struct {
 	httpClient   *http.Client
-	rateLimiter  limiter
+	rateLimiter  Limiter
 	baseURL      string
 	apiKeyID     string
 	apiKeySecret string
@@ -59,7 +59,7 @@ func (cl *Client) SetHTTPClient(httpClient *http.Client) {
 
 // SetRateLimiter sets the rate limiter that will be used to throttle calls
 // made through the client.
-func (cl *Client) SetRateLimiter(rateLimiter limiter) {
+func (cl *Client) SetRateLimiter(rateLimiter Limiter) {
 	cl.rateLimiter = rateLimiter
 }
 
