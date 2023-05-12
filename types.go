@@ -97,10 +97,10 @@ type FundsMove struct {
 type Kind string
 
 const (
-	KindFee      Kind = "FEE"
-	KindTransfer Kind = "TRANSFER"
 	KindExchange Kind = "EXCHANGE"
+	KindFee      Kind = "FEE"
 	KindInterest Kind = "INTEREST"
+	KindTransfer Kind = "TRANSFER"
 )
 
 type MarketInfo struct {
@@ -333,42 +333,6 @@ const (
 	SideSell Side = "SELL"
 )
 
-type StatementEntry struct {
-	AccountId string `json:"account_id"`
-
-	// Amount available
-	Available decimal.Decimal `json:"available"`
-
-	// Change in amount available
-	AvailableDelta decimal.Decimal `json:"available_delta"`
-
-	// Account balance
-	Balance decimal.Decimal `json:"balance"`
-
-	// Change in balance
-	BalanceDelta decimal.Decimal `json:"balance_delta"`
-	Currency     string          `json:"currency"`
-
-	// Human-readable description of the transaction.
-	Description  string       `json:"description"`
-	DetailFields DetailFields `json:"detail_fields"`
-
-	// Human-readable label-value attributes.
-	Details map[string]string `json:"details"`
-
-	// The kind of the transaction indicates the transaction flow
-	//
-	// Kinds explained:<br>
-	// <code>FEE</code> when transaction is towards Luno fees<br>
-	// <code>TRANSFER</code> when the transaction is a one way flow of funds, e.g. a deposit or crypto send<br>
-	// <code>EXCHANGE</code> when the transaction is part of a two way exchange, e.g. a trade or instant buy
-	Kind     Kind  `json:"kind"`
-	RowIndex int64 `json:"row_index"`
-
-	// Unix timestamp, in milliseconds
-	Timestamp Time `json:"timestamp"`
-}
-
 type Status string
 
 const (
@@ -515,7 +479,19 @@ type Transaction struct {
 	// Human-readable label-value attributes.
 	Details map[string]string `json:"details"`
 
-	RowIndex int64 `json:"row_index"`
+	// The kind of the transaction indicates the transaction flow
+	//
+	// Kinds explained:<br>
+	// <code>FEE</code> when transaction is towards Luno fees<br>
+	// <code>TRANSFER</code> when the transaction is a one way flow of funds, e.g. a deposit or crypto send<br>
+	// <code>EXCHANGE</code> when the transaction is part of a two way exchange, e.g. a trade or instant buy
+	Kind Kind `json:"kind"`
+
+	// A unique reference for the transaction this statement entry relates to.
+	// There may be multiple statement entries related to the same transaction.
+	// E.g. a withdrawal and the withdrawal fee are two separate statement entries with the same reference.
+	Reference string `json:"reference"`
+	RowIndex  int64  `json:"row_index"`
 
 	// Unix timestamp, in milliseconds
 	Timestamp Time `json:"timestamp"`
@@ -587,7 +563,7 @@ type beneficiary struct {
 	BankCountry             string `json:"bank_country"`
 	BankName                string `json:"bank_name"`
 	BankRecipient           string `json:"bank_recipient"`
-	CreatedAt               Time   `json:"created_at"`
+	CreatedAt               int64  `json:"created_at"`
 	Id                      string `json:"id"`
 	SupportsFastWithdrawals bool   `json:"supports_fast_withdrawals"`
 }

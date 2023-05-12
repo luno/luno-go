@@ -74,11 +74,9 @@ type CreateAccountRequest struct {
 
 // CreateAccountResponse is the response struct for CreateAccount.
 type CreateAccountResponse struct {
-	Currency     string        `json:"currency"`
-	Id           string        `json:"id"`
-	Name         string        `json:"name"`
-	Pending      []Transaction `json:"pending"`
-	Transactions []Transaction `json:"transactions"`
+	Currency string `json:"currency"`
+	Id       string `json:"id"`
+	Name     string `json:"name"`
 }
 
 // CreateAccount makes a call to POST /api/1/accounts.
@@ -143,7 +141,7 @@ type CreateWithdrawalRequest struct {
 	// required: true
 	Amount decimal.Decimal `json:"amount" url:"amount"`
 
-	// Withdrawal type.
+	// Withdrawal method.
 	//
 	// required: true
 	Type string `json:"type" url:"type"`
@@ -165,6 +163,7 @@ type CreateWithdrawalRequest struct {
 	Fast bool `json:"fast" url:"fast"`
 
 	// For internal use.
+	// Deprecated: We don't allow custom references and will remove this soon.
 	Reference string `json:"reference" url:"reference"`
 }
 
@@ -1124,8 +1123,8 @@ type ListTransactionsRequest struct {
 
 // ListTransactionsResponse is the response struct for ListTransactions.
 type ListTransactionsResponse struct {
-	Id           string           `json:"id"`
-	Transactions []StatementEntry `json:"transactions"`
+	Id           string        `json:"id"`
+	Transactions []Transaction `json:"transactions"`
 }
 
 // ListTransactions makes a call to GET /api/1/accounts/{id}/transactions.
@@ -1352,7 +1351,7 @@ type MoveResponse struct {
 
 // Move makes a call to POST /api/exchange/1/move.
 //
-// Move funds between two of your accounts with the same currency
+// Move funds between two of your transactional accounts with the same currency
 // The funds may not be moved by the time the request returns. The GET method
 // can be used to poll for the move's status.
 //
@@ -1585,7 +1584,7 @@ type SendResponse struct {
 //
 // Send assets from an Account. Please note that the asset type sent must match the receive address of the same cryptocurrency of the same type - Bitcoin to Bitcoin, Ethereum to Ethereum, etc.
 //
-// Sends can be to a cryptocurrency receive address, or the email address of another Luno platform user.
+// Sends can be made to cryptocurrency receive addresses.
 //
 // <b>Note:</b> This is currently unavailable to users who are verified in countries with money travel rules.
 //
