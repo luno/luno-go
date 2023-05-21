@@ -14,6 +14,8 @@ import (
 	"runtime"
 	"strings"
 	"time"
+
+	"golang.org/x/time/rate"
 )
 
 type Limiter interface {
@@ -30,15 +32,19 @@ type Client struct {
 	debug        bool
 }
 
-const defaultBaseURL = "https://api.luno.com"
-
-const defaultTimeout = 10 * time.Second
+const (
+	defaultBaseURL = "https://api.luno.com"
+	defaultTimeout = 10 * time.Second
+	defaultRate    = time.Minute / 300
+	defaultBurst   = 1
+)
 
 // NewClient creates a new Luno API client with the default base URL.
 func NewClient() *Client {
 	return &Client{
-		httpClient: &http.Client{Timeout: defaultTimeout},
-		baseURL:    defaultBaseURL,
+		httpClient:  &http.Client{Timeout: defaultTimeout},
+		baseURL:     defaultBaseURL,
+		rateLimiter: rate.NewLimiter(rate.Every(defaultRate), defaultBurst),
 	}
 }
 
@@ -84,11 +90,9 @@ func (cl *Client) SetDebug(debug bool) {
 func (cl *Client) do(ctx context.Context, method, path string,
 	req, res interface{}, auth bool) error {
 
-	if cl.rateLimiter != nil {
-		err := cl.rateLimiter.Wait(ctx)
-		if err != nil {
-			return err
-		}
+	err := cl.rateLimiter.Wait(ctx)
+	if err != nil {
+		return err
 	}
 
 	url := cl.baseURL + "/" + strings.TrimLeft(path, "/")

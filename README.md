@@ -32,14 +32,11 @@ import (
   "context"
   "time"
   "github.com/luno/luno-go"
-  "golang.org/x/time/rate"
 )
 
 func main() {
-  rateLimiter := rate.NewLimiter(rate.Every(time.Minute/300), 1)
   lunoClient := luno.NewClient()
   lunoClient.SetAuth("<id>", "<secret>")
-  lunoClient.SetRateLimiter(rateLimiter)
 
   req := luno.GetOrderBookRequest{Pair: "XBTZAR"}
   ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(10 * time.Second))
