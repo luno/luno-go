@@ -19,9 +19,11 @@ type orderBook struct {
 }
 
 type TradeUpdate struct {
-	Base    decimal.Decimal `json:"base,string"`
-	Counter decimal.Decimal `json:"counter,string"`
-	OrderID string          `json:"order_id"`
+	Base         decimal.Decimal `json:"base,string"`
+	Counter      decimal.Decimal `json:"counter,string"`
+	MakerOrderID string          `json:"maker_order_id"`
+	TakerOrderID string          `json:"taker_order_id"`
+	OrderID      string          `json:"order_id"`
 }
 
 type CreateUpdate struct {
