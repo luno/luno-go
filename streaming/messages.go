@@ -27,7 +27,7 @@ type TradeUpdate struct {
 	MakerOrderID string `json:"maker_order_id"`
 	// TakeOrderID is the ID of the order that matched against a pre-existing order.
 	TakerOrderID string `json:"taker_order_id"`
-	// OrderID is deprecated.
+	// Deprecated: Use MakerOrderID and TakerOrderID.
 	OrderID string `json:"order_id"`
 }
 
