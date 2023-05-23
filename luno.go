@@ -37,7 +37,12 @@ const (
 	defaultTimeout = 10 * time.Second
 	// Rate limiting parameters:
 	// Refer to https://www.luno.com/en/developers/api#tag/Rate-Limiting
-	defaultRate  = time.Minute / 300
+	// The default configuration allows for a burst of 1 request every 200ms
+	// which aggregates to 300 requests per minute.
+	//
+	// defaultRate specifies the rate at which requests are allowed.
+	defaultRate = time.Minute / 300
+	// defaultBurst specifies the maximum number of requests allowed in a burst.
 	defaultBurst = 1
 )
 
