@@ -35,8 +35,10 @@ type Client struct {
 const (
 	defaultBaseURL = "https://api.luno.com"
 	defaultTimeout = 10 * time.Second
-	defaultRate    = time.Minute / 300
-	defaultBurst   = 1
+	// Rate limiting parameters:
+	// Refer to https://www.luno.com/en/developers/api#tag/Rate-Limiting
+	defaultRate  = time.Minute / 300
+	defaultBurst = 1
 )
 
 // NewClient creates a new Luno API client with the default base URL.
