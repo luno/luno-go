@@ -88,10 +88,20 @@ func TestReceivedUpdate(t *testing.T) {
 			args: args{
 				u: Update{Sequence: 2,
 					TradeUpdates: []*TradeUpdate{
-						{Base: decimal.NewFromFloat64(0.02, 2),
-							Counter: decimal.NewFromFloat64(0.002, 2), OrderID: "1"},
-						{Base: decimal.NewFromFloat64(0.01, 2),
-							Counter: decimal.NewFromFloat64(0.001, 2), OrderID: "1"},
+						{
+							Sequence:     1,
+							Base:         decimal.NewFromFloat64(0.02, 2),
+							Counter:      decimal.NewFromFloat64(0.002, 2),
+							MakerOrderID: "1",
+							TakerOrderID: "32",
+						},
+						{
+							Sequence:     2,
+							Base:         decimal.NewFromFloat64(0.01, 2),
+							Counter:      decimal.NewFromFloat64(0.001, 2),
+							MakerOrderID: "1",
+							TakerOrderID: "34",
+						},
 					},
 				},
 			},
@@ -99,9 +109,14 @@ func TestReceivedUpdate(t *testing.T) {
 				wantErr: false,
 				asks:    asksMap(),
 				bids: bidsMap(order{ID: "1", Price: decimal.NewFromFloat64(120.0, 1),
-					Volume: decimal.NewFromFloat64(0.08, 2)}),
-				lastTrade: TradeUpdate{Base: decimal.NewFromFloat64(0.01, 2),
-					Counter: decimal.NewFromFloat64(0.001, 2), OrderID: "1"},
+					Volume: decimal.NewFromFloat64(0.07, 2)}),
+				lastTrade: TradeUpdate{
+					Sequence:     2,
+					Base:         decimal.NewFromFloat64(0.01, 2),
+					Counter:      decimal.NewFromFloat64(0.001, 2),
+					MakerOrderID: "1",
+					TakerOrderID: "34"
+				},
 				seq:    2,
 				status: luno.StatusActive,
 			},
@@ -111,10 +126,20 @@ func TestReceivedUpdate(t *testing.T) {
 			args: args{
 				u: Update{Sequence: 2,
 					TradeUpdates: []*TradeUpdate{
-						{Base: decimal.NewFromFloat64(0.01, 2),
-							Counter: decimal.NewFromFloat64(0.001, 2), OrderID: "4"},
-						{Base: decimal.NewFromFloat64(0.01, 2),
-							Counter: decimal.NewFromFloat64(0.001, 2), OrderID: "3"},
+						{
+							Sequence:     1,
+							Base:         decimal.NewFromFloat64(0.01, 2),
+							Counter:      decimal.NewFromFloat64(0.001, 2),
+							MakerOrderID: "4",
+							TakerOrderID: "32",
+						},
+						{
+							Sequence:     2,
+							Base:         decimal.NewFromFloat64(0.01, 2),
+							Counter:      decimal.NewFromFloat64(0.001, 2),
+							MakerOrderID: "3",
+							TakerOrderID: "34",
+						},
 					},
 				},
 			},
@@ -124,8 +149,13 @@ func TestReceivedUpdate(t *testing.T) {
 					Volume: decimal.NewFromFloat64(0.99, 2)}),
 				bids: bidsMap(order{ID: "3", Price: decimal.NewFromFloat64(100.0, 1),
 					Volume: decimal.NewFromFloat64(0.99, 2)}),
-				lastTrade: TradeUpdate{Base: decimal.NewFromFloat64(0.01, 2),
-					Counter: decimal.NewFromFloat64(0.001, 2), OrderID: "3"},
+				lastTrade: TradeUpdate{
+					Sequence:     2,
+					Base:         decimal.NewFromFloat64(0.01, 2),
+					Counter:      decimal.NewFromFloat64(0.001, 2),
+					MakerOrderID: "3",
+					TakerOrderID: "34",
+				},
 				seq:    2,
 				status: luno.StatusActive,
 			},
@@ -135,20 +165,40 @@ func TestReceivedUpdate(t *testing.T) {
 			args: args{
 				u: Update{Sequence: 2,
 					TradeUpdates: []*TradeUpdate{
-						{Base: decimal.NewFromFloat64(0.5, 1),
-							Counter: decimal.NewFromFloat64(0.1, 2), OrderID: "2"},
-						{Base: decimal.NewFromFloat64(1, 1),
-							Counter: decimal.NewFromFloat64(1, 1), OrderID: "4"},
-						{Base: decimal.NewFromFloat64(0.1, 1),
-							Counter: decimal.NewFromFloat64(1, 1), OrderID: "6"},
+						{
+							Sequence:     1,
+							Base:         decimal.NewFromFloat64(0.5, 1),
+							Counter:      decimal.NewFromFloat64(0.1, 2),
+							MakerOrderID: "2",
+							TakerOrderID: "32",
+						},
+						{
+							Sequence:     2,
+							Base:         decimal.NewFromFloat64(1, 1),
+							Counter:      decimal.NewFromFloat64(1, 1),
+							MakerOrderID: "4",
+							TakerOrderID: "34",
+						},
+						{
+							Sequence:     3,
+							Base:         decimal.NewFromFloat64(0.1, 1),
+							Counter:      decimal.NewFromFloat64(1, 1),
+							MakerOrderID: "6",
+							TakerOrderID: "36",
+						},
 					},
 				},
 			},
 			expected: expected{
 				wantErr: false,
 				bids:    bidsMap(),
-				lastTrade: TradeUpdate{Base: decimal.NewFromFloat64(0.1, 1),
-					Counter: decimal.NewFromFloat64(1, 1), OrderID: "6"},
+				lastTrade: TradeUpdate{
+					Sequence:     3,
+					Base:         decimal.NewFromFloat64(0.1, 1),
+					Counter:      decimal.NewFromFloat64(1, 1),
+					MakerOrderID: "6",
+					TakerOrderID: "36",
+				},
 				seq:    2,
 				status: luno.StatusActive,
 			},
@@ -190,7 +240,8 @@ func TestReceivedCreate(t *testing.T) {
 					CreateUpdate: &CreateUpdate{OrderID: "8",
 						Price:  decimal.NewFromFloat64(6700.56, 2),
 						Type:   "ASKBID",
-						Volume: decimal.NewFromFloat64(0.01, 2)},
+						Volume: decimal.NewFromFloat64(0.01, 2),
+					},
 				}},
 			expected: expected{
 				wantErr: true,
@@ -203,7 +254,8 @@ func TestReceivedCreate(t *testing.T) {
 					CreateUpdate: &CreateUpdate{OrderID: "8",
 						Price:  decimal.NewFromFloat64(6700.56, 2),
 						Type:   "ASK",
-						Volume: decimal.NewFromFloat64(0.01, 2)},
+						Volume: decimal.NewFromFloat64(0.01, 2),
+					},
 				}},
 			expected: expected{
 				wantErr: false,
@@ -222,7 +274,8 @@ func TestReceivedCreate(t *testing.T) {
 					CreateUpdate: &CreateUpdate{OrderID: "7",
 						Price:  decimal.NewFromFloat64(6700.54, 2),
 						Type:   "BID",
-						Volume: decimal.NewFromFloat64(0.01, 2)},
+						Volume: decimal.NewFromFloat64(0.01, 2),
+					},
 				}},
 			expected: expected{
 				wantErr: false,
@@ -378,16 +431,16 @@ func existsInOtherMap(a, b map[string]order) bool {
 }
 
 func compareLastTrade(a, b TradeUpdate) bool {
-	if &a == &b {
-		return true
-	}
 	if a.Base.Cmp(b.Base) != 0 {
 		return false
 	}
+	a.Base = b.Base
 	if a.Counter.Cmp(b.Counter) != 0 {
 		return false
 	}
-	return true
+	a.Counter = b.Counter
+
+	return a == b
 }
 
 func validateResult(err error, t *testing.T, exp expected, c *Conn) {
@@ -396,6 +449,9 @@ func validateResult(err error, t *testing.T, exp expected, c *Conn) {
 	}
 	if !compareOrderMaps(exp.asks, c.asks) {
 		t.Errorf("Invalid asks. Expected:%v, got:%v", exp.asks, c.asks)
+	}
+	if !compareOrderMaps(exp.bids, c.bids) {
+		t.Errorf("Invalid bids. Expected:%v, got:%v", exp.bids, c.bids)
 	}
 	if !compareLastTrade(exp.lastTrade, c.lastTrade) {
 		t.Errorf("Invalid lastTrade. Expected:%v, got:%v", exp.lastTrade, c.lastTrade)

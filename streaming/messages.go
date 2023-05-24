@@ -19,6 +19,9 @@ type orderBook struct {
 }
 
 type TradeUpdate struct {
+	// Sequence is the monotonically increasing sequence number of the trade
+	// for the market in question.
+	Sequence int64 `json:"sequence"`
 	// Base is the volume of the base currency that was filled.
 	Base decimal.Decimal `json:"base,string"`
 	// Counter is the price at which the order filled.
@@ -27,7 +30,7 @@ type TradeUpdate struct {
 	MakerOrderID string `json:"maker_order_id"`
 	// TakeOrderID is the ID of the order that matched against a pre-existing order.
 	TakerOrderID string `json:"taker_order_id"`
-	// Deprecated: Use MakerOrderID and TakerOrderID.
+	// Deprecated: Use MakerOrderID.
 	OrderID string `json:"order_id"`
 }
 
