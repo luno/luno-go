@@ -14,26 +14,44 @@ import (
 	"runtime"
 	"strings"
 	"time"
+
+	"golang.org/x/time/rate"
 )
+
+type Limiter interface {
+	Wait(context.Context) error
+}
 
 // Client is a Luno API client.
 type Client struct {
 	httpClient   *http.Client
+	rateLimiter  Limiter
 	baseURL      string
 	apiKeyID     string
 	apiKeySecret string
 	debug        bool
 }
 
-const defaultBaseURL = "https://api.luno.com"
-
-const defaultTimeout = 10 * time.Second
+const (
+	defaultBaseURL = "https://api.luno.com"
+	defaultTimeout = 10 * time.Second
+	// Rate limiting parameters:
+	// Refer to https://www.luno.com/en/developers/api#tag/Rate-Limiting
+	// The default configuration allows for a burst of 1 request every 200ms
+	// which aggregates to 300 requests per minute.
+	//
+	// defaultRate specifies the rate at which requests are allowed.
+	defaultRate = time.Minute / 300
+	// defaultBurst specifies the maximum number of requests allowed in a burst.
+	defaultBurst = 1
+)
 
 // NewClient creates a new Luno API client with the default base URL.
 func NewClient() *Client {
 	return &Client{
-		httpClient: &http.Client{Timeout: defaultTimeout},
-		baseURL:    defaultBaseURL,
+		httpClient:  &http.Client{Timeout: defaultTimeout},
+		baseURL:     defaultBaseURL,
+		rateLimiter: rate.NewLimiter(rate.Every(defaultRate), defaultBurst),
 	}
 }
 
@@ -50,6 +68,12 @@ func (cl *Client) SetAuth(apiKeyID, apiKeySecret string) error {
 // SetHTTPClient sets the HTTP client that will be used for API calls.
 func (cl *Client) SetHTTPClient(httpClient *http.Client) {
 	cl.httpClient = httpClient
+}
+
+// SetRateLimiter sets the rate limiter that will be used to throttle calls
+// made through the client.
+func (cl *Client) SetRateLimiter(rateLimiter Limiter) {
+	cl.rateLimiter = rateLimiter
 }
 
 // SetTimeout sets the timeout for requests made by this client. Note: if you
@@ -72,6 +96,11 @@ func (cl *Client) SetDebug(debug bool) {
 
 func (cl *Client) do(ctx context.Context, method, path string,
 	req, res interface{}, auth bool) error {
+
+	err := cl.rateLimiter.Wait(ctx)
+	if err != nil {
+		return err
+	}
 
 	url := cl.baseURL + "/" + strings.TrimLeft(path, "/")
 
