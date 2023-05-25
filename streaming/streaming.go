@@ -353,11 +353,15 @@ func (c *Conn) processTrade(t TradeUpdate) error {
 	}
 
 	c.lastTrade = TradeUpdate{
-		Base:    t.Base,
-		Counter: t.Counter,
+		Sequence:     t.Sequence,
+		Base:         t.Base,
+		Counter:      t.Counter,
+		MakerOrderID: t.MakerOrderID,
+		TakerOrderID: t.TakerOrderID,
+		OrderID:      t.OrderID,
 	}
 
-	ok, err := decTrade(c.bids, t.OrderID, t.Base)
+	ok, err := decTrade(c.bids, t.MakerOrderID, t.Base)
 	if err != nil {
 		return err
 	}
@@ -365,7 +369,7 @@ func (c *Conn) processTrade(t TradeUpdate) error {
 		return nil
 	}
 
-	ok, err = decTrade(c.asks, t.OrderID, t.Base)
+	ok, err = decTrade(c.asks, t.MakerOrderID, t.Base)
 	if err != nil {
 		return err
 	}
