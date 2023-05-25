@@ -206,7 +206,8 @@ type Order struct {
 }
 
 type OrderBookEntry struct {
-	Id string `json:"id"`
+	// ID is the unique identifier of the order
+	ID string `json:"id"`
 
 	// Limit price at which orders are trading at
 	Price decimal.Decimal `json:"price"`
