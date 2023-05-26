@@ -483,3 +483,46 @@ func book() orderBook {
 		Status:   luno.StatusActive,
 	}
 }
+
+func Test_flatten(t *testing.T) {
+	orders := map[string]order{
+		"1": {ID: "1", Price: decimal.NewFromInt64(1), Volume: decimal.NewFromInt64(1)},
+		"2": {ID: "2", Price: decimal.NewFromInt64(2), Volume: decimal.NewFromInt64(2)},
+		"3": {ID: "3", Price: decimal.NewFromInt64(3), Volume: decimal.NewFromInt64(3)},
+	}
+	expForward := []luno.OrderBookEntry{
+		{ID: "1", Price: decimal.NewFromInt64(1), Volume: decimal.NewFromInt64(1)},
+		{ID: "2", Price: decimal.NewFromInt64(2), Volume: decimal.NewFromInt64(2)},
+		{ID: "3", Price: decimal.NewFromInt64(3), Volume: decimal.NewFromInt64(3)},
+	}
+	expReverse := []luno.OrderBookEntry{
+		{ID: "3", Price: decimal.NewFromInt64(3), Volume: decimal.NewFromInt64(3)},
+		{ID: "2", Price: decimal.NewFromInt64(2), Volume: decimal.NewFromInt64(2)},
+		{ID: "1", Price: decimal.NewFromInt64(1), Volume: decimal.NewFromInt64(1)},
+	}
+
+	forward := flatten(orders, false)
+	for i := 0; i < len(orders); i++ {
+		compareOrderBookEntry(t, expForward[i], forward[i])
+	}
+
+	reverse := flatten(orders, true)
+	for i := 0; i < len(orders); i++ {
+		compareOrderBookEntry(t, expReverse[i], reverse[i])
+	}
+}
+
+func compareOrderBookEntry(t *testing.T, want, got luno.OrderBookEntry) {
+	if got.Price.Cmp(want.Price) != 0 {
+		t.Errorf("Price = %v, want %v", got.Price, want.Price)
+	}
+	got.Price = want.Price
+	if got.Volume.Cmp(want.Volume) != 0 {
+		t.Errorf("Volume = %v, want %v", got.Volume, want.Volume)
+	}
+	got.Volume = want.Volume
+
+	if got != want {
+		t.Errorf("got = %v, want %v", got, want)
+	}
+}
