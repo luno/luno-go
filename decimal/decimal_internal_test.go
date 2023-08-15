@@ -14,59 +14,59 @@ func TestDecimalUnmarshalJSON(t *testing.T) {
 	}
 
 	testCases := []testCase{
-		testCase{
+		{
 			b:   `""`,
 			err: true,
 		},
-		testCase{
+		{
 			b:   `"abc"`,
 			err: true,
 		},
-		testCase{
+		{
 			b:     `"0."`,
 			err:   false,
 			i:     big.NewInt(0),
 			scale: 0,
 		},
-		testCase{
+		{
 			b:     `"0"`,
 			err:   false,
 			i:     big.NewInt(0),
 			scale: 0,
 		},
-		testCase{
+		{
 			b:     `"0.1"`,
 			err:   false,
 			i:     big.NewInt(1),
 			scale: 1,
 		},
-		testCase{
+		{
 			b:     `"-100.1"`,
 			err:   false,
 			i:     big.NewInt(-1001),
 			scale: 1,
 		},
-		testCase{
+		{
 			b:     `"1.12345678"`,
 			err:   false,
 			i:     big.NewInt(112345678),
 			scale: 8,
 		},
-		testCase{
+		{
 			b:     `"1.123456789"`,
 			err:   false,
 			i:     big.NewInt(1123456789),
 			scale: 9,
 		},
-		testCase{
+		{
 			b:   `"1e8"`,
 			err: true,
 		},
-		testCase{
+		{
 			b:   `"1.1e8"`,
 			err: true,
 		},
-		testCase{
+		{
 			b:   `"1.1234e2"`,
 			err: true,
 		},
@@ -104,37 +104,37 @@ func TestDecimalToScale(t *testing.T) {
 	}
 
 	testCases := []testCase{
-		testCase{
+		{
 			d:     New(big.NewInt(0), 0),
 			scale: 0,
 			exp:   big.NewInt(0),
 		},
-		testCase{
+		{
 			d:     New(big.NewInt(1), 0),
 			scale: 1,
 			exp:   big.NewInt(10),
 		},
-		testCase{
+		{
 			d:     New(big.NewInt(-1), 0),
 			scale: 1,
 			exp:   big.NewInt(-10),
 		},
-		testCase{
+		{
 			d:     New(big.NewInt(12344), 4),
 			scale: 3,
 			exp:   big.NewInt(1234),
 		},
-		testCase{
+		{
 			d:     New(big.NewInt(-12344), 4),
 			scale: 3,
 			exp:   big.NewInt(-1234),
 		},
-		testCase{
+		{
 			d:     New(big.NewInt(12349), 4),
 			scale: 3,
 			exp:   big.NewInt(1234),
 		},
-		testCase{
+		{
 			d:     New(big.NewInt(-12349), 4),
 			scale: 3,
 			exp:   big.NewInt(-1234),

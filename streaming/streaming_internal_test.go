@@ -86,7 +86,8 @@ func TestReceivedUpdate(t *testing.T) {
 		{
 			name: "success process twice",
 			args: args{
-				u: Update{Sequence: 2,
+				u: Update{
+					Sequence: 2,
 					TradeUpdates: []*TradeUpdate{
 						{
 							Sequence:     1,
@@ -108,8 +109,10 @@ func TestReceivedUpdate(t *testing.T) {
 			expected: expected{
 				wantErr: false,
 				asks:    asksMap(),
-				bids: bidsMap(order{ID: "1", Price: decimal.NewFromFloat64(120.0, 1),
-					Volume: decimal.NewFromFloat64(0.07, 2)}),
+				bids: bidsMap(order{
+					ID: "1", Price: decimal.NewFromFloat64(120.0, 1),
+					Volume: decimal.NewFromFloat64(0.07, 2),
+				}),
 				lastTrade: TradeUpdate{
 					Sequence:     2,
 					Base:         decimal.NewFromFloat64(0.01, 2),
@@ -124,7 +127,8 @@ func TestReceivedUpdate(t *testing.T) {
 		{
 			name: "success ask/bid",
 			args: args{
-				u: Update{Sequence: 2,
+				u: Update{
+					Sequence: 2,
 					TradeUpdates: []*TradeUpdate{
 						{
 							Sequence:     1,
@@ -145,10 +149,14 @@ func TestReceivedUpdate(t *testing.T) {
 			},
 			expected: expected{
 				wantErr: false,
-				asks: asksMap(order{ID: "4", Price: decimal.NewFromFloat64(180.0, 1),
-					Volume: decimal.NewFromFloat64(0.99, 2)}),
-				bids: bidsMap(order{ID: "3", Price: decimal.NewFromFloat64(100.0, 1),
-					Volume: decimal.NewFromFloat64(0.99, 2)}),
+				asks: asksMap(order{
+					ID: "4", Price: decimal.NewFromFloat64(180.0, 1),
+					Volume: decimal.NewFromFloat64(0.99, 2),
+				}),
+				bids: bidsMap(order{
+					ID: "3", Price: decimal.NewFromFloat64(100.0, 1),
+					Volume: decimal.NewFromFloat64(0.99, 2),
+				}),
 				lastTrade: TradeUpdate{
 					Sequence:     2,
 					Base:         decimal.NewFromFloat64(0.01, 2),
@@ -163,7 +171,8 @@ func TestReceivedUpdate(t *testing.T) {
 		{
 			name: "success delete from ask",
 			args: args{
-				u: Update{Sequence: 2,
+				u: Update{
+					Sequence: 2,
 					TradeUpdates: []*TradeUpdate{
 						{
 							Sequence:     1,
@@ -236,12 +245,16 @@ func TestReceivedCreate(t *testing.T) {
 		{
 			name: "fail invalid type",
 			args: args{
-				u: Update{Sequence: 2,
-					CreateUpdate: &CreateUpdate{OrderID: "8",
-						Price:  decimal.NewFromFloat64(6700.56, 2),
-						Type:   "ASKBID",
-						Volume: decimal.NewFromFloat64(0.01, 2)},
-				}},
+				u: Update{
+					Sequence: 2,
+					CreateUpdate: &CreateUpdate{
+						OrderID: "8",
+						Price:   decimal.NewFromFloat64(6700.56, 2),
+						Type:    "ASKBID",
+						Volume:  decimal.NewFromFloat64(0.01, 2),
+					},
+				},
+			},
 			expected: expected{
 				wantErr: true,
 			},
@@ -249,17 +262,23 @@ func TestReceivedCreate(t *testing.T) {
 		{
 			name: "create ask",
 			args: args{
-				u: Update{Sequence: 2,
-					CreateUpdate: &CreateUpdate{OrderID: "8",
-						Price:  decimal.NewFromFloat64(6700.56, 2),
-						Type:   "ASK",
-						Volume: decimal.NewFromFloat64(0.01, 2)},
-				}},
+				u: Update{
+					Sequence: 2,
+					CreateUpdate: &CreateUpdate{
+						OrderID: "8",
+						Price:   decimal.NewFromFloat64(6700.56, 2),
+						Type:    "ASK",
+						Volume:  decimal.NewFromFloat64(0.01, 2),
+					},
+				},
+			},
 			expected: expected{
 				wantErr: false,
-				asks: asksMap(order{ID: "8",
+				asks: asksMap(order{
+					ID:     "8",
 					Price:  decimal.NewFromFloat64(6700.56, 2),
-					Volume: decimal.NewFromFloat64(0.01, 2)}),
+					Volume: decimal.NewFromFloat64(0.01, 2),
+				}),
 				bids:   bidsMap(),
 				seq:    2,
 				status: luno.StatusActive,
@@ -268,18 +287,24 @@ func TestReceivedCreate(t *testing.T) {
 		{
 			name: "create bid",
 			args: args{
-				u: Update{Sequence: 2,
-					CreateUpdate: &CreateUpdate{OrderID: "7",
-						Price:  decimal.NewFromFloat64(6700.54, 2),
-						Type:   "BID",
-						Volume: decimal.NewFromFloat64(0.01, 2)},
-				}},
+				u: Update{
+					Sequence: 2,
+					CreateUpdate: &CreateUpdate{
+						OrderID: "7",
+						Price:   decimal.NewFromFloat64(6700.54, 2),
+						Type:    "BID",
+						Volume:  decimal.NewFromFloat64(0.01, 2),
+					},
+				},
+			},
 			expected: expected{
 				wantErr: false,
 				asks:    asksMap(),
-				bids: bidsMap(order{ID: "7",
+				bids: bidsMap(order{
+					ID:     "7",
 					Price:  decimal.NewFromFloat64(6700.54, 2),
-					Volume: decimal.NewFromFloat64(0.01, 2)}),
+					Volume: decimal.NewFromFloat64(0.01, 2),
+				}),
 				seq:    2,
 				status: luno.StatusActive,
 			},
@@ -317,8 +342,10 @@ func TestReceivedDelete(t *testing.T) {
 		{
 			name: "success not in asks/bids",
 			args: args{
-				u: Update{Sequence: 2,
-					DeleteUpdate: &DeleteUpdate{OrderID: "8"}},
+				u: Update{
+					Sequence:     2,
+					DeleteUpdate: &DeleteUpdate{OrderID: "8"},
+				},
 			},
 			expected: expected{
 				wantErr: false,
@@ -331,16 +358,22 @@ func TestReceivedDelete(t *testing.T) {
 		{
 			name: "delete ask",
 			args: args{
-				u: Update{Sequence: 2,
-					DeleteUpdate: &DeleteUpdate{OrderID: "4"}},
+				u: Update{
+					Sequence:     2,
+					DeleteUpdate: &DeleteUpdate{OrderID: "4"},
+				},
 			},
 			expected: expected{
 				wantErr: false,
 				asks: map[string]order{
-					"2": {ID: "2", Price: decimal.NewFromFloat64(150.0, 1),
-						Volume: decimal.NewFromFloat64(0.5, 1)},
-					"6": {ID: "6", Price: decimal.NewFromFloat64(200.0, 1),
-						Volume: decimal.NewFromFloat64(0.1, 1)},
+					"2": {
+						ID: "2", Price: decimal.NewFromFloat64(150.0, 1),
+						Volume: decimal.NewFromFloat64(0.5, 1),
+					},
+					"6": {
+						ID: "6", Price: decimal.NewFromFloat64(200.0, 1),
+						Volume: decimal.NewFromFloat64(0.1, 1),
+					},
 				},
 				bids:   bidsMap(),
 				seq:    2,
@@ -370,12 +403,18 @@ func TestReceivedDelete(t *testing.T) {
 
 func bidsMap(o ...order) map[string]order {
 	res := map[string]order{
-		"1": {ID: "1", Price: decimal.NewFromFloat64(120.0, 1),
-			Volume: decimal.NewFromFloat64(0.1, 1)},
-		"3": {ID: "3", Price: decimal.NewFromFloat64(100.0, 1),
-			Volume: decimal.NewFromFloat64(1.0, 1)},
-		"5": {ID: "5", Price: decimal.NewFromFloat64(110.0, 1),
-			Volume: decimal.NewFromFloat64(0.5, 1)},
+		"1": {
+			ID: "1", Price: decimal.NewFromFloat64(120.0, 1),
+			Volume: decimal.NewFromFloat64(0.1, 1),
+		},
+		"3": {
+			ID: "3", Price: decimal.NewFromFloat64(100.0, 1),
+			Volume: decimal.NewFromFloat64(1.0, 1),
+		},
+		"5": {
+			ID: "5", Price: decimal.NewFromFloat64(110.0, 1),
+			Volume: decimal.NewFromFloat64(0.5, 1),
+		},
 	}
 	for _, v := range o {
 		res[v.ID] = v
@@ -385,12 +424,18 @@ func bidsMap(o ...order) map[string]order {
 
 func asksMap(o ...order) map[string]order {
 	res := map[string]order{
-		"2": {ID: "2", Price: decimal.NewFromFloat64(150.0, 1),
-			Volume: decimal.NewFromFloat64(0.5, 1)},
-		"4": {ID: "4", Price: decimal.NewFromFloat64(180.0, 1),
-			Volume: decimal.NewFromFloat64(1.0, 1)},
-		"6": {ID: "6", Price: decimal.NewFromFloat64(200.0, 1),
-			Volume: decimal.NewFromFloat64(0.1, 1)},
+		"2": {
+			ID: "2", Price: decimal.NewFromFloat64(150.0, 1),
+			Volume: decimal.NewFromFloat64(0.5, 1),
+		},
+		"4": {
+			ID: "4", Price: decimal.NewFromFloat64(180.0, 1),
+			Volume: decimal.NewFromFloat64(1.0, 1),
+		},
+		"6": {
+			ID: "6", Price: decimal.NewFromFloat64(200.0, 1),
+			Volume: decimal.NewFromFloat64(0.1, 1),
+		},
 	}
 	for _, v := range o {
 		res[v.ID] = v
@@ -464,20 +509,32 @@ func validateResult(err error, t *testing.T, exp expected, c *Conn) {
 func book() orderBook {
 	return orderBook{
 		Bids: []*order{
-			{ID: "1", Price: decimal.NewFromFloat64(120.0, 1),
-				Volume: decimal.NewFromFloat64(0.1, 1)},
-			{ID: "5", Price: decimal.NewFromFloat64(110.0, 1),
-				Volume: decimal.NewFromFloat64(0.5, 1)},
-			{ID: "3", Price: decimal.NewFromFloat64(100.0, 1),
-				Volume: decimal.NewFromFloat64(1.0, 1)},
+			{
+				ID: "1", Price: decimal.NewFromFloat64(120.0, 1),
+				Volume: decimal.NewFromFloat64(0.1, 1),
+			},
+			{
+				ID: "5", Price: decimal.NewFromFloat64(110.0, 1),
+				Volume: decimal.NewFromFloat64(0.5, 1),
+			},
+			{
+				ID: "3", Price: decimal.NewFromFloat64(100.0, 1),
+				Volume: decimal.NewFromFloat64(1.0, 1),
+			},
 		},
 		Asks: []*order{
-			{ID: "2", Price: decimal.NewFromFloat64(150.0, 1),
-				Volume: decimal.NewFromFloat64(0.5, 1)},
-			{ID: "4", Price: decimal.NewFromFloat64(180.0, 1),
-				Volume: decimal.NewFromFloat64(1.0, 1)},
-			{ID: "6", Price: decimal.NewFromFloat64(200.0, 1),
-				Volume: decimal.NewFromFloat64(0.1, 1)},
+			{
+				ID: "2", Price: decimal.NewFromFloat64(150.0, 1),
+				Volume: decimal.NewFromFloat64(0.5, 1),
+			},
+			{
+				ID: "4", Price: decimal.NewFromFloat64(180.0, 1),
+				Volume: decimal.NewFromFloat64(1.0, 1),
+			},
+			{
+				ID: "6", Price: decimal.NewFromFloat64(200.0, 1),
+				Volume: decimal.NewFromFloat64(0.1, 1),
+			},
 		},
 		Sequence: 1,
 		Status:   luno.StatusActive,

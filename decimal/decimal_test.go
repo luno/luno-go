@@ -15,12 +15,12 @@ func TestFloat64(t *testing.T) {
 	}
 
 	testCases := []testCase{
-		testCase{
+		{
 			a:   "0.17800000",
 			b:   "6750.00000000",
 			exp: 1201.5,
 		},
-		testCase{
+		{
 			a:   "0.178000001",
 			b:   "6750.000000001",
 			exp: 1201.500006750178,
@@ -46,19 +46,19 @@ func TestNewFromInt64(t *testing.T) {
 	}
 
 	testCases := []testCase{
-		testCase{
+		{
 			i:   0,
 			exp: "0",
 		},
-		testCase{
+		{
 			i:   1,
 			exp: "1",
 		},
-		testCase{
+		{
 			i:   -1,
 			exp: "-1",
 		},
-		testCase{
+		{
 			i:   1231231,
 			exp: "1231231",
 		},
@@ -81,27 +81,27 @@ func TestNewFromFloat64(t *testing.T) {
 	}
 
 	testCases := []testCase{
-		testCase{
+		{
 			f:     0,
 			scale: 0,
 			exp:   "0",
 		},
-		testCase{
+		{
 			f:     1,
 			scale: 0,
 			exp:   "1",
 		},
-		testCase{
+		{
 			f:     1.12345678,
 			scale: 0,
 			exp:   "1",
 		},
-		testCase{
+		{
 			f:     1.12345678,
 			scale: 8,
 			exp:   "1.12345678",
 		},
-		testCase{
+		{
 			f:     -1.12345678,
 			scale: 4,
 			exp:   "-1.1234",
@@ -124,23 +124,23 @@ func TestNewFromString(t *testing.T) {
 	}
 
 	testCases := []testCase{
-		testCase{
+		{
 			s:   "",
 			err: true,
 		},
-		testCase{
+		{
 			s:   "abc",
 			err: true,
 		},
-		testCase{
+		{
 			s:   "1e8",
 			err: true,
 		},
-		testCase{s: "0"},
-		testCase{s: "1"},
-		testCase{s: "-1.2"},
-		testCase{s: "1.12345678"},
-		testCase{s: "1.123456789"},
+		{s: "0"},
+		{s: "1"},
+		{s: "-1.2"},
+		{s: "1.12345678"},
+		{s: "1.123456789"},
 	}
 
 	for _, test := range testCases {
@@ -178,47 +178,47 @@ func TestDecimalString(t *testing.T) {
 	}
 
 	testCases := []testCase{
-		testCase{
+		{
 			d:   decimal.New(big.NewInt(0), 0),
 			exp: "0",
 		},
-		testCase{
+		{
 			d:   decimal.New(big.NewInt(1), 0),
 			exp: "1",
 		},
-		testCase{
+		{
 			d:   decimal.New(big.NewInt(12), 1),
 			exp: "1.2",
 		},
-		testCase{
+		{
 			d:   decimal.New(big.NewInt(-12), 1),
 			exp: "-1.2",
 		},
-		testCase{
+		{
 			d:   decimal.New(big.NewInt(12), 0),
 			exp: "12",
 		},
-		testCase{
+		{
 			d:   decimal.New(big.NewInt(112345678), 8),
 			exp: "1.12345678",
 		},
-		testCase{
+		{
 			d:   decimal.New(big.NewInt(-112345678), 8),
 			exp: "-1.12345678",
 		},
-		testCase{
+		{
 			d:   decimal.New(big.NewInt(1123456789), 9),
 			exp: "1.123456789",
 		},
-		testCase{
+		{
 			d:   decimal.New(big.NewInt(-1123456789), 9),
 			exp: "-1.123456789",
 		},
-		testCase{
+		{
 			d:   decimal.New(big.NewInt(1123456782), 9),
 			exp: "1.123456782",
 		},
-		testCase{
+		{
 			d:   decimal.New(big.NewInt(-1123456782), 9),
 			exp: "-1.123456782",
 		},
@@ -240,19 +240,19 @@ func TestDecimalSign(t *testing.T) {
 	}
 
 	testCases := []testCase{
-		testCase{
+		{
 			d:   decimal.New(big.NewInt(0), 0),
 			exp: 0,
 		},
-		testCase{
+		{
 			d:   decimal.New(big.NewInt(1), 0),
 			exp: 1,
 		},
-		testCase{
+		{
 			d:   decimal.New(big.NewInt(-1), 0),
 			exp: -1,
 		},
-		testCase{
+		{
 			d:   decimal.New(big.NewInt(12345678), 8),
 			exp: 1,
 		},
@@ -275,32 +275,32 @@ func TestDecimalCmp(t *testing.T) {
 	}
 
 	testCases := []testCase{
-		testCase{
+		{
 			d1:  decimal.New(big.NewInt(0), 0),
 			d2:  decimal.New(big.NewInt(0), 0),
 			exp: 0,
 		},
-		testCase{
+		{
 			d1:  decimal.New(big.NewInt(1), 0),
 			d2:  decimal.New(big.NewInt(0), 0),
 			exp: 1,
 		},
-		testCase{
+		{
 			d1:  decimal.New(big.NewInt(-1), 0),
 			d2:  decimal.New(big.NewInt(0), 0),
 			exp: -1,
 		},
-		testCase{
+		{
 			d1:  decimal.New(big.NewInt(100), 1),
 			d2:  decimal.New(big.NewInt(100), 3),
 			exp: 1,
 		},
-		testCase{
+		{
 			d1:  decimal.New(big.NewInt(100), 3),
 			d2:  decimal.New(big.NewInt(100), 1),
 			exp: -1,
 		},
-		testCase{
+		{
 			d1:  decimal.New(big.NewInt(100), 2),
 			d2:  decimal.New(big.NewInt(1), 0),
 			exp: 0,
@@ -323,27 +323,27 @@ func TestDecimalNeg(t *testing.T) {
 	}
 
 	testCases := []testCase{
-		testCase{
+		{
 			d:   decimal.New(big.NewInt(0), 0),
 			exp: decimal.New(big.NewInt(0), 0),
 		},
-		testCase{
+		{
 			d:   decimal.New(big.NewInt(1), 0),
 			exp: decimal.New(big.NewInt(-1), 0),
 		},
-		testCase{
+		{
 			d:   decimal.New(big.NewInt(-1), 0),
 			exp: decimal.New(big.NewInt(1), 0),
 		},
-		testCase{
+		{
 			d:   decimal.New(big.NewInt(5), 1),
 			exp: decimal.New(big.NewInt(-5), 1),
 		},
-		testCase{
+		{
 			d:   decimal.New(big.NewInt(-5), 1),
 			exp: decimal.New(big.NewInt(5), 1),
 		},
-		testCase{
+		{
 			d:   decimal.New(big.NewInt(12345678), 8),
 			exp: decimal.New(big.NewInt(-12345678), 8),
 		},
@@ -367,37 +367,37 @@ func TestDecimalAdd(t *testing.T) {
 	}
 
 	testCases := []testCase{
-		testCase{
+		{
 			d1:        decimal.New(big.NewInt(0), 0),
 			d2:        decimal.New(big.NewInt(0), 0),
 			exp:       decimal.New(big.NewInt(0), 0),
 			expString: "0",
 		},
-		testCase{
+		{
 			d1:        decimal.New(big.NewInt(1), 0),
 			d2:        decimal.New(big.NewInt(0), 0),
 			exp:       decimal.New(big.NewInt(1), 0),
 			expString: "1",
 		},
-		testCase{
+		{
 			d1:        decimal.New(big.NewInt(-1), 0),
 			d2:        decimal.New(big.NewInt(0), 0),
 			exp:       decimal.New(big.NewInt(-1), 0),
 			expString: "-1",
 		},
-		testCase{
+		{
 			d1:        decimal.New(big.NewInt(1), 0),
 			d2:        decimal.New(big.NewInt(112345678), 8),
 			exp:       decimal.New(big.NewInt(212345678), 8),
 			expString: "2.12345678",
 		},
-		testCase{
+		{
 			d1:        decimal.New(big.NewInt(-1123), 3),
 			d2:        decimal.New(big.NewInt(-1123), 3),
 			exp:       decimal.New(big.NewInt(-2246), 3),
 			expString: "-2.246",
 		},
-		testCase{
+		{
 			d1:        decimal.New(big.NewInt(112345678), 8),
 			d2:        decimal.New(big.NewInt(112345678), 8),
 			exp:       decimal.New(big.NewInt(224691356), 8),
@@ -430,37 +430,37 @@ func TestDecimalSub(t *testing.T) {
 	}
 
 	testCases := []testCase{
-		testCase{
+		{
 			d1:        decimal.New(big.NewInt(0), 0),
 			d2:        decimal.New(big.NewInt(0), 0),
 			exp:       decimal.New(big.NewInt(0), 0),
 			expString: "0",
 		},
-		testCase{
+		{
 			d1:        decimal.New(big.NewInt(1), 0),
 			d2:        decimal.New(big.NewInt(0), 0),
 			exp:       decimal.New(big.NewInt(1), 0),
 			expString: "1",
 		},
-		testCase{
+		{
 			d1:        decimal.New(big.NewInt(-1), 0),
 			d2:        decimal.New(big.NewInt(0), 0),
 			exp:       decimal.New(big.NewInt(-1), 0),
 			expString: "-1",
 		},
-		testCase{
+		{
 			d1:        decimal.New(big.NewInt(1), 0),
 			d2:        decimal.New(big.NewInt(112345678), 8),
 			exp:       decimal.New(big.NewInt(-12345678), 8),
 			expString: "-0.12345678",
 		},
-		testCase{
+		{
 			d1:        decimal.New(big.NewInt(-1123), 3),
 			d2:        decimal.New(big.NewInt(-1123), 3),
 			exp:       decimal.New(big.NewInt(0), 3),
 			expString: "0.000",
 		},
-		testCase{
+		{
 			d1:        decimal.New(big.NewInt(112345678), 8),
 			d2:        decimal.New(big.NewInt(112345678), 8),
 			exp:       decimal.New(big.NewInt(0), 8),
@@ -492,32 +492,32 @@ func TestDecimalMulInt64(t *testing.T) {
 	}
 
 	testCases := []testCase{
-		testCase{
+		{
 			d:   decimal.New(big.NewInt(0), 0),
 			y:   0,
 			exp: "0",
 		},
-		testCase{
+		{
 			d:   decimal.New(big.NewInt(100), 0),
 			y:   100,
 			exp: "10000",
 		},
-		testCase{
+		{
 			d:   decimal.New(big.NewInt(-100), 0),
 			y:   100,
 			exp: "-10000",
 		},
-		testCase{
+		{
 			d:   decimal.New(big.NewInt(100), 8),
 			y:   100,
 			exp: "0.00010000",
 		},
-		testCase{
+		{
 			d:   decimal.New(big.NewInt(-100), 8),
 			y:   100,
 			exp: "-0.00010000",
 		},
-		testCase{
+		{
 			d:   decimal.New(big.NewInt(17823), 4),
 			y:   124,
 			exp: "221.0052",
@@ -541,32 +541,32 @@ func TestDecimalDivInt64(t *testing.T) {
 	}
 
 	testCases := []testCase{
-		testCase{
+		{
 			d:   decimal.New(big.NewInt(1), 0),
 			y:   1,
 			exp: "1",
 		},
-		testCase{
+		{
 			d:   decimal.New(big.NewInt(-100), 0),
 			y:   100,
 			exp: "-1",
 		},
-		testCase{
+		{
 			d:   decimal.New(big.NewInt(100), 8),
 			y:   100,
 			exp: "0.00000001",
 		},
-		testCase{
+		{
 			d:   decimal.New(big.NewInt(-100), 8),
 			y:   100,
 			exp: "-0.00000001",
 		},
-		testCase{
+		{
 			d:   decimal.New(big.NewInt(1), 4),
 			y:   10,
 			exp: "0.0000",
 		},
-		testCase{
+		{
 			d:   decimal.New(big.NewInt(17823), 4),
 			y:   124,
 			exp: "0.0143",
@@ -590,32 +590,32 @@ func TestDecimalMul(t *testing.T) {
 	}
 
 	testCases := []testCase{
-		testCase{
+		{
 			d:   decimal.Decimal{},
 			y:   decimal.Decimal{},
 			exp: "0",
 		},
-		testCase{
+		{
 			d:   decimal.New(big.NewInt(1), 0),
 			y:   decimal.New(big.NewInt(1), 0),
 			exp: "1",
 		},
-		testCase{
+		{
 			d:   decimal.New(big.NewInt(1), 0),
 			y:   decimal.New(big.NewInt(-1), 0),
 			exp: "-1",
 		},
-		testCase{
+		{
 			d:   decimal.New(big.NewInt(1), 3),
 			y:   decimal.New(big.NewInt(1), 3),
 			exp: "0.000001",
 		},
-		testCase{
+		{
 			d:   decimal.New(big.NewInt(1234), 3),
 			y:   decimal.New(big.NewInt(5678), 8),
 			exp: "0.00007006652",
 		},
-		testCase{
+		{
 			d:   decimal.New(big.NewInt(100), 2),
 			y:   decimal.New(big.NewInt(100), 2),
 			exp: "1.0000",
@@ -640,37 +640,37 @@ func TestDecimalDivNoPanic(t *testing.T) {
 	}
 
 	testCases := []testCase{
-		testCase{
+		{
 			d:     decimal.New(big.NewInt(1), 0),
 			y:     decimal.New(big.NewInt(1), 0),
 			scale: 0,
 			exp:   "1",
 		},
-		testCase{
+		{
 			d:     decimal.New(big.NewInt(1), 0),
 			y:     decimal.New(big.NewInt(10), 0),
 			scale: 2,
 			exp:   "0.10",
 		},
-		testCase{
+		{
 			d:     decimal.New(big.NewInt(1), 0),
 			y:     decimal.New(big.NewInt(-10), 0),
 			scale: 2,
 			exp:   "-0.10",
 		},
-		testCase{
+		{
 			d:     decimal.New(big.NewInt(5000), 4),
 			y:     decimal.New(big.NewInt(15000), 4),
 			scale: 2,
 			exp:   "0.33",
 		},
-		testCase{
+		{
 			d:     decimal.New(big.NewInt(5000), 4),
 			y:     decimal.New(big.NewInt(15000), 4),
 			scale: 10,
 			exp:   "0.3333333333",
 		},
-		testCase{
+		{
 			d:     decimal.New(big.NewInt(1234), 2),
 			y:     decimal.New(big.NewInt(5678), 8),
 			scale: 5,
@@ -704,15 +704,15 @@ func TestDecimalDivPanic(t *testing.T) {
 	}
 
 	testCases := []testCase{
-		testCase{
+		{
 			d: decimal.Decimal{},
 			y: decimal.Decimal{},
 		},
-		testCase{
+		{
 			d: decimal.New(big.NewInt(1), 0),
 			y: decimal.Decimal{},
 		},
-		testCase{
+		{
 			d: decimal.New(big.NewInt(1), 0),
 			y: decimal.New(big.NewInt(0), 0),
 		},

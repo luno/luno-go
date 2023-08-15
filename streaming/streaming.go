@@ -56,9 +56,11 @@ type orderList []luno.OrderBookEntry
 func (ol orderList) Less(i, j int) bool {
 	return ol[i].Price.Cmp(ol[j].Price) < 0
 }
+
 func (ol orderList) Swap(i, j int) {
 	ol[i], ol[j] = ol[j], ol[i]
 }
+
 func (ol orderList) Len() int {
 	return len(ol)
 }
@@ -80,8 +82,10 @@ func flatten(m map[string]order, reverse bool) []luno.OrderBookEntry {
 	return ol
 }
 
-type ConnectCallback func(*Conn)
-type UpdateCallback func(Update)
+type (
+	ConnectCallback func(*Conn)
+	UpdateCallback  func(Update)
+)
 
 type Conn struct {
 	keyID, keySecret string
@@ -327,8 +331,8 @@ func (c *Conn) receivedUpdate(u Update) error {
 }
 
 func decTrade(m map[string]order, id string, base decimal.Decimal) (
-	bool, error) {
-
+	bool, error,
+) {
 	o, ok := m[id]
 	if !ok {
 		return false, nil
@@ -421,8 +425,8 @@ func (c *Conn) processStatus(u StatusUpdate) error {
 // OrderBookSnapshot returns the latest order book.
 // Deprecated at v0.0.8, use Snapshot().
 func (c *Conn) OrderBookSnapshot() (
-	int64, []luno.OrderBookEntry, []luno.OrderBookEntry) {
-
+	int64, []luno.OrderBookEntry, []luno.OrderBookEntry,
+) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 

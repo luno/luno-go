@@ -49,7 +49,7 @@ func makeURLValues(v interface{}) url.Values {
 		case reflect.Float64:
 			ss = append(ss, strconv.FormatFloat(fieldValue.Float(), 'f', 4, 64))
 		case reflect.Slice:
-			 if field.Type.Elem().Kind() == reflect.String {
+			if field.Type.Elem().Kind() == reflect.String {
 				for i := 0; i < fieldValue.Len(); i++ {
 					ss = append(ss, fieldValue.Index(i).String())
 				}

@@ -15,22 +15,22 @@ func TestTimeUnmarshalJSON(t *testing.T) {
 	}
 
 	testCases := []testCase{
-		testCase{
+		{
 			err: true,
 		},
-		testCase{
+		{
 			in:  []byte{},
 			err: true,
 		},
-		testCase{
+		{
 			in:  []byte("abc"),
 			err: true,
 		},
-		testCase{
+		{
 			in:  []byte("123456"),
 			exp: luno.Time(time.Unix(0, 123456e6)),
 		},
-		testCase{
+		{
 			in:  []byte("-123456"),
 			exp: luno.Time(time.Unix(0, -123456e6)),
 		},
@@ -61,15 +61,15 @@ func TestTimeMarshalJSON(t *testing.T) {
 	now := time.Now()
 
 	testCases := []testCase{
-		testCase{
+		{
 			in:  luno.Time{},
 			exp: time.Time{}.String(),
 		},
-		testCase{
+		{
 			in:  luno.Time(now),
 			exp: now.String(),
 		},
-		testCase{
+		{
 			in:  luno.Time(time.Date(2006, 1, 2, 3, 4, 5, 999, time.UTC)),
 			exp: time.Date(2006, 1, 2, 3, 4, 5, 999, time.UTC).String(),
 		},
