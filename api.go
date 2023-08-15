@@ -909,8 +909,7 @@ func (cl *Client) GetWithdrawal(ctx context.Context, req *GetWithdrawalRequest) 
 }
 
 // ListBeneficiariesResponseRequest is the request struct for ListBeneficiariesResponse.
-type ListBeneficiariesResponseRequest struct {
-}
+type ListBeneficiariesResponseRequest struct{}
 
 // ListBeneficiariesResponseResponse is the response struct for ListBeneficiariesResponse.
 type ListBeneficiariesResponseResponse struct {

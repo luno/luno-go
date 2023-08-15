@@ -11,21 +11,21 @@ func TestError(t *testing.T) {
 		Message: "Example error message!",
 	}
 
-	 if err.Error() != "Example error message! (ErrFoo)" {
-	 	t.Errorf("Unexpected error formatting")
-	 }
+	if err.Error() != "Example error message! (ErrFoo)" {
+		t.Errorf("Unexpected error formatting")
+	}
 
-	 if err.ErrCode() != "ErrFoo" {
-	 	t.Errorf("Unexpected error code")
-	 }
+	if err.ErrCode() != "ErrFoo" {
+		t.Errorf("Unexpected error code")
+	}
 }
 
 func TestIsErrorCode(t *testing.T) {
 	testCases := []struct {
 		name string
-		err error
+		err  error
 		code string
-		exp bool
+		exp  bool
 	}{
 		{
 			name: "nil error",
@@ -35,7 +35,7 @@ func TestIsErrorCode(t *testing.T) {
 		},
 		{
 			name: "luno error with code present",
-			err:  Error{
+			err: Error{
 				Code:    "ErrFoo",
 				Message: "example error message",
 			},
@@ -44,7 +44,7 @@ func TestIsErrorCode(t *testing.T) {
 		},
 		{
 			name: "luno error with different code",
-			err:  Error{
+			err: Error{
 				Code:    "ErrBar",
 				Message: "example error message",
 			},

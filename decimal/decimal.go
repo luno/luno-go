@@ -146,7 +146,7 @@ func (d Decimal) Sign() int {
 
 // Cmp returns 1 if d>y, -1 if d<y or 0 if d==y.
 func (d Decimal) Cmp(y Decimal) int {
-	var _d, _y = scaleToMax(d, y)
+	_d, _y := scaleToMax(d, y)
 	di := bigIntDefault(_d.i)
 	yi := bigIntDefault(_y.i)
 	return di.Cmp(yi)
@@ -162,7 +162,7 @@ func (d Decimal) Neg() Decimal {
 
 // Add adds y to d and returns the result. d is left unchanged.
 func (d Decimal) Add(y Decimal) Decimal {
-	var _d, _y = scaleToMax(d, y)
+	_d, _y := scaleToMax(d, y)
 	di := bigIntDefault(_d.i)
 	yi := bigIntDefault(_y.i)
 	return New(new(big.Int).Add(di, yi), _d.scale)
@@ -170,7 +170,7 @@ func (d Decimal) Add(y Decimal) Decimal {
 
 // Sub subtracts y from d and returns the result. d is left unchanged.
 func (d Decimal) Sub(y Decimal) Decimal {
-	var _d, _y = scaleToMax(d, y)
+	_d, _y := scaleToMax(d, y)
 	di := bigIntDefault(_d.i)
 	yi := bigIntDefault(_y.i)
 	return New(new(big.Int).Sub(di, yi), _d.scale)
