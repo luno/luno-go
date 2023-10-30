@@ -1534,14 +1534,15 @@ func (cl *Client) PostMarketOrder(ctx context.Context, req *PostMarketOrderReque
 type SendRequest struct {
 	// Destination address or email address.
 	//
-	// <b>Note</b>:
-	// <ul>
-	// <li>Ethereum addresses must be
-	// <a href="https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md" target="_blank" rel="nofollow">checksummed</a>.</li>
-	// <li>Ethereum sends to email addresses are not supported.</li>
-	// </ul>
+	// # Note:
+	//
+	//   - Ethereum addresses must be [checksummed]
+	//
+	//   - Ethereum sends to email addresses are not supported.
 	//
 	// required: true
+	//
+	// [checksummed]: https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md
 	Address string `json:"address" url:"address"`
 
 	// Amount to send as a decimal string.
