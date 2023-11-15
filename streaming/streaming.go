@@ -79,7 +79,20 @@ func flatten(m map[string]order, reverse bool) []luno.OrderBookEntry {
 	} else {
 		sort.Sort(orderList(ol))
 	}
-	return ol
+	ret := make([]luno.OrderBookEntry, 0, len(ol))
+	for _, o := range ol {
+		if len(ret) == 0 {
+			ret = append(ret, o)
+			continue
+		}
+		lastIdx := len(ret) - 1
+		if o.Price.Cmp(ret[lastIdx].Price) == 0 {
+			ret[lastIdx].Volume = ret[lastIdx].Volume.Add(o.Volume)
+			continue
+		}
+		ret = append(ret, o)
+	}
+	return ret
 }
 
 type (
