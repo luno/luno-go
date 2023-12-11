@@ -61,7 +61,7 @@ type CreateAccountRequest struct {
 	//
 	// Users must be verified to trade currency in order to be able to create an Account.  For more information on the verification process, please see <a href="/help/en/articles/1000168396">How do I verify my identity?</a>.
 	//
-	// Users have a limit of 4 accounts per currency.
+	// Users have a limit of 10 accounts per currency.
 	//
 	// required: true
 	Currency string `json:"currency" url:"currency"`
@@ -405,9 +405,6 @@ type GetMoveResponse struct {
 // <code>client_move_id</code>. If both are provided an API error will be
 // returned.
 //
-// This endpoint is in BETA, behaviour and specification may change without
-// any previous notice.
-//
 // Permissions required: <code>MP_None</code>
 func (cl *Client) GetMove(ctx context.Context, req *GetMoveRequest) (*GetMoveResponse, error) {
 	var res GetMoveResponse
@@ -591,6 +588,9 @@ type GetOrderV2Response struct {
 	// Use this field and `side` to determine credit or debit of funds.
 	Base decimal.Decimal `json:"base"`
 
+	// The base account ID used to place the order
+	BaseAccountId int64 `json:"base_account_id"`
+
 	// Client Order ID has the value that was passed in when the Order was posted.
 	ClientOrderId string `json:"client_order_id"`
 
@@ -605,6 +605,9 @@ type GetOrderV2Response struct {
 	//
 	// Use this field and `side` to determine credit or debit of funds.
 	Counter decimal.Decimal `json:"counter"`
+
+	// The counter account ID used to place the order
+	CounterAccountId int64 `json:"counter_account_id"`
 
 	// Time of order creation (Unix milliseconds)
 	CreationTimestamp Time `json:"creation_timestamp"`
@@ -695,6 +698,9 @@ type GetOrderV3Response struct {
 	// Use this field and `side` to determine credit or debit of funds.
 	Base decimal.Decimal `json:"base"`
 
+	// The base account ID used to place the order
+	BaseAccountId int64 `json:"base_account_id"`
+
 	// Client Order ID has the value that was passed in when the Order was posted.
 	ClientOrderId string `json:"client_order_id"`
 
@@ -709,6 +715,9 @@ type GetOrderV3Response struct {
 	//
 	// Use this field and `side` to determine credit or debit of funds.
 	Counter decimal.Decimal `json:"counter"`
+
+	// The counter account ID used to place the order
+	CounterAccountId int64 `json:"counter_account_id"`
 
 	// Time of order creation (Unix milliseconds)
 	CreationTimestamp Time `json:"creation_timestamp"`
@@ -909,7 +918,8 @@ func (cl *Client) GetWithdrawal(ctx context.Context, req *GetWithdrawalRequest) 
 }
 
 // ListBeneficiariesResponseRequest is the request struct for ListBeneficiariesResponse.
-type ListBeneficiariesResponseRequest struct{}
+type ListBeneficiariesResponseRequest struct {
+}
 
 // ListBeneficiariesResponseResponse is the response struct for ListBeneficiariesResponse.
 type ListBeneficiariesResponseResponse struct {
@@ -948,9 +958,6 @@ type ListMovesResponse struct {
 //
 // Returns a list of the most recent moves ordered from newest to oldest.
 // This endpoint will list up to 100 most recent moves by default.
-//
-// This endpoint is in BETA, behaviour and specification may change without
-// any previous notice.
 //
 // Permissions required: <code>MP_None</code>
 func (cl *Client) ListMoves(ctx context.Context, req *ListMovesRequest) (*ListMovesResponse, error) {
@@ -1184,9 +1191,6 @@ type ListTransfersResponse struct {
 // until you have all the transfers you need.
 // This endpoint will list up to 100 transfers at a time by default.
 //
-// This endpoint is in BETA, behaviour and specification may change without
-// any previous notice.
-//
 // Permissions required: <Code>Perm_R_Transfers</Code>
 func (cl *Client) ListTransfers(ctx context.Context, req *ListTransfersRequest) (*ListTransfersResponse, error) {
 	var res ListTransfersResponse
@@ -1355,9 +1359,6 @@ type MoveResponse struct {
 // can be used to poll for the move's status.
 //
 // Note: moves will show as transactions, but not as transfers.
-//
-// This endpoint is in BETA, behaviour and specification may change without
-// any previous notice.
 //
 // Permissions required: <code>MP_None_Write</code>
 func (cl *Client) Move(ctx context.Context, req *MoveRequest) (*MoveResponse, error) {
@@ -1534,15 +1535,14 @@ func (cl *Client) PostMarketOrder(ctx context.Context, req *PostMarketOrderReque
 type SendRequest struct {
 	// Destination address or email address.
 	//
-	// # Note:
-	//
-	//   - Ethereum addresses must be [checksummed]
-	//
-	//   - Ethereum sends to email addresses are not supported.
+	// <b>Note</b>:
+	// <ul>
+	// <li>Ethereum addresses must be
+	// <a href="https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md" target="_blank" rel="nofollow">checksummed</a>.</li>
+	// <li>Ethereum sends to email addresses are not supported.</li>
+	// </ul>
 	//
 	// required: true
-	//
-	// [checksummed]: https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md
 	Address string `json:"address" url:"address"`
 
 	// Amount to send as a decimal string.
@@ -1566,8 +1566,21 @@ type SendRequest struct {
 	// This supports all alphanumeric characters, as well as "-" and "_".
 	ExternalId string `json:"external_id" url:"external_id"`
 
+	// Only required for Foreign Exchange Notification under the Malaysia FEN rules. ForexNoticeSelfDeclaration must be true if the user has exceeded his/her annual investment limit in foreign currency assets.
+	ForexNoticeSelfDeclaration bool `json:"forex_notice_self_declaration" url:"forex_notice_self_declaration"`
+
 	// Optional boolean flag indicating that a XRP destination tag is provided (even if zero).
 	HasDestinationTag bool `json:"has_destination_tag" url:"has_destination_tag"`
+
+	// Only required for Foreign Exchange Notification under the Malaysia FEN rules. IsDRB must be true if the user has Domestic Ringgit Borrowing (DRB).
+	IsDrb bool `json:"is_drb" url:"is_drb"`
+
+	// Only required for Foreign Exchange Notification under the Malaysia FEN rules. IsForexSend must be true if sending to an address hosted outside of Malaysia.
+	IsForexSend bool `json:"is_forex_send" url:"is_forex_send"`
+
+	// Optional memo string used to provide account information for ATOM, etc. where it holds "account" information
+	// for a generic address.
+	Memo string `json:"memo" url:"memo"`
 
 	// Message to send to the recipient.
 	// This is only relevant when sending to an email address.
@@ -1701,6 +1714,95 @@ type UpdateAccountNameResponse struct {
 func (cl *Client) UpdateAccountName(ctx context.Context, req *UpdateAccountNameRequest) (*UpdateAccountNameResponse, error) {
 	var res UpdateAccountNameResponse
 	err := cl.do(ctx, "PUT", "/api/1/accounts/{id}/name", req, &res, true)
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+// ValidateRequest is the request struct for Validate.
+type ValidateRequest struct {
+	// Destination address or email address.
+	//
+	// <b>Note</b>:
+	// <ul>
+	// <li>Ethereum addresses must be
+	// <a href="https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md" target="_blank" rel="nofollow">checksummed</a>.</li>
+	// <li>Ethereum validations of email addresses are not supported.</li>
+	// </ul>
+	//
+	// required: true
+	Address string `json:"address" url:"address"`
+
+	// Currency is the currency associated with the address.
+	//
+	// required: true
+	Currency string `json:"currency" url:"currency"`
+
+	// AddressName is the optional name under which to store the address as in the address book.
+	AddressName string `json:"address_name" url:"address_name"`
+
+	// BeneficiaryName is the name of the beneficial owner if is it is a private address
+	BeneficiaryName string `json:"beneficiary_name" url:"beneficiary_name"`
+
+	// Country is the ISO 3166-1 country code of the beneficial owner of the address
+	Country string `json:"country" url:"country"`
+
+	// DateOfBirth is the date of birth of the (non-institutional) beneficial owner of the address in the form "YYYY-MM-DD"
+	DateOfBirth string `json:"date_of_birth" url:"date_of_birth"`
+
+	// Optional XRP destination tag. Note that HasDestinationTag must be true if this value is provided.
+	DestinationTag int64 `json:"destination_tag" url:"destination_tag"`
+
+	// Optional boolean flag indicating that a XRP destination tag is provided (even if zero).
+	HasDestinationTag bool `json:"has_destination_tag" url:"has_destination_tag"`
+
+	// InstitutionName is the name of the beneficial owner if is it is a legal entities address
+	InstitutionName string `json:"institution_name" url:"institution_name"`
+
+	// IsLegalEntity indicates if the address is for a legal entity and not a private beneficiary.
+	// If this field is true then the fields BeneficiaryName, Nationality & DateOfBirth should be empty but the
+	// fields InstitutionName and Country should be populated.
+	// If this field is false and IsSelfSend is false (or empty) then the field InstitutionName should be empty but the
+	// fields BeneficiaryName, Nationality & DateOfBirth and Country should be populated.
+	IsLegalEntity bool `json:"is_legal_entity" url:"is_legal_entity"`
+
+	// IsPrivateWallet indicates if the address is for private wallet and not held at an exchange.
+	IsPrivateWallet bool `json:"is_private_wallet" url:"is_private_wallet"`
+
+	// IsSelfSend to indicate that the address belongs to the customer.
+	// If this field is true then the remaining omitempty fields should not
+	// be populated.
+	IsSelfSend bool `json:"is_self_send" url:"is_self_send"`
+
+	// Optional memo string used to provide account information for ATOM, etc. where it holds "account" information
+	// for a generic address.
+	Memo string `json:"memo" url:"memo"`
+
+	// Nationality ISO 3166-1 country code of the nationality of the (non-institutional) beneficial owner of the address
+	Nationality string `json:"nationality" url:"nationality"`
+
+	// PhysicalAddress is the legal physical address of the beneficial owner of the crypto address
+	PhysicalAddress string `json:"physical_address" url:"physical_address"`
+
+	// PrivateWalletName is the name of the private wallet
+	WalletName string `json:"wallet_name" url:"wallet_name"`
+}
+
+// ValidateResponse is the response struct for Validate.
+type ValidateResponse struct {
+	Success bool `json:"success"`
+}
+
+// Validate makes a call to POST /api/1/address/validate.
+//
+// Validate receive addresses, to which a customer wishes to make cryptocurrency sends, are verified under covering
+// regulatory requirements for the customer such as travel rules.
+//
+// Permissions required: <code>Perm_W_Send</code>
+func (cl *Client) Validate(ctx context.Context, req *ValidateRequest) (*ValidateResponse, error) {
+	var res ValidateResponse
+	err := cl.do(ctx, "POST", "/api/1/address/validate", req, &res, true)
 	if err != nil {
 		return nil, err
 	}
