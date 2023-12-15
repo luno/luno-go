@@ -69,7 +69,6 @@ func flatten(m map[string]order, reverse bool) []luno.OrderBookEntry {
 	var ol []luno.OrderBookEntry
 	for _, o := range m {
 		ol = append(ol, luno.OrderBookEntry{
-			ID:     o.ID,
 			Price:  o.Price,
 			Volume: o.Volume,
 		})

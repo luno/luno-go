@@ -206,9 +206,6 @@ type Order struct {
 }
 
 type OrderBookEntry struct {
-	// ID is the unique identifier of the order
-	ID string `json:"id"`
-
 	// Limit price at which orders are trading at
 	Price decimal.Decimal `json:"price"`
 
@@ -238,6 +235,9 @@ type OrderV2 struct {
 	// Use this field and `side` to determine credit or debit of funds.
 	Base decimal.Decimal `json:"base"`
 
+	// The base account ID used to place the order
+	BaseAccountId int64 `json:"base_account_id"`
+
 	// Client Order ID has the value that was passed in when the Order was posted.
 	ClientOrderId string `json:"client_order_id"`
 
@@ -252,6 +252,9 @@ type OrderV2 struct {
 	//
 	// Use this field and `side` to determine credit or debit of funds.
 	Counter decimal.Decimal `json:"counter"`
+
+	// The counter account ID used to place the order
+	CounterAccountId int64 `json:"counter_account_id"`
 
 	// Time of order creation (Unix milliseconds)
 	CreationTimestamp Time `json:"creation_timestamp"`

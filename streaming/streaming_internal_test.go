@@ -548,14 +548,14 @@ func Test_flatten(t *testing.T) {
 		"3": {ID: "3", Price: decimal.NewFromInt64(3), Volume: decimal.NewFromInt64(3)},
 	}
 	expForward := []luno.OrderBookEntry{
-		{ID: "1", Price: decimal.NewFromInt64(1), Volume: decimal.NewFromInt64(1)},
-		{ID: "2", Price: decimal.NewFromInt64(2), Volume: decimal.NewFromInt64(2)},
-		{ID: "3", Price: decimal.NewFromInt64(3), Volume: decimal.NewFromInt64(3)},
+		{Price: decimal.NewFromInt64(1), Volume: decimal.NewFromInt64(1)},
+		{Price: decimal.NewFromInt64(2), Volume: decimal.NewFromInt64(2)},
+		{Price: decimal.NewFromInt64(3), Volume: decimal.NewFromInt64(3)},
 	}
 	expReverse := []luno.OrderBookEntry{
-		{ID: "3", Price: decimal.NewFromInt64(3), Volume: decimal.NewFromInt64(3)},
-		{ID: "2", Price: decimal.NewFromInt64(2), Volume: decimal.NewFromInt64(2)},
-		{ID: "1", Price: decimal.NewFromInt64(1), Volume: decimal.NewFromInt64(1)},
+		{Price: decimal.NewFromInt64(3), Volume: decimal.NewFromInt64(3)},
+		{Price: decimal.NewFromInt64(2), Volume: decimal.NewFromInt64(2)},
+		{Price: decimal.NewFromInt64(1), Volume: decimal.NewFromInt64(1)},
 	}
 
 	forward := flatten(orders, false)
