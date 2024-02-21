@@ -898,6 +898,9 @@ type GetWithdrawalResponse struct {
 	// Status
 	Status Status `json:"status"`
 
+	// Transfer ID
+	TransferId string `json:"transfer_id"`
+
 	// Type distinguishes between different withdrawal methods where more than one is supported
 	// for the given currency.
 	Type string `json:"type"`
@@ -918,8 +921,7 @@ func (cl *Client) GetWithdrawal(ctx context.Context, req *GetWithdrawalRequest) 
 }
 
 // ListBeneficiariesResponseRequest is the request struct for ListBeneficiariesResponse.
-type ListBeneficiariesResponseRequest struct {
-}
+type ListBeneficiariesResponseRequest struct{}
 
 // ListBeneficiariesResponseResponse is the response struct for ListBeneficiariesResponse.
 type ListBeneficiariesResponseResponse struct {
