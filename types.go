@@ -557,7 +557,7 @@ type Withdrawal struct {
 	// Status
 	Status Status `json:"status"`
 
-	// Transfer ID if the corresponding transfer if it has been initiated
+	// Transfer ID of the corresponding transfer if it has been initiated
 	TransferId string `json:"transfer_id"`
 
 	// Type distinguishes between different withdrawal methods where more than one is supported
