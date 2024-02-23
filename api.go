@@ -35,6 +35,9 @@ type CancelWithdrawalResponse struct {
 	// Status
 	Status Status `json:"status"`
 
+	// Transfer ID is the identifier of the Withdrawal's transfer once it completes.
+	TransferId string `json:"transfer_id"`
+
 	// Type distinguishes between different withdrawal methods where more than one is supported
 	// for the given currency.
 	Type string `json:"type"`
@@ -187,6 +190,9 @@ type CreateWithdrawalResponse struct {
 
 	// Status
 	Status Status `json:"status"`
+
+	// Transfer ID is the identifier of the Withdrawal's transfer once it completes.
+	TransferId string `json:"transfer_id"`
 
 	// Type distinguishes between different withdrawal methods where more than one is supported
 	// for the given currency.
@@ -588,7 +594,7 @@ type GetOrderV2Response struct {
 	// Use this field and `side` to determine credit or debit of funds.
 	Base decimal.Decimal `json:"base"`
 
-	// The base account ID used to place the order
+	// The base currency account
 	BaseAccountId int64 `json:"base_account_id"`
 
 	// Client Order ID has the value that was passed in when the Order was posted.
@@ -606,7 +612,7 @@ type GetOrderV2Response struct {
 	// Use this field and `side` to determine credit or debit of funds.
 	Counter decimal.Decimal `json:"counter"`
 
-	// The counter account ID used to place the order
+	// The counter currency account
 	CounterAccountId int64 `json:"counter_account_id"`
 
 	// Time of order creation (Unix milliseconds)
@@ -698,7 +704,7 @@ type GetOrderV3Response struct {
 	// Use this field and `side` to determine credit or debit of funds.
 	Base decimal.Decimal `json:"base"`
 
-	// The base account ID used to place the order
+	// The base currency account
 	BaseAccountId int64 `json:"base_account_id"`
 
 	// Client Order ID has the value that was passed in when the Order was posted.
@@ -716,7 +722,7 @@ type GetOrderV3Response struct {
 	// Use this field and `side` to determine credit or debit of funds.
 	Counter decimal.Decimal `json:"counter"`
 
-	// The counter account ID used to place the order
+	// The counter currency account
 	CounterAccountId int64 `json:"counter_account_id"`
 
 	// Time of order creation (Unix milliseconds)
@@ -898,6 +904,9 @@ type GetWithdrawalResponse struct {
 	// Status
 	Status Status `json:"status"`
 
+	// Transfer ID is the identifier of the Withdrawal's transfer once it completes.
+	TransferId string `json:"transfer_id"`
+
 	// Type distinguishes between different withdrawal methods where more than one is supported
 	// for the given currency.
 	Type string `json:"type"`
@@ -918,8 +927,7 @@ func (cl *Client) GetWithdrawal(ctx context.Context, req *GetWithdrawalRequest) 
 }
 
 // ListBeneficiariesResponseRequest is the request struct for ListBeneficiariesResponse.
-type ListBeneficiariesResponseRequest struct {
-}
+type ListBeneficiariesResponseRequest struct{}
 
 // ListBeneficiariesResponseResponse is the response struct for ListBeneficiariesResponse.
 type ListBeneficiariesResponseResponse struct {
@@ -1030,6 +1038,8 @@ type ListOrdersV2Response struct {
 // Returns a list of the most recently placed orders ordered from newest to
 // oldest. This endpoint will list up to 100 most recent open orders by
 // default.
+//
+// <b>Please note:</b> This data is archived 100 days after an exchange order is completed.
 //
 // Permissions required: <Code>Perm_R_Orders</Code>
 func (cl *Client) ListOrdersV2(ctx context.Context, req *ListOrdersV2Request) (*ListOrdersV2Response, error) {
