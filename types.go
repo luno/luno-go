@@ -235,7 +235,7 @@ type OrderV2 struct {
 	// Use this field and `side` to determine credit or debit of funds.
 	Base decimal.Decimal `json:"base"`
 
-	// The base account ID used to place the order
+	// The base currency account
 	BaseAccountId int64 `json:"base_account_id"`
 
 	// Client Order ID has the value that was passed in when the Order was posted.
@@ -253,7 +253,7 @@ type OrderV2 struct {
 	// Use this field and `side` to determine credit or debit of funds.
 	Counter decimal.Decimal `json:"counter"`
 
-	// The counter account ID used to place the order
+	// The counter currency account
 	CounterAccountId int64 `json:"counter_account_id"`
 
 	// Time of order creation (Unix milliseconds)
@@ -556,6 +556,9 @@ type Withdrawal struct {
 
 	// Status
 	Status Status `json:"status"`
+
+	// Transfer ID is the identifier of the Withdrawal's transfer once it completes.
+	TransferId string `json:"transfer_id"`
 
 	// Type distinguishes between different withdrawal methods where more than one is supported
 	// for the given currency.
