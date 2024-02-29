@@ -23,7 +23,7 @@ func WithConnectCallback(fn ConnectCallback) DialOption {
 	}
 }
 
-// WithBackoffHandler specify custom handler to calculate backoff duration after each disconnect. Attempt will increment
+// WithBackoffHandler specifies a custom handler to calculate backoff duration after each disconnect. Attempt will increment
 // with each subsequent call until the attemptReset duration exceeds the duration since the last disconnect, at which point it
 // will reset to 0.
 func WithBackoffHandler(fn BackoffHandler, attemptReset time.Duration) DialOption {
