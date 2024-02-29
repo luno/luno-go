@@ -1,5 +1,5 @@
 package luno
 
-const Version = "0.0.29"
+const Version = "0.0.31"
 
 // vi: ft=go
