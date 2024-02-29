@@ -25,8 +25,6 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"math"
-	"math/rand"
 	"sort"
 	"sync"
 	"time"
@@ -38,9 +36,10 @@ import (
 )
 
 const (
-	readTimeout  = time.Minute
-	writeTimeout = 30 * time.Second
-	pingInterval = 20 * time.Second
+	readTimeout         = time.Minute
+	writeTimeout        = 30 * time.Second
+	pingInterval        = 20 * time.Second
+	defaultAttemptReset = time.Minute * 30
 )
 
 func convertOrders(ol []*order) (map[string]order, error) {
@@ -97,6 +96,7 @@ func flatten(m map[string]order, reverse bool) []luno.OrderBookEntry {
 type (
 	ConnectCallback func(*Conn)
 	UpdateCallback  func(Update)
+	BackoffHandler  func(attempt int) time.Duration
 )
 
 type Conn struct {
@@ -104,6 +104,9 @@ type Conn struct {
 	pair             string
 	connectCallback  ConnectCallback
 	updateCallback   UpdateCallback
+
+	backoffHandler BackoffHandler
+	attemptReset   time.Duration
 
 	closed bool
 
@@ -127,9 +130,10 @@ func Dial(keyID, keySecret, pair string, opts ...DialOption) (*Conn, error) {
 	}
 
 	c := &Conn{
-		keyID:     keyID,
-		keySecret: keySecret,
-		pair:      pair,
+		keyID:        keyID,
+		keySecret:    keySecret,
+		pair:         pair,
+		attemptReset: defaultAttemptReset,
 	}
 	for _, opt := range opts {
 		opt(c)
@@ -143,11 +147,9 @@ var wsHost = flag.String(
 	"luno_websocket_host", "wss://ws.luno.com", "Luno API websocket host")
 
 func (c *Conn) manageForever() {
-	attempts := 0
-	var lastAttempt time.Time
+	p := &backoffParams{}
+
 	for {
-		lastAttempt = time.Now()
-		attempts++
 		if err := c.connect(); err != nil {
 			log.Printf("luno/streaming: Connection error key=%s pair=%s: %v",
 				c.keyID, c.pair, err)
@@ -156,15 +158,28 @@ func (c *Conn) manageForever() {
 			return
 		}
 
-		if time.Now().Sub(lastAttempt) > 30*time.Minute {
-			attempts = 0
-		}
-		jitter := time.Duration(rand.Intn(200)-100) * time.Millisecond                       // ±100ms
-		backoff := time.Duration(math.Min(math.Pow(2, float64(attempts)), 60)) * time.Second // Exponential backoff up to 60s
-		dt := backoff + jitter
+		dt := c.calculateBackoff(p, time.Now())
+
 		log.Printf("luno/streaming: Waiting %s before reconnecting", dt)
 		time.Sleep(dt)
 	}
+}
+
+func (c *Conn) calculateBackoff(p *backoffParams, ts time.Time) time.Duration {
+	if ts.Sub(p.lastAttempt) >= c.attemptReset {
+		p.attempts = 0
+	}
+
+	p.attempts++
+
+	backoff := defaultBackoffHandler
+	if c.backoffHandler != nil {
+		backoff = c.backoffHandler
+	}
+
+	p.lastAttempt = ts
+
+	return backoff(p.attempts)
 }
 
 func (c *Conn) connect() error {
