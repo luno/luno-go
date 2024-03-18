@@ -304,21 +304,17 @@ func (c *Conn) receivedOrderBook(ob orderBook) error {
 }
 
 func (c *Conn) receivedUpdate(u Update) error {
-	if c.seq == 0 {
-		// State not initialized so we can't update it.
+	valid, err := c.validateUpdate(u)
+	if err != nil {
+		return err
+	}
+
+	// If update is not valid, ignore
+	if !valid {
 		return nil
 	}
 
-	if u.Sequence <= c.seq {
-		// Old update. We can just discard it.
-		return nil
-	}
-
-	if u.Sequence != c.seq+1 {
-		return errors.New("streaming: update received out of sequence")
-	}
-
-	err := c.processUpdate(u)
+	err = c.processUpdate(u)
 	if err != nil {
 		return err
 	}
@@ -328,6 +324,27 @@ func (c *Conn) receivedUpdate(u Update) error {
 	}
 
 	return nil
+}
+
+func (c *Conn) validateUpdate(u Update) (bool, error) {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
+	if c.seq == 0 {
+		// State not initialized so we can't update it.
+		return false, nil
+	}
+
+	if u.Sequence <= c.seq {
+		// Old update. We can just discard it.
+		return false, nil
+	}
+
+	if u.Sequence != c.seq+1 {
+		return false, errors.New("streaming: update received out of sequence")
+	}
+
+	return true, nil
 }
 
 // Process update into orderbook
