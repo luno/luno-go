@@ -304,9 +304,6 @@ func (c *Conn) receivedOrderBook(ob orderBook) error {
 }
 
 func (c *Conn) receivedUpdate(u Update) error {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
 	if c.seq == 0 {
 		// State not initialized so we can't update it.
 		return nil
@@ -316,9 +313,27 @@ func (c *Conn) receivedUpdate(u Update) error {
 		// Old update. We can just discard it.
 		return nil
 	}
+
 	if u.Sequence != c.seq+1 {
 		return errors.New("streaming: update received out of sequence")
 	}
+
+	err := c.processUpdate(u)
+	if err != nil {
+		return err
+	}
+
+	if c.updateCallback != nil {
+		c.updateCallback(u)
+	}
+
+	return nil
+}
+
+// Process update into orderbook
+func (c *Conn) processUpdate(u Update) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
 
 	// Process trades
 	for _, t := range u.TradeUpdates {
@@ -349,10 +364,6 @@ func (c *Conn) receivedUpdate(u Update) error {
 	}
 
 	c.seq = u.Sequence
-
-	if c.updateCallback != nil {
-		c.updateCallback(u)
-	}
 
 	return nil
 }
@@ -483,7 +494,7 @@ func (c *Conn) Snapshot() Snapshot {
 	}
 }
 
-// Status returns the currenct status of the streaming connection.
+// Status returns the current status of the streaming connection.
 func (c *Conn) Status() luno.Status {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
