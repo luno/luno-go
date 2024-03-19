@@ -1,12 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:base"
-  ],
-  "branchConcurrentLimit": 3,
-  "labels":["Bot::Renovate"],
-  "semanticCommits":  "disabled",
-  "commitMessagePrefix": "renovate:",
+  "extends": ["github>luno/.github"],
   "reviewers": [
     "echarrod"
   ],
