@@ -2,6 +2,7 @@ package streaming
 
 import (
 	"testing"
+	"time"
 
 	"github.com/luno/luno-go"
 	"github.com/luno/luno-go/decimal"
@@ -581,5 +582,54 @@ func compareOrderBookEntry(t *testing.T, want, got luno.OrderBookEntry) {
 
 	if got != want {
 		t.Errorf("got = %v, want %v", got, want)
+	}
+}
+
+func TestReceiveUpdateSnapshot(t *testing.T) {
+	chDone := make(chan struct{})
+
+	c := &Conn{
+		asks:   asksMap(),
+		bids:   bidsMap(),
+		seq:    1,
+		status: luno.StatusActive,
+	}
+
+	onUpdate := func(up Update) {
+		// Get snapshot to confirm mutex does not create deadlock
+		_ = c.Snapshot()
+		chDone <- struct{}{}
+	}
+
+	c.updateCallback = onUpdate
+
+	tu := []*TradeUpdate{
+		{
+			Sequence:     2,
+			Base:         decimal.NewFromFloat64(0.02, 2),
+			Counter:      decimal.NewFromFloat64(0.002, 2),
+			MakerOrderID: "1",
+			TakerOrderID: "32",
+		},
+		{
+			Sequence:     3,
+			Base:         decimal.NewFromFloat64(0.01, 2),
+			Counter:      decimal.NewFromFloat64(0.001, 2),
+			MakerOrderID: "1",
+			TakerOrderID: "34",
+		},
+	}
+
+	go func() {
+		err := c.receivedUpdate(Update{Sequence: 2, TradeUpdates: tu})
+		if err != nil {
+			t.Errorf("Expected success got: %v", err)
+		}
+	}()
+
+	select {
+	case <-chDone:
+	case <-time.After(time.Second):
+		t.Errorf("timeout trying to retrieve snapshot on update")
 	}
 }

@@ -304,57 +304,74 @@ func (c *Conn) receivedOrderBook(ob orderBook) error {
 }
 
 func (c *Conn) receivedUpdate(u Update) error {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+	valid, err := c.processUpdate(u)
+	if err != nil {
+		return err
+	}
 
-	if c.seq == 0 {
-		// State not initialized so we can't update it.
+	// If update is not valid, ignore
+	if !valid {
 		return nil
 	}
-
-	if u.Sequence <= c.seq {
-		// Old update. We can just discard it.
-		return nil
-	}
-	if u.Sequence != c.seq+1 {
-		return errors.New("streaming: update received out of sequence")
-	}
-
-	// Process trades
-	for _, t := range u.TradeUpdates {
-		if err := c.processTrade(*t); err != nil {
-			return err
-		}
-	}
-
-	// Process create
-	if u.CreateUpdate != nil {
-		if err := c.processCreate(*u.CreateUpdate); err != nil {
-			return err
-		}
-	}
-
-	// Process delete
-	if u.DeleteUpdate != nil {
-		if err := c.processDelete(*u.DeleteUpdate); err != nil {
-			return err
-		}
-	}
-
-	// Process status
-	if u.StatusUpdate != nil {
-		if err := c.processStatus(*u.StatusUpdate); err != nil {
-			return err
-		}
-	}
-
-	c.seq = u.Sequence
 
 	if c.updateCallback != nil {
 		c.updateCallback(u)
 	}
 
 	return nil
+}
+
+// Validate and process update into orderbook.
+// Return bool indicating if update is valid.
+func (c *Conn) processUpdate(u Update) (bool, error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if c.seq == 0 {
+		// State not initialized so we can't update it.
+		return false, nil
+	}
+
+	if u.Sequence <= c.seq {
+		// Old update. We can just discard it.
+		return false, nil
+	}
+
+	if u.Sequence != c.seq+1 {
+		return false, errors.New("streaming: update received out of sequence")
+	}
+
+	// Process trades
+	for _, t := range u.TradeUpdates {
+		if err := c.processTrade(*t); err != nil {
+			return false, err
+		}
+	}
+
+	// Process create
+	if u.CreateUpdate != nil {
+		if err := c.processCreate(*u.CreateUpdate); err != nil {
+			return false, err
+		}
+	}
+
+	// Process delete
+	if u.DeleteUpdate != nil {
+		if err := c.processDelete(*u.DeleteUpdate); err != nil {
+			return false, err
+		}
+	}
+
+	// Process status
+	if u.StatusUpdate != nil {
+		if err := c.processStatus(*u.StatusUpdate); err != nil {
+			return false, err
+		}
+	}
+
+	c.seq = u.Sequence
+
+	return true, nil
 }
 
 func decTrade(m map[string]order, id string, base decimal.Decimal) (
@@ -483,7 +500,7 @@ func (c *Conn) Snapshot() Snapshot {
 	}
 }
 
-// Status returns the currenct status of the streaming connection.
+// Status returns the current status of the streaming connection.
 func (c *Conn) Status() luno.Status {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
