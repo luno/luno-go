@@ -304,7 +304,7 @@ func (c *Conn) receivedOrderBook(ob orderBook) error {
 }
 
 func (c *Conn) receivedUpdate(u Update) error {
-	valid, err := c.validateUpdate(u)
+	valid, err := c.processUpdate(u)
 	if err != nil {
 		return err
 	}
@@ -314,11 +314,6 @@ func (c *Conn) receivedUpdate(u Update) error {
 		return nil
 	}
 
-	err = c.processUpdate(u)
-	if err != nil {
-		return err
-	}
-
 	if c.updateCallback != nil {
 		c.updateCallback(u)
 	}
@@ -326,9 +321,11 @@ func (c *Conn) receivedUpdate(u Update) error {
 	return nil
 }
 
-func (c *Conn) validateUpdate(u Update) (bool, error) {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
+// Validate and process update into orderbook.
+// Return bool indicating if update is valid.
+func (c *Conn) processUpdate(u Update) (bool, error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
 
 	if c.seq == 0 {
 		// State not initialized so we can't update it.
@@ -344,45 +341,37 @@ func (c *Conn) validateUpdate(u Update) (bool, error) {
 		return false, errors.New("streaming: update received out of sequence")
 	}
 
-	return true, nil
-}
-
-// Process update into orderbook
-func (c *Conn) processUpdate(u Update) error {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
 	// Process trades
 	for _, t := range u.TradeUpdates {
 		if err := c.processTrade(*t); err != nil {
-			return err
+			return false, err
 		}
 	}
 
 	// Process create
 	if u.CreateUpdate != nil {
 		if err := c.processCreate(*u.CreateUpdate); err != nil {
-			return err
+			return false, err
 		}
 	}
 
 	// Process delete
 	if u.DeleteUpdate != nil {
 		if err := c.processDelete(*u.DeleteUpdate); err != nil {
-			return err
+			return false, err
 		}
 	}
 
 	// Process status
 	if u.StatusUpdate != nil {
 		if err := c.processStatus(*u.StatusUpdate); err != nil {
-			return err
+			return false, err
 		}
 	}
 
 	c.seq = u.Sequence
 
-	return nil
+	return true, nil
 }
 
 func decTrade(m map[string]order, id string, base decimal.Decimal) (
