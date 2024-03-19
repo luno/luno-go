@@ -1,6 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["github>luno/.github"],
+  "extends": ["github>luno/.github:renovate-config"],
   "reviewers": [
     "echarrod"
   ],
