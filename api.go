@@ -948,6 +948,74 @@ func (cl *Client) ListBeneficiariesResponse(ctx context.Context, req *ListBenefi
 	return &res, nil
 }
 
+// CreateBeneficiaryRequest request object for creating beneficiaries
+type CreateBeneficiaryRequest struct {
+	// Bank SWIFT code
+	//
+	// required: true
+	// example: FIRNZAJJ
+	Bank string `json:"bank_name" url:"bank_name"`
+
+	// Beneficiary bank account number
+	//
+	// required: true
+	// example: 9234101100063672
+	AccountNumber string `json:"bank_account_number" url:"bank_account_number"`
+
+	// Bank account type
+	//
+	// required: true
+	// enum: Current/Cheque,Savings,Transmission
+	AccountType string `json:"account_type" url:"account_type"`
+
+	// The owner of the recipient account
+	//
+	// required: true
+	Recipient string `json:"bank_recipient" url:"bank_recipient"`
+}
+
+// CreateBeneficiaryResponse response object for creating beneficiaries
+type CreateBeneficiaryResponse struct {
+	// Identifier for the created beneficiary
+	ID string `json:"id"`
+}
+
+// CreateBeneficiary makes a call to POST /api/exchange/1/beneficiaries to create a new beneficiary.
+//
+//	Returns created beneficiary identifier
+//
+// Permissions required: <code>Perm_W_Beneficiaries</code>
+func (cl *Client) CreateBeneficiary(ctx context.Context, req *CreateBeneficiaryRequest) (*CreateBeneficiaryResponse, error) {
+	var res CreateBeneficiaryResponse
+	err := cl.do(ctx, "POST", "/api/1/beneficiaries", req, &res, true)
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+// DeleteBeneficiaryRequest request object for deleting beneficiaries
+type DeleteBeneficiaryRequest struct {
+	// ID of the Beneficiary to delete.
+	//
+	// in: path
+	// required: true
+	// example: 12345
+	ID string `json:"id,string" url:"id"`
+}
+
+// DeleteBeneficiary makes a call to DELETE /api/exchange/1/beneficiaries to delete a beneficiary.
+//
+// Permissions required: <code>Perm_W_Beneficiaries</code>
+func (cl *Client) DeleteBeneficiary(ctx context.Context, req *DeleteBeneficiaryRequest) error {
+	var res CreateBeneficiaryResponse
+	err := cl.do(ctx, "DELETE", "/api/1/beneficiaries/{id}", req, &res, true)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // ListMovesRequest is the request struct for ListMoves.
 type ListMovesRequest struct {
 	// Filter to moves requested before this timestamp (Unix milliseconds)
