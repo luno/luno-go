@@ -980,7 +980,7 @@ type CreateBeneficiaryResponse struct {
 	ID string `json:"id"`
 }
 
-// CreateBeneficiary makes a call to POST /api/exchange/1/beneficiaries to create a new beneficiary.
+// CreateBeneficiary makes a call to POST /api/1/beneficiaries to create a new beneficiary.
 //
 //	Returns created beneficiary identifier
 //
@@ -1004,12 +1004,11 @@ type DeleteBeneficiaryRequest struct {
 	ID string `json:"id,string" url:"id"`
 }
 
-// DeleteBeneficiary makes a call to DELETE /api/exchange/1/beneficiaries to delete a beneficiary.
+// DeleteBeneficiary makes a call to DELETE /api/1/beneficiaries to delete a beneficiary.
 //
 // Permissions required: <code>Perm_W_Beneficiaries</code>
 func (cl *Client) DeleteBeneficiary(ctx context.Context, req *DeleteBeneficiaryRequest) error {
-	var res CreateBeneficiaryResponse
-	err := cl.do(ctx, "DELETE", "/api/1/beneficiaries/{id}", req, &res, true)
+	err := cl.do(ctx, "DELETE", "/api/1/beneficiaries/{id}", req, &struct{}{}, true)
 	if err != nil {
 		return err
 	}
