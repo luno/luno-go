@@ -25,10 +25,26 @@ type AccountBalance struct {
 	Unconfirmed decimal.Decimal `json:"unconfirmed"`
 }
 
+type AccountType string
+
+const (
+	AccountTypeCurrentcheque AccountType = "Current/Cheque"
+	AccountTypeSavings       AccountType = "Savings"
+	AccountTypeTransmission  AccountType = "Transmission"
+)
+
 type AddressMeta struct {
 	Label string `json:"label"`
 	Value string `json:"value"`
 }
+
+type BankAccountType string
+
+const (
+	BankAccountTypeCurrentcheque BankAccountType = "Current/Cheque"
+	BankAccountTypeSavings       BankAccountType = "Savings"
+	BankAccountTypeTransmission  BankAccountType = "Transmission"
+)
 
 type Candle struct {
 	// Closing price
@@ -566,15 +582,32 @@ type Withdrawal struct {
 }
 
 type beneficiary struct {
-	BankAccountBranch       string `json:"bank_account_branch"`
-	BankAccountNumber       string `json:"bank_account_number"`
-	BankAccountType         string `json:"bank_account_type"`
-	BankCountry             string `json:"bank_country"`
-	BankName                string `json:"bank_name"`
-	BankRecipient           string `json:"bank_recipient"`
-	CreatedAt               int64  `json:"created_at"`
-	Id                      string `json:"id"`
-	SupportsFastWithdrawals bool   `json:"supports_fast_withdrawals"`
+	// Bank branch code
+	BankAccountBranch string `json:"bank_account_branch"`
+
+	// Beneficiary bank account number
+	BankAccountNumber string `json:"bank_account_number"`
+
+	// Bank account type
+	BankAccountType BankAccountType `json:"bank_account_type"`
+
+	// Bank country of origin
+	BankCountry string `json:"bank_country"`
+
+	// Bank SWIFT code
+	BankName string `json:"bank_name"`
+
+	// The owner of the recipient account
+	BankRecipient string `json:"bank_recipient"`
+
+	// Time of beneficiary creation
+	CreatedAt int64 `json:"created_at"`
+
+	// Unique id referencing beneficiary
+	Id string `json:"id"`
+
+	// If the bank account supports fast withdrawals
+	SupportsFastWithdrawals bool `json:"supports_fast_withdrawals"`
 }
 
 // vi: ft=go
