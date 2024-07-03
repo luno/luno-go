@@ -8,7 +8,7 @@ jobs:
   build:
     strategy:
       matrix:
-        go: ['1.21', '1.22']
+        go: ['1', '1.21', '1.22']
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
