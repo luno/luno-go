@@ -508,7 +508,7 @@ func (c *Conn) Status() luno.Status {
 	return c.status
 }
 
-// Close the stream. After calling this the client will stop receiving new updates and the results of querying the Conn
+// Close the stream. After calling this, the client will stop receiving new updates and the results of querying the Conn
 // struct (Snapshot, Status...) will be zeroed values.
 func (c *Conn) Close() {
 	c.mu.Lock()
