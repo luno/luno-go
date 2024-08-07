@@ -147,6 +147,9 @@ type CreateFundingAddressRequest struct {
 	// required: true
 	Asset string `json:"asset" url:"asset"`
 
+	// An optional account_id to assign the new Receive Address too
+	AccountId int64 `json:"account_id" url:"account_id"`
+
 	// An optional name for the new Receive Address
 	Name string `json:"name" url:"name"`
 }
@@ -894,6 +897,8 @@ type GetTickerResponse struct {
 	// <code>POSTONLY</code> when the market has been suspended and only post-only orders will be accepted
 	//
 	// <code>DISABLED</code> when the market is shutdown and no orders can be accepted
+	//
+	// <code>UNKNOWN</code> the market status could not be determined. This is a temporary state.
 	Status Status `json:"status"`
 
 	// Unix timestamp in milliseconds of the tick
@@ -1632,6 +1637,9 @@ type SendRequest struct {
 	//
 	// required: true
 	Currency string `json:"currency" url:"currency"`
+
+	// Optional source account. In case of multiple accounts for a single currency, the source account that will provide the funds for the transaction may be specified. If omitted, the default account will be used.
+	AccountId int64 `json:"account_id" url:"account_id"`
 
 	// User description for the transaction to record on the account statement.
 	Description string `json:"description" url:"description"`
