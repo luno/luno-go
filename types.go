@@ -156,6 +156,8 @@ type MarketInfo struct {
 	// <code>SUSPENDED</code> Trading has been temporarily suspended due to very
 	// high volatility. When in this status, orders can only be posted as
 	// post-only.<br>
+	// <code>Unknown</code> Trading status is unknown. This could indicate a temporary error
+	// on the market and should resolve shortly.
 	TradingStatus TradingStatus `json:"trading_status"`
 
 	// Volume decimal places
@@ -405,6 +407,8 @@ type Ticker struct {
 	// <code>POSTONLY</code> when the market has been suspended and only post-only orders will be accepted
 	//
 	// <code>DISABLED</code> when the market is shutdown and no orders can be accepted
+	//
+	// <code>UNKNOWN</code> the market status could not be determined. This is a temporary state.
 	Status Status `json:"status"`
 
 	// Unix timestamp in milliseconds of the tick
@@ -476,6 +480,7 @@ const (
 	TradingStatusPost_only TradingStatus = "POST_ONLY"
 	TradingStatusActive    TradingStatus = "ACTIVE"
 	TradingStatusSuspended TradingStatus = "SUSPENDED"
+	TradingStatusUnknown   TradingStatus = "UNKNOWN"
 )
 
 type Transaction struct {
