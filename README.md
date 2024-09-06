@@ -1,6 +1,14 @@
-<img src="https://d32exi8v9av3ux.cloudfront.net/static/images/luno-email-336.png">
+[![GoDoc](https://godoc.org/github.com/luno/luno-go?status.png)](https://godoc.org/github.com/luno/luno-go)    
+<a style="padding: 0 5px" href="https://goreportcard.com/report/github.com/luno/luno-go"><img src="https://goreportcard.com/badge/github.com/luno/luno-go"/></a>
+<a style="padding: 0 5px" href="https://sonarcloud.io/summary/new_code?id=luno_luno-go"><img src="https://sonarcloud.io/api/project_badges/measure?project=luno_luno-go&metric=coverage"/></a>
+<a style="padding: 0 5px" href="https://sonarcloud.io/summary/new_code?id=luno_luno-go"><img src="https://sonarcloud.io/api/project_badges/measure?project=luno_luno-go&metric=alert_status"/></a>
+<a style="padding: 0 5px" href="https://sonarcloud.io/summary/new_code?id=luno_luno-go"><img src="https://sonarcloud.io/api/project_badges/measure?project=luno_luno-go&metric=bugs"/></a>
+<a style="padding: 0 5px" href="https://sonarcloud.io/summary/new_code?id=luno_luno-go"><img src="https://sonarcloud.io/api/project_badges/measure?project=luno_luno-go&metric=reliability_rating"/></a><a style="text-decoration:none; padding: 0 5px" href="https://sonarcloud.io/summary/new_code?id=luno_luno-go" ><img src="https://sonarcloud.io/api/project_badges/measure?project=luno_luno-go&metric=security_rating"/></a>
+<a style="padding: 0 5px" href="https://sonarcloud.io/summary/new_code?id=luno_luno-go"><img src="https://sonarcloud.io/api/project_badges/measure?project=luno_luno-go&metric=sqale_rating"/></a>
+<a style="padding: 0 5px" href="https://sonarcloud.io/summary/new_code?id=luno_luno-go"><img src="https://sonarcloud.io/api/project_badges/measure?project=luno_luno-go&metric=vulnerabilities"/></a>
+<a style="padding: 0 5px" href="https://sonarcloud.io/summary/new_code?id=luno_luno-go"><img src="https://sonarcloud.io/api/project_badges/measure?project=luno_luno-go&metric=duplicated_lines_density"/></a>
 
-# Luno API [![GoDoc](https://godoc.org/github.com/luno/luno-go?status.png)](https://godoc.org/github.com/luno/luno-go) [![Build Status](https://travis-ci.org/luno/luno-go.svg?branch=master)](https://travis-ci.org/luno/luno-go)
+# Luno Go SDK
 
 This Go package provides a wrapper for the [Luno API](https://www.luno.com/api).
 
@@ -16,7 +24,7 @@ to generate an API key.
 
 ## Installation
 
-```
+```shell
 go get github.com/luno/luno-go
 ```
 
@@ -28,34 +36,34 @@ A full working example of this library in action.
 package main
 
 import (
-  "log"
-  "context"
-  "time"
-  "github.com/luno/luno-go"
+	"log"
+	"context"
+	"time"
+	"github.com/luno/luno-go"
 )
 
 func main() {
-  lunoClient := luno.NewClient()
-  lunoClient.SetAuth("<id>", "<secret>")
+	lunoClient := luno.NewClient()
+	lunoClient.SetAuth("<id>", "<secret>")
 
-  req := luno.GetOrderBookRequest{Pair: "XBTZAR"}
-  ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(10 * time.Second))
-  defer cancel()
+	req := luno.GetOrderBookRequest{Pair: "XBTZAR"}
+	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(10*time.Second))
+	defer cancel()
 
-  res, err := lunoClient.GetOrderBook(ctx, &req)
-  if err != nil {
-    log.Fatal(err)
-  }
-  log.Println(res)
+	res, err := lunoClient.GetOrderBook(ctx, &req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println(res)
 }
 ```
 
 Remember to substitute `<id>` and `<secret>` for your own Id and Secret.
 
 We recommend using environment variables rather than including your credentials in plaintext. In Bash you do so as follows:
-```
-$ export LUNO_API_ID="<id>"
-$ export LUNO_API_SECRET="<secret>"
+```shell
+export LUNO_API_ID="<id>"
+export LUNO_API_SECRET="<secret>"
 ```
 
 And then access them in Go like so:
