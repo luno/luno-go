@@ -1,12 +1,11 @@
-[![GoDoc](https://godoc.org/github.com/luno/luno-go?status.png)](https://godoc.org/github.com/luno/luno-go)    
-<a style="padding: 0 5px" href="https://goreportcard.com/report/github.com/luno/luno-go"><img src="https://goreportcard.com/badge/github.com/luno/luno-go"/></a>
-<a style="padding: 0 5px" href="https://sonarcloud.io/summary/new_code?id=luno_luno-go"><img src="https://sonarcloud.io/api/project_badges/measure?project=luno_luno-go&metric=coverage"/></a>
-<a style="padding: 0 5px" href="https://sonarcloud.io/summary/new_code?id=luno_luno-go"><img src="https://sonarcloud.io/api/project_badges/measure?project=luno_luno-go&metric=alert_status"/></a>
-<a style="padding: 0 5px" href="https://sonarcloud.io/summary/new_code?id=luno_luno-go"><img src="https://sonarcloud.io/api/project_badges/measure?project=luno_luno-go&metric=bugs"/></a>
-<a style="padding: 0 5px" href="https://sonarcloud.io/summary/new_code?id=luno_luno-go"><img src="https://sonarcloud.io/api/project_badges/measure?project=luno_luno-go&metric=reliability_rating"/></a><a style="text-decoration:none; padding: 0 5px" href="https://sonarcloud.io/summary/new_code?id=luno_luno-go" ><img src="https://sonarcloud.io/api/project_badges/measure?project=luno_luno-go&metric=security_rating"/></a>
-<a style="padding: 0 5px" href="https://sonarcloud.io/summary/new_code?id=luno_luno-go"><img src="https://sonarcloud.io/api/project_badges/measure?project=luno_luno-go&metric=sqale_rating"/></a>
-<a style="padding: 0 5px" href="https://sonarcloud.io/summary/new_code?id=luno_luno-go"><img src="https://sonarcloud.io/api/project_badges/measure?project=luno_luno-go&metric=vulnerabilities"/></a>
-<a style="padding: 0 5px" href="https://sonarcloud.io/summary/new_code?id=luno_luno-go"><img src="https://sonarcloud.io/api/project_badges/measure?project=luno_luno-go&metric=duplicated_lines_density"/></a>
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=luno_luno-go&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=luno_luno-go)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=luno_luno-go&metric=coverage)](https://sonarcloud.io/summary/new_code?id=luno_luno-go)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=luno_luno-go&metric=bugs)](https://sonarcloud.io/summary/new_code?id=luno_luno-go)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=luno_luno-go&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=luno_luno-go)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=luno_luno-go&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=luno_luno-go)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=luno_luno-go&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=luno_luno-go)
+[![Go Report Card](https://goreportcard.com/badge/github.com/luno/luno-go)](https://goreportcard.com/report/github.com/luno/luno-go)
+[![GoDoc](https://godoc.org/github.com/luno/luno-go?status.png)](https://godoc.org/github.com/luno/luno-go)
 
 # Luno Go SDK
 
