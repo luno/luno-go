@@ -1,6 +1,13 @@
-<img src="https://d32exi8v9av3ux.cloudfront.net/static/images/luno-email-336.png">
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=luno_luno-go&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=luno_luno-go)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=luno_luno-go&metric=coverage)](https://sonarcloud.io/summary/new_code?id=luno_luno-go)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=luno_luno-go&metric=bugs)](https://sonarcloud.io/summary/new_code?id=luno_luno-go)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=luno_luno-go&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=luno_luno-go)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=luno_luno-go&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=luno_luno-go)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=luno_luno-go&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=luno_luno-go)
+[![Go Report Card](https://goreportcard.com/badge/github.com/luno/luno-go)](https://goreportcard.com/report/github.com/luno/luno-go)
+[![GoDoc](https://godoc.org/github.com/luno/luno-go?status.png)](https://godoc.org/github.com/luno/luno-go)
 
-# Luno API [![GoDoc](https://godoc.org/github.com/luno/luno-go?status.png)](https://godoc.org/github.com/luno/luno-go) [![Build Status](https://travis-ci.org/luno/luno-go.svg?branch=master)](https://travis-ci.org/luno/luno-go)
+# Luno Go SDK
 
 This Go package provides a wrapper for the [Luno API](https://www.luno.com/api).
 
@@ -16,7 +23,7 @@ to generate an API key.
 
 ## Installation
 
-```
+```shell
 go get github.com/luno/luno-go
 ```
 
@@ -28,34 +35,34 @@ A full working example of this library in action.
 package main
 
 import (
-  "log"
-  "context"
-  "time"
-  "github.com/luno/luno-go"
+	"log"
+	"context"
+	"time"
+	"github.com/luno/luno-go"
 )
 
 func main() {
-  lunoClient := luno.NewClient()
-  lunoClient.SetAuth("<id>", "<secret>")
+	lunoClient := luno.NewClient()
+	lunoClient.SetAuth("<id>", "<secret>")
 
-  req := luno.GetOrderBookRequest{Pair: "XBTZAR"}
-  ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(10 * time.Second))
-  defer cancel()
+	req := luno.GetOrderBookRequest{Pair: "XBTZAR"}
+	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(10*time.Second))
+	defer cancel()
 
-  res, err := lunoClient.GetOrderBook(ctx, &req)
-  if err != nil {
-    log.Fatal(err)
-  }
-  log.Println(res)
+	res, err := lunoClient.GetOrderBook(ctx, &req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println(res)
 }
 ```
 
 Remember to substitute `<id>` and `<secret>` for your own Id and Secret.
 
 We recommend using environment variables rather than including your credentials in plaintext. In Bash you do so as follows:
-```
-$ export LUNO_API_ID="<id>"
-$ export LUNO_API_SECRET="<secret>"
+```shell
+export LUNO_API_ID="<id>"
+export LUNO_API_SECRET="<secret>"
 ```
 
 And then access them in Go like so:
