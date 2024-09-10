@@ -76,4 +76,4 @@ var API_KEY_SECRET string = os.Getenv("LUNO_API_SECRET")
 
 ## License
 
-[MIT](https://github.com/luno/luno-go/blob/master/LICENSE.md)
+[MIT](./LICENSE.md)
