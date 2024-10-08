@@ -1,7 +1,6 @@
 package streaming
 
 import (
-	"log"
 	"testing"
 	"time"
 
@@ -213,7 +212,6 @@ func TestBackoff(t *testing.T) {
 
 			dt := c.calculateBackoff(tc.p, tc.reqTS)
 			if tc.expBackoffUpperLimit != nil {
-				log.Println("backoff = " + dt.String())
 				require.LessOrEqual(t, dt, *tc.expBackoffUpperLimit)
 				require.GreaterOrEqual(t, dt, *tc.expBackoffLowerLimit)
 			} else if dt != tc.expBackoff {
