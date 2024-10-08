@@ -11,7 +11,6 @@ repos:
     hooks:
       # Go Test
       - id: go-test-repo-mod # targets all modules in repo
-        stages: [ push ] # only run tests on push, not on commit
 
       # Go Vet
       - id: go-vet-repo-mod
