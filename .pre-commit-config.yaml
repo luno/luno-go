@@ -16,14 +16,14 @@ repos:
       - id: go-vet-repo-mod
 
       # GoSec
-      - id: go-sec-repo-mod # go install github.com/securego/gosec/v2/cmd/gosec@latest
+      - id: go-sec-repo-mod # install with `make devenv-init`
 
       # Formatters
       - id: go-imports-repo
-      - id: go-fumpt-repo # go install mvdan.cc/gofumpt@latest
+      - id: go-fumpt-repo
 
       # Style Checkers
-      - id: go-critic # go install github.com/go-critic/go-critic/cmd/gocritic@latest
+      - id: go-critic
 
       # Go Mod Tidy
       - id: go-mod-tidy-repo
