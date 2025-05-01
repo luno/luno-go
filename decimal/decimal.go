@@ -8,6 +8,22 @@ import (
 	"strings"
 )
 
+// Maintain references to common big.Ints to reduce GC pressure
+var bigIntLookup = [64]*big.Int{}
+
+func init() {
+	for i := 0; i < len(bigIntLookup); i++ {
+		bigIntLookup[i] = big.NewInt(int64(i))
+	}
+}
+
+func cachedBigInt(i int64) *big.Int {
+	if i >= 0 && i < int64(len(bigIntLookup)) {
+		return bigIntLookup[i]
+	}
+	return big.NewInt(i)
+}
+
 // Decimal represents a decimal amount, internally stored as a big.Int.
 type Decimal struct {
 	i     *big.Int
@@ -26,7 +42,7 @@ func New(i *big.Int, scale int) Decimal {
 }
 
 func NewFromInt64(i int64) Decimal {
-	return New(big.NewInt(i), 0)
+	return New(cachedBigInt(i), 0)
 }
 
 // NewFromFloat64 returns a new Decimal with the given scale. The value is
@@ -54,7 +70,7 @@ func NewFromString(s string) (Decimal, error) {
 
 // Zero returns a Decimal representing 0, with precision 0.
 func Zero() Decimal {
-	return New(big.NewInt(0), 0)
+	return New(cachedBigInt(0), 0)
 }
 
 // MarshalJSON converts the Decimal to JSON bytes.
@@ -109,7 +125,7 @@ func (d Decimal) Float64() float64 {
 	}
 
 	scale := big.NewInt(int64(d.scale))
-	scale.Exp(big.NewInt(10), scale, nil)
+	scale.Exp(cachedBigInt(10), scale, nil)
 
 	r := new(big.Rat)
 	r.SetFrac(bigIntDefault(d.i), scale)
@@ -128,7 +144,7 @@ func (d Decimal) ToScale(scale int) Decimal {
 		exponent = -exponent
 	}
 	s := new(big.Int)
-	s.Exp(big.NewInt(10), big.NewInt(int64(exponent)), nil)
+	s.Exp(cachedBigInt(10), cachedBigInt(int64(exponent)), nil)
 	di := bigIntDefault(d.i)
 	o := new(big.Int)
 	if d.scale > scale {
@@ -179,13 +195,13 @@ func (d Decimal) Sub(y Decimal) Decimal {
 // MulInt64 multiplies d by y and returns the result. d is left unchanged.
 func (d Decimal) MulInt64(y int64) Decimal {
 	di := bigIntDefault(d.i)
-	return New(new(big.Int).Mul(di, big.NewInt(y)), d.scale)
+	return New(new(big.Int).Mul(di, cachedBigInt(y)), d.scale)
 }
 
 // DivInt64 divides d by y and returns the result. d is left unchanged.
 func (d Decimal) DivInt64(y int64) Decimal {
 	di := bigIntDefault(d.i)
-	return New(new(big.Int).Div(di, big.NewInt(y)), d.scale)
+	return New(new(big.Int).Div(di, cachedBigInt(y)), d.scale)
 }
 
 // Mul multiplies d by y and returns the result. The result has a scale equal to
