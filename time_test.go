@@ -1,6 +1,7 @@
 package luno_test
 
 import (
+	"strconv"
 	"testing"
 	"time"
 
@@ -59,19 +60,20 @@ func TestTimeMarshalJSON(t *testing.T) {
 	}
 
 	now := time.Now()
+	msNow := now.UnixNano() / 1e6
 
 	testCases := []testCase{
 		{
 			in:  luno.Time{},
-			exp: time.Time{}.String(),
+			exp: "0",
 		},
 		{
 			in:  luno.Time(now),
-			exp: now.String(),
+			exp: strconv.FormatInt(msNow, 10),
 		},
 		{
 			in:  luno.Time(time.Date(2006, 1, 2, 3, 4, 5, 999, time.UTC)),
-			exp: time.Date(2006, 1, 2, 3, 4, 5, 999, time.UTC).String(),
+			exp: strconv.FormatInt(time.Date(2006, 1, 2, 3, 4, 5, 999, time.UTC).UnixNano()/1e6, 10),
 		},
 	}
 

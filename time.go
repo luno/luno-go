@@ -21,7 +21,11 @@ func (t *Time) UnmarshalJSON(b []byte) error {
 }
 
 func (t Time) MarshalJSON() ([]byte, error) {
-	return []byte(t.String()), nil
+	if time.Time(t).IsZero() {
+		return []byte("0"), nil
+	}
+	ms := time.Time(t).UnixNano() / 1e6
+	return []byte(strconv.FormatInt(ms, 10)), nil
 }
 
 func (t Time) String() string {
