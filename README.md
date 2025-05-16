@@ -16,6 +16,16 @@ This Go package provides a wrapper for the [Luno API](https://www.luno.com/api).
 Please visit [godoc.org](https://godoc.org/github.com/luno/luno-go) for the full
 package documentation.
 
+## Changes to Time JSON Format (v0.1.0)
+
+Starting with version 0.1.0, the `Time.MarshalJSON()` method now returns millisecond timestamps as numbers by default, rather than unquoted strings. This ensures valid JSON generation when Time values are embedded in larger JSON structures.
+
+You can revert to the legacy format (properly quoted time strings) by setting the environment variable `LUNO_TIME_LEGACY_FORMAT=true` in your application.
+
+For more details and migration guidance, please see:
+- [CHANGELOG.md](./CHANGELOG.md)
+- [Example migration code](./_examples/time_migration/main.go)
+
 ## Authentication
 
 Please visit the [Settings](https://www.luno.com/wallet/settings/api_keys) page
