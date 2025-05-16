@@ -2,7 +2,7 @@ package main
 
 // Example showing how to handle both old and new Time format
 //
-// Note: Starting with v0.0.34, you can control the format by setting the
+// Note: Starting with v0.1.0, you can control the format by setting the
 // environment variable LUNO_TIME_LEGACY_FORMAT=true to use the legacy string format.
 // This example shows how to handle both formats if you're consuming data from
 // different versions or configurations of the library.
