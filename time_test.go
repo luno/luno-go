@@ -16,11 +16,12 @@ func TestTimeUnmarshalJSON(t *testing.T) {
 
 	testCases := []testCase{
 		{
-			err: true,
+			in:  []byte("null"),
+			exp: luno.Time{},
 		},
 		{
 			in:  []byte{},
-			err: true,
+			exp: luno.Time{},
 		},
 		{
 			in:  []byte("abc"),
@@ -33,6 +34,14 @@ func TestTimeUnmarshalJSON(t *testing.T) {
 		{
 			in:  []byte("-123456"),
 			exp: luno.Time(time.Unix(0, -123456e6)),
+		},
+		{
+			in:  []byte(`"2006-01-02T15:04:05Z"`),
+			exp: luno.Time(time.Date(2006, 1, 2, 15, 4, 5, 0, time.UTC)),
+		},
+		{
+			in:  []byte(`"2006-01-02 15:04:05 +0000 UTC"`),
+			exp: luno.Time(time.Date(2006, 1, 2, 15, 4, 5, 0, time.UTC)),
 		},
 	}
 
@@ -58,20 +67,16 @@ func TestTimeMarshalJSON(t *testing.T) {
 		exp string
 	}
 
-	now := time.Now()
+	date := time.Date(2006, 1, 2, 3, 4, 5, 0, time.UTC)
 
 	testCases := []testCase{
 		{
 			in:  luno.Time{},
-			exp: time.Time{}.String(),
+			exp: "null",
 		},
 		{
-			in:  luno.Time(now),
-			exp: now.String(),
-		},
-		{
-			in:  luno.Time(time.Date(2006, 1, 2, 3, 4, 5, 999, time.UTC)),
-			exp: time.Date(2006, 1, 2, 3, 4, 5, 999, time.UTC).String(),
+			in:  luno.Time(date),
+			exp: `"2006-01-02T03:04:05Z"`,
 		},
 	}
 
