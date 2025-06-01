@@ -9,7 +9,7 @@ import (
 )
 
 // Maintain references to common big.Ints to reduce GC pressure
-var bigIntLookup = [64]*big.Int{}
+var bigIntLookup = [32]*big.Int{}
 
 func init() {
 	for i := 0; i < len(bigIntLookup); i++ {
