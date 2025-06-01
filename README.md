@@ -43,7 +43,10 @@ import (
 
 func main() {
 	lunoClient := luno.NewClient()
-	lunoClient.SetAuth("<id>", "<secret>")
+	err := lunoClient.SetAuth("<id>", "<secret>")
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	req := luno.GetOrderBookRequest{Pair: "XBTZAR"}
 	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(10*time.Second))
