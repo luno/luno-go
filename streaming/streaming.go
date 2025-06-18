@@ -434,11 +434,14 @@ func (c *Conn) processCreate(u CreateUpdate) error {
 		Volume: u.Volume,
 	}
 
-	if u.Type == string(luno.OrderTypeBid) {
+	switch u.Type {
+	case string(luno.OrderTypeBid):
 		c.bids[o.ID] = o
-	} else if u.Type == string(luno.OrderTypeAsk) {
+
+	case string(luno.OrderTypeAsk):
 		c.asks[o.ID] = o
-	} else {
+
+	default:
 		return errors.New("streaming: unknown order type")
 	}
 

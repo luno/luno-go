@@ -9,6 +9,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestDoGet(t *testing.T) {
@@ -114,12 +116,14 @@ func TestDoAuth(t *testing.T) {
 
 	cl := NewClient()
 	cl.SetBaseURL(srv.URL)
-	cl.SetAuth(username, password)
-
+	err := cl.SetAuth(username, password)
+	require.Nil(t, err)
+	cl.SetDebug(true)
+	cl.SetTimeout(10 * time.Second)
 	var res testRes
 
 	// No auth provided:
-	err := cl.do(context.Background(), "POST", "/test", nil, &res, false)
+	err = cl.do(context.Background(), "POST", "/test", nil, &res, false)
 	if err != nil {
 		t.Errorf("Expected success, got %v", err)
 	}

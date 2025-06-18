@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	luno "github.com/luno/luno-go"
+	"github.com/luno/luno-go"
 )
 
 var (
@@ -21,7 +21,10 @@ func main() {
 
 	cl := luno.NewClient()
 	cl.SetDebug(*debug)
-	cl.SetAuth(*apiKeyID, *apiKeySecret)
+	err := cl.SetAuth(*apiKeyID, *apiKeySecret)
+	if err != nil {
+		log.Println(err)
+	}
 
 	ctx := context.Background()
 

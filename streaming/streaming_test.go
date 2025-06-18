@@ -1,12 +1,12 @@
 package streaming
 
 import (
-	"math/rand"
 	"testing"
 	"time"
 
 	"github.com/luno/luno-go"
 	"github.com/luno/luno-go/decimal"
+	"github.com/stretchr/testify/require"
 )
 
 func TestFlatten(t *testing.T) {
@@ -131,25 +131,24 @@ func TestFlatten(t *testing.T) {
 
 func TestBackoff(t *testing.T) {
 	tcs := []struct {
-		name         string
-		fn           BackoffHandler
-		attemptReset time.Duration
-		p            *backoffParams
-		seed         func()
-		reqTS        time.Time
-		expBackoff   time.Duration
-		expParams    backoffParams
+		name                 string
+		fn                   BackoffHandler
+		attemptReset         time.Duration
+		p                    *backoffParams
+		seed                 func()
+		reqTS                time.Time
+		expBackoff           time.Duration
+		expBackoffLowerLimit *time.Duration
+		expBackoffUpperLimit *time.Duration // Used when randomly generating
+		expParams            backoffParams
 	}{
 		{
-			name: "default",
-			fn:   defaultBackoffHandler,
-			p:    &backoffParams{},
-			seed: func() {
-				// Seed random generator to test default backoff handler
-				rand.Seed(123)
-			},
-			reqTS:      time.Date(2024, 2, 1, 0, 0, 0, 0, time.UTC),
-			expBackoff: 1935000000,
+			name:                 "default",
+			fn:                   defaultBackoffHandler,
+			p:                    &backoffParams{},
+			reqTS:                time.Date(2024, 2, 1, 0, 0, 0, 0, time.UTC),
+			expBackoffLowerLimit: ptr[time.Duration](1900000000),
+			expBackoffUpperLimit: ptr[time.Duration](2100000000),
 			expParams: backoffParams{
 				attempts:    1,
 				lastAttempt: time.Date(2024, 2, 1, 0, 0, 0, 0, time.UTC),
@@ -206,17 +205,16 @@ func TestBackoff(t *testing.T) {
 
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
-			if tc.seed != nil {
-				tc.seed()
-			}
-
 			c := &Conn{
 				backoffHandler: tc.fn,
 				attemptReset:   tc.attemptReset,
 			}
 
 			dt := c.calculateBackoff(tc.p, tc.reqTS)
-			if dt != tc.expBackoff {
+			if tc.expBackoffUpperLimit != nil {
+				require.LessOrEqual(t, dt, *tc.expBackoffUpperLimit)
+				require.GreaterOrEqual(t, dt, *tc.expBackoffLowerLimit)
+			} else if dt != tc.expBackoff {
 				t.Errorf("backoff %d doesn't match expect backoff %d", dt, tc.expBackoff)
 			}
 
@@ -225,4 +223,8 @@ func TestBackoff(t *testing.T) {
 			}
 		})
 	}
+}
+
+func ptr[T any](t T) *T {
+	return &t
 }

@@ -1,8 +1,9 @@
 package streaming
 
 import (
+	"crypto/rand"
 	"math"
-	"math/rand"
+	"math/big"
 	"time"
 )
 
@@ -12,7 +13,11 @@ type backoffParams struct {
 }
 
 func defaultBackoffHandler(attempts int) time.Duration {
-	jitter := time.Duration(rand.Intn(200)-100) * time.Millisecond                       // ±100ms
+	randInt, err := rand.Int(rand.Reader, big.NewInt(200))
+	if err != nil {
+		panic(err)
+	}
+	jitter := time.Duration(randInt.Int64()-100) * time.Millisecond                      // ±100ms
 	backoff := time.Duration(math.Min(math.Pow(2, float64(attempts)), 60)) * time.Second // Exponential backoff up to 60s
 	return backoff + jitter
 }

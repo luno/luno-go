@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"runtime"
@@ -114,7 +113,7 @@ func (cl *Client) do(ctx context.Context, method, path string,
 	if req != nil {
 		values := makeURLValues(req)
 		if strings.Contains(path, "{id}") {
-			url = strings.Replace(url, "{id}", values.Get("id"), -1)
+			url = strings.ReplaceAll(url, "{id}", values.Get("id"))
 			values.Del("id")
 		}
 		if method == http.MethodGet {
@@ -151,7 +150,7 @@ func (cl *Client) do(ctx context.Context, method, path string,
 
 	body = httpRes.Body
 	if cl.debug {
-		b, err := ioutil.ReadAll(body)
+		b, err := io.ReadAll(body)
 		if err != nil {
 			log.Printf("luno: Error reading response body: %v", err)
 		} else {
