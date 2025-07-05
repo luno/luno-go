@@ -296,9 +296,9 @@ func TestUserAgent(t *testing.T) {
 
 func TestMakeUserAgent(t *testing.T) {
 	tests := []struct {
-		name     string
-		suffix   string
-		contains []string
+		name        string
+		suffix      string
+		contains    []string
 		notContains []string
 	}{
 		{
@@ -333,7 +333,6 @@ func TestMakeUserAgent(t *testing.T) {
 			}
 
 			userAgent := cl.makeUserAgent()
-			t.Logf("Generated User-Agent: %s", userAgent)
 
 			for _, expected := range tt.contains {
 				if !strings.Contains(userAgent, expected) {

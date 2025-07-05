@@ -188,10 +188,10 @@ func (cl *Client) do(ctx context.Context, method, path string,
 func (cl *Client) makeUserAgent() string {
 	userAgent := fmt.Sprintf("LunoGoSDK/%s %s %s %s",
 		Version, runtime.Version(), runtime.GOOS, runtime.GOARCH)
-	
+
 	if cl.userAgentSuffix != "" {
 		userAgent += " (" + cl.userAgentSuffix + ")"
 	}
-	
+
 	return userAgent
 }
