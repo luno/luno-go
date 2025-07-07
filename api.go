@@ -1373,6 +1373,8 @@ func (cl *Client) ListWithdrawals(ctx context.Context, req *ListWithdrawalsReque
 type MarketsRequest struct {
 	// List of market pairs to return. Requesting only the required pairs will improve response times.
 	Pair []string `json:"pair" url:"pair"`
+	// Authed allows the specifying of the request to authenticated for rate limiting reasons.
+	Authed bool `json:"authed" url:"authed"`
 }
 
 // MarketsResponse is the response struct for Markets.
@@ -1386,7 +1388,7 @@ type MarketsResponse struct {
 // max order volumes and market ID.
 func (cl *Client) Markets(ctx context.Context, req *MarketsRequest) (*MarketsResponse, error) {
 	var res MarketsResponse
-	err := cl.do(ctx, "GET", "/api/exchange/1/markets", req, &res, false)
+	err := cl.do(ctx, "GET", "/api/exchange/1/markets", req, &res, req.Authed)
 	if err != nil {
 		return nil, err
 	}
