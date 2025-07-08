@@ -134,7 +134,7 @@ func (cl *Client) do(ctx context.Context, method, path string,
 		httpReq.Header.Set("Content-Type", contentType)
 	}
 
-	if auth || cl.apiKeyID != "" {
+	if cl.apiKeyID != "" {
 		httpReq.SetBasicAuth(cl.apiKeyID, cl.apiKeySecret)
 	}
 
