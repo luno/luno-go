@@ -77,6 +77,58 @@ var API_KEY_ID string = os.Getenv("LUNO_API_ID")
 var API_KEY_SECRET string = os.Getenv("LUNO_API_SECRET")
 ```
 
+## Testing and Mocking
+
+The SDK provides a `ClientInterface` that makes it easy to mock the Luno client for testing:
+
+```go
+package myapp
+
+import (
+	"context"
+	"github.com/luno/luno-go"
+	"github.com/luno/luno-go/decimal"
+)
+
+// Use the interface in your application code
+func GetBalance(client luno.ClientInterface, ctx context.Context) (*luno.GetBalancesResponse, error) {
+	req := &luno.GetBalancesRequest{}
+	return client.GetBalances(ctx, req)
+}
+
+// In your tests, create a mock implementation
+type MockLunoClient struct {
+	GetBalancesFunc func(ctx context.Context, req *luno.GetBalancesRequest) (*luno.GetBalancesResponse, error)
+}
+
+func (m *MockLunoClient) GetBalances(ctx context.Context, req *luno.GetBalancesRequest) (*luno.GetBalancesResponse, error) {
+	if m.GetBalancesFunc != nil {
+		return m.GetBalancesFunc(ctx, req)
+	}
+	return nil, nil
+}
+
+// ... implement other methods as needed
+
+// In your test
+func TestGetBalance(t *testing.T) {
+	mockClient := &MockLunoClient{
+		GetBalancesFunc: func(ctx context.Context, req *luno.GetBalancesRequest) (*luno.GetBalancesResponse, error) {
+			return &luno.GetBalancesResponse{
+				Balance: []luno.AccountBalance{
+					{Asset: "XBT", Balance: decimal.NewFromFloat64(1.0, 8)},
+				},
+			}, nil
+		},
+	}
+	
+	response, err := GetBalance(mockClient, context.Background())
+	// ... your test assertions
+}
+```
+
+You can also use mocking libraries like [testify/mock](https://github.com/stretchr/testify) or [mockery](https://github.com/vektra/mockery) to automatically generate mocks from the `ClientInterface`.
+
 ## License
 
 [MIT](./LICENSE.md)
