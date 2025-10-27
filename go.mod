@@ -1,11 +1,11 @@
 module github.com/luno/luno-go
 
-go 1.24
+go 1.24.0
 
 require (
 	github.com/gorilla/websocket v1.5.3
-	github.com/stretchr/testify v1.10.0
-	golang.org/x/time v0.10.0
+	github.com/stretchr/testify v1.11.1
+	golang.org/x/time v0.14.0
 )
 
 require (

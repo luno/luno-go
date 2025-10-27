@@ -116,14 +116,12 @@ func TestDoAuth(t *testing.T) {
 
 	cl := NewClient()
 	cl.SetBaseURL(srv.URL)
-	err := cl.SetAuth(username, password)
-	require.Nil(t, err)
 	cl.SetDebug(true)
 	cl.SetTimeout(10 * time.Second)
 	var res testRes
 
-	// No auth provided:
-	err = cl.do(context.Background(), "POST", "/test", nil, &res, false)
+	// No auth provided, unauthed endpoint
+	err := cl.do(context.Background(), "POST", "/test", nil, &res, false)
 	if err != nil {
 		t.Errorf("Expected success, got %v", err)
 	}
@@ -131,7 +129,30 @@ func TestDoAuth(t *testing.T) {
 		t.Errorf("Expected empty username, got %q", res.Username)
 	}
 
-	// Auth provided:
+	// No auth provided, authed endpoint
+	err = cl.do(context.Background(), "POST", "/test", nil, &res, true)
+	if err != nil {
+		t.Errorf("Expected success, got %v", err)
+	}
+	if res.Username != "" {
+		t.Errorf("Expected empty username, got %q", res.Username)
+	}
+
+	err = cl.SetAuth(username, password)
+	require.Nil(t, err)
+
+	// Auth provided, unauthed endpoint
+	err = cl.do(context.Background(), "POST", "/test", nil, &res, false)
+	if err != nil {
+		t.Errorf("Expected success, got %v", err)
+	}
+	// Even if call is not authenticated, still expect auth details present if specified
+	if res.Username != username || res.Password != password {
+		t.Errorf("Expected %s:%s, got %s:%s", username, password,
+			res.Username, res.Password)
+	}
+
+	// Auth provided, authed endpoint:
 	err = cl.do(context.Background(), "POST", "/test", nil, &res, true)
 	if err != nil {
 		t.Errorf("Expected success, got %v", err)
