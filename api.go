@@ -1393,6 +1393,20 @@ func (cl *Client) Markets(ctx context.Context, req *MarketsRequest) (*MarketsRes
 	return &res, nil
 }
 
+// GetAccountMarkets makes a call to GET /api/exchange/1/account_markets.
+//
+// Returns the list of markets that the authenticated account is permitted to trade.
+//
+// Permissions required: <code>Perm_R_Orders</code>
+func (cl *Client) GetAccountMarkets(ctx context.Context, req *GetAccountMarketsRequest) (*GetAccountMarketsResponse, error) {
+	var res GetAccountMarketsResponse
+	err := cl.do(ctx, "GET", "/api/exchange/1/account_markets", req, &res, true)
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
 // MoveRequest is the request struct for Move.
 type MoveRequest struct {
 	// Amount to transfer. Must be positive.

@@ -119,6 +119,14 @@ const (
 	KindTransfer Kind = "TRANSFER"
 )
 
+// GetAccountMarketsRequest is the request struct for GetAccountMarkets.
+type GetAccountMarketsRequest struct{}
+
+// GetAccountMarketsResponse is the response struct for GetAccountMarkets.
+type GetAccountMarketsResponse struct {
+	Markets []MarketInfo `json:"markets"`
+}
+
 type MarketInfo struct {
 	// Base currency code
 	BaseCurrency string `json:"base_currency"`
