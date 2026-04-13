@@ -214,7 +214,7 @@ func TestDoJSONError(t *testing.T) {
 	cl := NewClient()
 	cl.SetBaseURL(srv.URL)
 
-	var res interface{}
+	var res any
 	err := cl.do(context.Background(), "GET", "/", nil, &res, false)
 	if err == nil {
 		t.Errorf("Expected error, got nil")
