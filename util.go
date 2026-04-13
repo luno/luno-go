@@ -8,7 +8,7 @@ import (
 )
 
 // makeURLValues converts a request struct into a url.Values map.
-func makeURLValues(v interface{}) url.Values {
+func makeURLValues(v any) url.Values {
 	values := make(url.Values)
 	if v == nil {
 		return values

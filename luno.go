@@ -94,7 +94,7 @@ func (cl *Client) SetDebug(debug bool) {
 }
 
 func (cl *Client) do(ctx context.Context, method, path string,
-	req, res interface{}, _ bool,
+	req, res any, _ bool,
 ) error {
 	err := cl.rateLimiter.Wait(ctx)
 	if err != nil {
