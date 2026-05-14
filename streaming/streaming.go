@@ -151,8 +151,7 @@ func (c *Conn) manageForever() {
 
 	for {
 		if err := c.connect(); err != nil {
-			log.Printf("luno/streaming: Connection error key=%s pair=%s: %v",
-				c.keyID, c.pair, err)
+			log.Printf("luno/streaming: Connection error: %v", err)
 		}
 		if c.IsClosed() {
 			return
