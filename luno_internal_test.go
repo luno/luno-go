@@ -273,7 +273,9 @@ func captureUserAgent(t *testing.T, suffix string) string {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		captured = r.Header.Get("User-Agent")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("{}"))
+		if _, err := w.Write([]byte("{}")); err != nil {
+			t.Errorf("failed to write response body: %v", err)
+		}
 	}))
 	defer srv.Close()
 
