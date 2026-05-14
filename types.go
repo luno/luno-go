@@ -71,9 +71,6 @@ type CryptoDetails struct {
 	Txid    string `json:"txid"`
 }
 
-type DecimalFloat struct {
-}
-
 type DetailFields struct {
 	CryptoDetails CryptoDetails `json:"crypto_details"`
 	TradeDetails  TradeDetails  `json:"trade_details"`
@@ -533,12 +530,12 @@ const (
 )
 
 type Transaction struct {
-	AccountId      string       `json:"account_id"`
-	Available      DecimalFloat `json:"available"`
-	AvailableDelta DecimalFloat `json:"available_delta"`
-	Balance        DecimalFloat `json:"balance"`
-	BalanceDelta   DecimalFloat `json:"balance_delta"`
-	Currency       string       `json:"currency"`
+	AccountId      string          `json:"account_id"`
+	Available      decimal.Decimal `json:"available"`
+	AvailableDelta decimal.Decimal `json:"available_delta"`
+	Balance        decimal.Decimal `json:"balance"`
+	BalanceDelta   decimal.Decimal `json:"balance_delta"`
+	Currency       string          `json:"currency"`
 
 	// Human-readable description of the transaction.
 	Description  string       `json:"description"`
