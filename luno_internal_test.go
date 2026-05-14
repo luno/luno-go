@@ -229,69 +229,65 @@ func TestDoJSONError(t *testing.T) {
 
 func TestUserAgent(t *testing.T) {
 	tests := []struct {
-		name     string
-		suffix   string
-		expected string
+		name        string
+		suffix      string
+		wantInParen string // expected content inside trailing "(...)"; empty means no parens
 	}{
-		{
-			name:     "default user agent without suffix",
-			suffix:   "",
-			expected: fmt.Sprintf("LunoGoSDK/%s", Version),
-		},
-		{
-			name:     "user agent with custom suffix",
-			suffix:   "luno-mcp/0.1.0",
-			expected: fmt.Sprintf("LunoGoSDK/%s", Version),
-		},
-		{
-			name:     "user agent with complex suffix",
-			suffix:   "myapp/1.2.3-beta",
-			expected: fmt.Sprintf("LunoGoSDK/%s", Version),
-		},
+		{name: "default user agent without suffix", suffix: "", wantInParen: ""},
+		{name: "user agent with custom suffix", suffix: "luno-mcp/0.1.0", wantInParen: "luno-mcp/0.1.0"},
+		{name: "user agent with complex suffix", suffix: "myapp/1.2.3-beta", wantInParen: "myapp/1.2.3-beta"},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var capturedUserAgent string
-			srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				capturedUserAgent = r.Header.Get("User-Agent")
-				w.WriteHeader(http.StatusOK)
-				w.Write([]byte("{}"))
-			}))
-			defer srv.Close()
-
-			cl := NewClient()
-			cl.SetBaseURL(srv.URL)
-			if tt.suffix != "" {
-				cl.SetUserAgentSuffix(tt.suffix)
-			}
-
-			var res interface{}
-			err := cl.do(context.Background(), "GET", "/test", nil, &res, false)
-			if err != nil {
-				t.Errorf("Expected success, got %v", err)
-			}
-
-			// Check that the user agent starts with the expected prefix
-			if !strings.HasPrefix(capturedUserAgent, tt.expected) {
-				t.Errorf("Expected User-Agent to start with %q, got %q", tt.expected, capturedUserAgent)
-			}
-
-			// Check suffix behavior
-			if tt.suffix == "" {
-				// Should not contain parentheses when no suffix
-				if strings.Contains(capturedUserAgent, "(") || strings.Contains(capturedUserAgent, ")") {
-					t.Errorf("Expected no parentheses in User-Agent without suffix, got %q", capturedUserAgent)
-				}
-			} else {
-				// Should contain the suffix in parentheses
-				expectedSuffix := "(" + tt.suffix + ")"
-				if !strings.Contains(capturedUserAgent, expectedSuffix) {
-					t.Errorf("Expected User-Agent to contain %q, got %q", expectedSuffix, capturedUserAgent)
-				}
-			}
+			assertUserAgent(t, tt.suffix, tt.wantInParen)
 		})
 	}
+}
+
+func assertUserAgent(t *testing.T, suffix, wantInParen string) {
+	t.Helper()
+	ua := captureUserAgent(t, suffix)
+
+	wantPrefix := fmt.Sprintf("LunoGoSDK/%s", Version)
+	if !strings.HasPrefix(ua, wantPrefix) {
+		t.Errorf("Expected User-Agent to start with %q, got %q", wantPrefix, ua)
+	}
+
+	if wantInParen == "" {
+		if strings.ContainsAny(ua, "()") {
+			t.Errorf("Expected no parentheses in User-Agent, got %q", ua)
+		}
+		return
+	}
+
+	want := "(" + wantInParen + ")"
+	if !strings.Contains(ua, want) {
+		t.Errorf("Expected User-Agent to contain %q, got %q", want, ua)
+	}
+}
+
+func captureUserAgent(t *testing.T, suffix string) string {
+	t.Helper()
+	var captured string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		captured = r.Header.Get("User-Agent")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("{}"))
+	}))
+	defer srv.Close()
+
+	cl := NewClient()
+	cl.SetBaseURL(srv.URL)
+	if suffix != "" {
+		cl.SetUserAgentSuffix(suffix)
+	}
+
+	var res interface{}
+	if err := cl.do(context.Background(), "GET", "/test", nil, &res, false); err != nil {
+		t.Fatalf("Expected success, got %v", err)
+	}
+	return captured
 }
 
 func TestSetUserAgentSuffixStripsControlChars(t *testing.T) {
