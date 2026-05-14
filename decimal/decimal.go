@@ -12,7 +12,7 @@ import (
 var bigIntLookup = [32]*big.Int{}
 
 func init() {
-	for i := 0; i < len(bigIntLookup); i++ {
+	for i := range len(bigIntLookup) {
 		bigIntLookup[i] = big.NewInt(int64(i))
 	}
 }
