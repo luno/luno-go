@@ -303,7 +303,7 @@ func TestSetUserAgentSuffixStripsControlChars(t *testing.T) {
 	if !strings.Contains(userAgent, wantSuffix) {
 		t.Errorf("Expected User-Agent to contain %q, got %q", wantSuffix, userAgent)
 	}
-	for _, bad := range []string{"\r", "\n", "\t", "\x00"} {
+	for _, bad := range []string{"\r", "\n", "\t", "\x00", "\x7f"} {
 		if strings.Contains(userAgent, bad) {
 			t.Errorf("Expected User-Agent to not contain %q, got %q", bad, userAgent)
 		}
