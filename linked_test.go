@@ -10,15 +10,19 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestLinked(t *testing.T) {
+func TestLinkedUsers(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, http.MethodGet, r.Method)
 		require.Equal(t, "/api/1/users/linked", r.URL.Path)
 
 		_, _, ok := r.BasicAuth()
-		require.True(t, ok, "Linked must send credentials")
+		require.True(t, ok, "LinkedUsers must send credentials")
 
-		_ = json.NewEncoder(w).Encode(LinkedResponse{
+		require.NoError(t, r.ParseForm())
+		require.Equal(t, "50", r.Form.Get("limit"))
+		require.Equal(t, "10", r.Form.Get("offset"))
+
+		_ = json.NewEncoder(w).Encode(LinkedUsersResponse{
 			Users: []LinkedUser{
 				{
 					CreatedAt:   1700000000000,
@@ -41,7 +45,10 @@ func TestLinked(t *testing.T) {
 	cl.SetBaseURL(srv.URL)
 	require.NoError(t, cl.SetAuth("key-id", "key-secret"))
 
-	res, err := cl.Linked(context.Background(), &LinkedRequest{})
+	res, err := cl.LinkedUsers(context.Background(), &LinkedUsersRequest{
+		Limit:  50,
+		Offset: 10,
+	})
 	require.NoError(t, err)
 	require.Len(t, res.Users, 2)
 

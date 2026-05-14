@@ -1108,21 +1108,26 @@ func (cl *Client) GetWithdrawal(ctx context.Context, req *GetWithdrawalRequest) 
 	return &res, nil
 }
 
-// LinkedRequest is the request struct for Linked.
-type LinkedRequest struct {
+// LinkedUsersRequest is the request struct for LinkedUsers.
+type LinkedUsersRequest struct {
+	// Limit to this many users.
+	Limit int64 `json:"limit" url:"limit"`
+
+	// Page through records
+	Offset int64 `json:"offset" url:"offset"`
 }
 
-// LinkedResponse is the response struct for Linked.
-type LinkedResponse struct {
+// LinkedUsersResponse is the response struct for LinkedUsers.
+type LinkedUsersResponse struct {
 	// List of linked user accounts configured for multi-access
 	Users []LinkedUser `json:"users"`
 }
 
-// Linked makes a call to GET /api/1/users/linked.
+// LinkedUsers makes a call to GET /api/1/users/linked.
 //
 // Returns a list of users linked to this API key with additional permissions.
-func (cl *Client) Linked(ctx context.Context, req *LinkedRequest) (*LinkedResponse, error) {
-	var res LinkedResponse
+func (cl *Client) LinkedUsers(ctx context.Context, req *LinkedUsersRequest) (*LinkedUsersResponse, error) {
+	var res LinkedUsersResponse
 	err := cl.do(ctx, "GET", "/api/1/users/linked", req, &res, true)
 	if err != nil {
 		return nil, err
