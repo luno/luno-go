@@ -23,12 +23,13 @@ type Limiter interface {
 
 // Client is a Luno API client.
 type Client struct {
-	httpClient   *http.Client
-	rateLimiter  Limiter
-	baseURL      string
-	apiKeyID     string
-	apiKeySecret string
-	debug        bool
+	httpClient      *http.Client
+	rateLimiter     Limiter
+	baseURL         string
+	apiKeyID        string
+	apiKeySecret    string
+	debug           bool
+	userAgentSuffix string
 }
 
 const (
@@ -93,6 +94,20 @@ func (cl *Client) SetDebug(debug bool) {
 	cl.debug = debug
 }
 
+// SetUserAgentSuffix sets a custom suffix to be appended to the User-Agent
+// header. This allows applications to identify themselves in API calls.
+// Control characters in the suffix are stripped to prevent header injection.
+// For example, SetUserAgentSuffix("myapp/1.0.0") produces a User-Agent like
+// "LunoGoSDK/<version> <goversion> <os> <arch> (myapp/1.0.0)".
+func (cl *Client) SetUserAgentSuffix(suffix string) {
+	cl.userAgentSuffix = strings.Map(func(r rune) rune {
+		if r < 0x20 || r == 0x7F {
+			return -1
+		}
+		return r
+	}, suffix)
+}
+
 func (cl *Client) do(ctx context.Context, method, path string,
 	req, res any, _ bool,
 ) error {
@@ -129,7 +144,7 @@ func (cl *Client) do(ctx context.Context, method, path string,
 		return err
 	}
 	httpReq = httpReq.WithContext(ctx)
-	httpReq.Header.Set("User-Agent", makeUserAgent())
+	httpReq.Header.Set("User-Agent", cl.makeUserAgent())
 	if contentType != "" {
 		httpReq.Header.Set("Content-Type", contentType)
 	}
@@ -176,7 +191,13 @@ func (cl *Client) do(ctx context.Context, method, path string,
 	return json.NewDecoder(body).Decode(res)
 }
 
-func makeUserAgent() string {
-	return fmt.Sprintf("LunoGoSDK/%s %s %s %s",
+func (cl *Client) makeUserAgent() string {
+	userAgent := fmt.Sprintf("LunoGoSDK/%s %s %s %s",
 		Version, runtime.Version(), runtime.GOOS, runtime.GOARCH)
+
+	if cl.userAgentSuffix != "" {
+		userAgent += " (" + cl.userAgentSuffix + ")"
+	}
+
+	return userAgent
 }
