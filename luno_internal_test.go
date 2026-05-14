@@ -294,6 +294,24 @@ func TestUserAgent(t *testing.T) {
 	}
 }
 
+func TestSetUserAgentSuffixStripsControlChars(t *testing.T) {
+	cl := NewClient()
+	cl.SetUserAgentSuffix("myapp/1.0\r\nX-Injected: yes\t\x00end")
+
+	userAgent := cl.makeUserAgent()
+
+	// Control characters should be stripped, leaving the rest intact.
+	wantSuffix := "(myapp/1.0X-Injected: yesend)"
+	if !strings.Contains(userAgent, wantSuffix) {
+		t.Errorf("Expected User-Agent to contain %q, got %q", wantSuffix, userAgent)
+	}
+	for _, bad := range []string{"\r", "\n", "\t", "\x00"} {
+		if strings.Contains(userAgent, bad) {
+			t.Errorf("Expected User-Agent to not contain %q, got %q", bad, userAgent)
+		}
+	}
+}
+
 func TestMakeUserAgent(t *testing.T) {
 	tests := []struct {
 		name        string

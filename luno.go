@@ -94,12 +94,18 @@ func (cl *Client) SetDebug(debug bool) {
 	cl.debug = debug
 }
 
-// SetUserAgentSuffix sets a custom suffix to be appended to the User-Agent header.
-// This allows applications to identify themselves in API calls.
-// For example: SetUserAgentSuffix("myapp/1.0.0") will result in
-// User-Agent: "LunoGoSDK/0.0.34 go1.24.4 linux amd64 (myapp/1.0.0)"
+// SetUserAgentSuffix sets a custom suffix to be appended to the User-Agent
+// header. This allows applications to identify themselves in API calls.
+// Control characters in the suffix are stripped to prevent header injection.
+// For example, SetUserAgentSuffix("myapp/1.0.0") produces a User-Agent like
+// "LunoGoSDK/<version> <goversion> <os> <arch> (myapp/1.0.0)".
 func (cl *Client) SetUserAgentSuffix(suffix string) {
-	cl.userAgentSuffix = suffix
+	cl.userAgentSuffix = strings.Map(func(r rune) rune {
+		if r < 0x20 || r == 0x7F {
+			return -1
+		}
+		return r
+	}, suffix)
 }
 
 func (cl *Client) do(ctx context.Context, method, path string,
