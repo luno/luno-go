@@ -104,10 +104,10 @@ type FundsMove struct {
 	// balance.<br>
 	// <code>FAILED</code> The move has failed. There could be many reasons for this but the most likely is that the
 	// debit account doesn't have enough available funds to move.<br>
-	// CREATED MoveStatusCreated
-	// MOVING MoveStatusMoving
-	// SUCCESSFUL MoveStatusSuccessful
-	// FAILED MoveStatusFailed
+	// CREATED StatusCreated
+	// MOVING StatusMoving
+	// SUCCESSFUL StatusSuccessful
+	// FAILED StatusFailed
 	Status Status `json:"status"`
 
 	// Unix time the move was last updated, in milliseconds
@@ -177,17 +177,14 @@ type MarketInfo struct {
 	// post-only.<br>
 	// <code>Unknown</code> Trading status is unknown. This could indicate a temporary error
 	// on the market and should resolve shortly.
-	// POST_ONLY MarketStatusPostOnly
-	// ACTIVE MarketStatusActive
-	// SUSPENDED MarketStatusSuspended
-	// UNKNOWN MarketStatusUnknown
+	// POST_ONLY TradingStatusPost_only
+	// ACTIVE TradingStatusActive
+	// SUSPENDED TradingStatusSuspended
+	// UNKNOWN TradingStatusUnknown
 	TradingStatus TradingStatus `json:"trading_status"`
 
 	// Volume decimal places
 	VolumeScale int64 `json:"volume_scale"`
-}
-
-type Network struct {
 }
 
 type Order struct {
@@ -329,8 +326,8 @@ type OrderV2 struct {
 	// The intention of the order, whether to buy or sell funds in the market.
 	//
 	// You can use this to determine the flow of funds in the order.
-	// BUY OrderSideBuy
-	// SELL OrderSideSell
+	// BUY SideBuy
+	// SELL SideSell
 	Side Side `json:"side"`
 
 	// The current state of the order
@@ -341,9 +338,9 @@ type OrderV2 struct {
 	// have taken place but the order is not filled yet.<br>
 	// <code>COMPLETE</code> The order is no longer in the order book. It has
 	// been settled/filled or has been cancelled.
-	// AWAITING OrderStatusAwaiting
-	// PENDING OrderStatusPending
-	// COMPLETE OrderStatusComplete
+	// AWAITING StatusAwaiting
+	// PENDING StatusPending
+	// COMPLETE StatusComplete
 	Status Status `json:"status"`
 
 	// Direction to trigger the order
@@ -363,9 +360,9 @@ type OrderV2 struct {
 	TimeInForce string `json:"time_in_force"`
 
 	// The order type
-	// LIMIT OrderTypeLimit
-	// MARKET OrderTypeMarket
-	// STOP_LIMIT OrderTypeStopLimit
+	// LIMIT TypeLimit
+	// MARKET TypeMarket
+	// STOP_LIMIT TypeStop_limit
 	Type Type `json:"type"`
 }
 
@@ -387,7 +384,7 @@ type PublicTrade struct {
 }
 
 type SendNetwork struct {
-	Id Network `json:"id"`
+	Id int64 `json:"id"`
 
 	// The network name
 	Name string `json:"name"`
@@ -549,11 +546,12 @@ type Transaction struct {
 	// Kinds explained:<br>
 	// <code>FEE</code> when transaction is towards Luno fees<br>
 	// <code>TRANSFER</code> when the transaction is a one way flow of funds, e.g. a deposit or crypto send<br>
-	// <code>EXCHANGE</code> when the transaction is part of a two way exchange, e.g. a trade or instant buy
-	// FEE KindFee  KindFee when transaction is towards Luno fees
-	// TRANSFER KindTransfer  KindTransfer when the transaction is a one way flow of funds
-	// EXCHANGE KindExchange  KindExchange when the transaction is part of a two way exchange
-	// INTEREST KindInterest  KindInterest when the transaction is an interest payment.
+	// <code>EXCHANGE</code> when the transaction is part of a two way exchange, e.g. a trade or instant buy<br>
+	// <code>INTEREST</code> when the transaction is an interest payment
+	// FEE KindFee
+	// TRANSFER KindTransfer
+	// EXCHANGE KindExchange
+	// INTEREST KindInterest
 	Kind Kind `json:"kind"`
 
 	// A unique reference for the transaction this statement entry relates to.

@@ -1123,7 +1123,7 @@ type LinkedResponse struct {
 // Returns a list of users linked to this API key with additional permissions.
 func (cl *Client) Linked(ctx context.Context, req *LinkedRequest) (*LinkedResponse, error) {
 	var res LinkedResponse
-	err := cl.do(ctx, "GET", "/api/1/users/linked", req, &res, false)
+	err := cl.do(ctx, "GET", "/api/1/users/linked", req, &res, true)
 	if err != nil {
 		return nil, err
 	}
