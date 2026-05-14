@@ -60,6 +60,66 @@ func (cl *Client) CancelWithdrawal(ctx context.Context, req *CancelWithdrawalReq
 	return &res, nil
 }
 
+// ConvertRequest is the request struct for Convert.
+type ConvertRequest struct {
+	// Amount to convert from the source account. Must be positive.
+	//
+	// required: true
+	Amount decimal.Decimal `json:"amount" url:"amount"`
+
+	// A unique key to prevent duplicate conversions. If a conversion with the same key
+	// already exists and completed successfully, the original result is returned.
+	// Use a new key to retry a failed conversion.
+	//
+	// required: true
+	IdempotencyKey string `json:"idempotency_key" url:"idempotency_key"`
+
+	// The account to convert funds from.
+	//
+	// required: true
+	SourceAccountId int64 `json:"source_account_id" url:"source_account_id"`
+
+	// The account to receive the converted funds.
+	//
+	// required: true
+	TargetAccountId int64 `json:"target_account_id" url:"target_account_id"`
+}
+
+// ConvertResponse is the response struct for Convert.
+type ConvertResponse struct {
+	// Amount received in the target account after conversion
+	ConvertedAmount decimal.Decimal `json:"converted_amount"`
+
+	// Conversion unique identifier
+	Id string `json:"id"`
+
+	// Balance of the source account after the conversion
+	SourceAccountBalance decimal.Decimal `json:"source_account_balance"`
+
+	// Currency of the source account
+	SourceCurrency string `json:"source_currency"`
+
+	// Balance of the target account after the conversion
+	TargetAccountBalance decimal.Decimal `json:"target_account_balance"`
+
+	// Currency of the target account
+	TargetCurrency string `json:"target_currency"`
+}
+
+// Convert makes a call to POST /api/exchange/1/convert.
+//
+// Instantly convert between two currencies. Only conversions between ZAR and ZARU are supported. Conversions will be done at a 1:1 rate.
+//
+// Permissions required: <code>MP_Transfers</code>
+func (cl *Client) Convert(ctx context.Context, req *ConvertRequest) (*ConvertResponse, error) {
+	var res ConvertResponse
+	err := cl.do(ctx, "POST", "/api/exchange/1/convert", req, &res, true)
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
 // CreateAccountRequest is the request struct for CreateAccount.
 type CreateAccountRequest struct {
 	// The currency code for the Account you want to create.  Please see the Currency section for a detailed list of currencies supported by the Luno platform.
@@ -147,11 +207,14 @@ type CreateFundingAddressRequest struct {
 	// required: true
 	Asset string `json:"asset" url:"asset"`
 
-	// An optional account_id to assign the new Receive Address too
+	// An optional account_id to assign the new Receive Address to. If omitted, Receive Address will be assigned to the default account.
 	AccountId int64 `json:"account_id" url:"account_id"`
 
 	// An optional name for the new Receive Address
 	Name string `json:"name" url:"name"`
+
+	// The blockchain network to use for the transaction. If none is provided the default network is used
+	Network int64 `json:"network" url:"network"`
 }
 
 // CreateFundingAddressResponse is the response struct for CreateFundingAddress.
@@ -162,6 +225,7 @@ type CreateFundingAddressResponse struct {
 	Asset            string          `json:"asset"`
 	AssignedAt       Time            `json:"assigned_at"`
 	Name             string          `json:"name"`
+	Network          int64           `json:"network"`
 	QrCodeUri        string          `json:"qr_code_uri"`
 	ReceiveFee       decimal.Decimal `json:"receive_fee"`
 	TotalReceived    decimal.Decimal `json:"total_received"`
@@ -215,6 +279,10 @@ type CreateWithdrawalRequest struct {
 	// For internal use.
 	// Deprecated: We don't allow custom references and will remove this soon.
 	Reference string `json:"reference" url:"reference"`
+
+	// Optional source account ID representing the account from which the Withdrawal will be made,
+	// fall back to the default account if not provided.
+	SourceAccountId int64 `json:"source_account_id" url:"source_account_id"`
 }
 
 // CreateWithdrawalResponse is the response struct for CreateWithdrawal.
@@ -366,8 +434,23 @@ type GetFeeInfoRequest struct {
 
 // GetFeeInfoResponse is the response struct for GetFeeInfo.
 type GetFeeInfoResponse struct {
-	MakerFee        string `json:"maker_fee"`
-	TakerFee        string `json:"taker_fee"`
+	// Deprecated: Use maker_fee_buy or maker_fee_sell
+	MakerFee string `json:"maker_fee"`
+
+	// Fee rate for orders matching as maker buy orders
+	MakerFeeBuy string `json:"maker_fee_buy"`
+
+	// Fee rate for orders matching as maker sell orders
+	MakerFeeSell string `json:"maker_fee_sell"`
+
+	// Deprecated: Use taker_fee_buy or taker_fee_sell
+	TakerFee string `json:"taker_fee"`
+
+	// Fee rate for orders matching as taker buy orders
+	TakerFeeBuy string `json:"taker_fee_buy"`
+
+	// Fee rate for orders matching as taker sell orders
+	TakerFeeSell    string `json:"taker_fee_sell"`
 	ThirtyDayVolume string `json:"thirty_day_volume"`
 }
 
@@ -395,6 +478,9 @@ type GetFundingAddressRequest struct {
 	// Specific cryptocurrency address to retrieve. If not provided, the
 	// default address will be used.
 	Address string `json:"address" url:"address"`
+
+	// The blockchain network to use for the transaction. If none is provided the default network is used
+	Network int64 `json:"network" url:"network"`
 }
 
 // GetFundingAddressResponse is the response struct for GetFundingAddress.
@@ -405,6 +491,7 @@ type GetFundingAddressResponse struct {
 	Asset            string          `json:"asset"`
 	AssignedAt       Time            `json:"assigned_at"`
 	Name             string          `json:"name"`
+	Network          int64           `json:"network"`
 	QrCodeUri        string          `json:"qr_code_uri"`
 	ReceiveFee       decimal.Decimal `json:"receive_fee"`
 	TotalReceived    decimal.Decimal `json:"total_received"`
@@ -468,6 +555,10 @@ type GetMoveResponse struct {
 	// balance.<br>
 	// <code>FAILED</code> The move has failed. There could be many reasons for this but the most likely is that the
 	// debit account doesn't have enough available funds to move.<br>
+	// CREATED MoveStatusCreated
+	// MOVING MoveStatusMoving
+	// SUCCESSFUL MoveStatusSuccessful
+	// FAILED MoveStatusFailed
 	Status Status `json:"status"`
 
 	// Unix time the move was last updated, in milliseconds
@@ -713,6 +804,8 @@ type GetOrderV2Response struct {
 	// The intention of the order, whether to buy or sell funds in the market.
 	//
 	// You can use this to determine the flow of funds in the order.
+	// BUY OrderSideBuy
+	// SELL OrderSideSell
 	Side Side `json:"side"`
 
 	// The current state of the order
@@ -723,9 +816,14 @@ type GetOrderV2Response struct {
 	// have taken place but the order is not filled yet.<br>
 	// <code>COMPLETE</code> The order is no longer in the order book. It has
 	// been settled/filled or has been cancelled.
+	// AWAITING OrderStatusAwaiting
+	// PENDING OrderStatusPending
+	// COMPLETE OrderStatusComplete
 	Status Status `json:"status"`
 
 	// Direction to trigger the order
+	// ABOVE StopDirectionAbove
+	// BELOW StopDirectionBelow
 	StopDirection StopDirection `json:"stop_direction"`
 
 	// Price to trigger the order
@@ -740,6 +838,9 @@ type GetOrderV2Response struct {
 	TimeInForce string `json:"time_in_force"`
 
 	// The order type
+	// LIMIT OrderTypeLimit
+	// MARKET OrderTypeMarket
+	// STOP_LIMIT OrderTypeStopLimit
 	Type Type `json:"type"`
 }
 
@@ -823,6 +924,8 @@ type GetOrderV3Response struct {
 	// The intention of the order, whether to buy or sell funds in the market.
 	//
 	// You can use this to determine the flow of funds in the order.
+	// BUY OrderSideBuy
+	// SELL OrderSideSell
 	Side Side `json:"side"`
 
 	// The current state of the order
@@ -833,9 +936,14 @@ type GetOrderV3Response struct {
 	// have taken place but the order is not filled yet.<br>
 	// <code>COMPLETE</code> The order is no longer in the order book. It has
 	// been settled/filled or has been cancelled.
+	// AWAITING OrderStatusAwaiting
+	// PENDING OrderStatusPending
+	// COMPLETE OrderStatusComplete
 	Status Status `json:"status"`
 
 	// Direction to trigger the order
+	// ABOVE StopDirectionAbove
+	// BELOW StopDirectionBelow
 	StopDirection StopDirection `json:"stop_direction"`
 
 	// Price to trigger the order
@@ -850,6 +958,9 @@ type GetOrderV3Response struct {
 	TimeInForce string `json:"time_in_force"`
 
 	// The order type
+	// LIMIT OrderTypeLimit
+	// MARKET OrderTypeMarket
+	// STOP_LIMIT OrderTypeStopLimit
 	Type Type `json:"type"`
 }
 
@@ -991,6 +1102,28 @@ type GetWithdrawalResponse struct {
 func (cl *Client) GetWithdrawal(ctx context.Context, req *GetWithdrawalRequest) (*GetWithdrawalResponse, error) {
 	var res GetWithdrawalResponse
 	err := cl.do(ctx, "GET", "/api/1/withdrawals/{id}", req, &res, true)
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+// LinkedRequest is the request struct for Linked.
+type LinkedRequest struct {
+}
+
+// LinkedResponse is the response struct for Linked.
+type LinkedResponse struct {
+	// List of linked user accounts configured for multi-access
+	Users []LinkedUser `json:"users"`
+}
+
+// Linked makes a call to GET /api/1/users/linked.
+//
+// Returns a list of users linked to this API key with additional permissions.
+func (cl *Client) Linked(ctx context.Context, req *LinkedRequest) (*LinkedResponse, error) {
+	var res LinkedResponse
+	err := cl.do(ctx, "GET", "/api/1/users/linked", req, &res, false)
 	if err != nil {
 		return nil, err
 	}
@@ -1411,10 +1544,6 @@ type MoveRequest struct {
 	DebitAccountId int64 `json:"debit_account_id" url:"debit_account_id"`
 
 	// Client move ID.
-	// May only contain alphanumeric (0-9, a-z, or A-Z) and special characters (_ ; , . -). Maximum length: 255.
-	// It will be available in read endpoints, so you can use it to avoid duplicate moves between the same accounts.
-	// Values must be unique across all your successful calls of this endpoint; trying to create a move request
-	// with the same `client_move_id` as one of your past move requests will result in a HTTP 409 Conflict response.
 	ClientMoveId string `json:"client_move_id" url:"client_move_id"`
 }
 
@@ -1432,6 +1561,10 @@ type MoveResponse struct {
 	// balance.<br>
 	// <code>FAILED</code> The move has failed. There could be many reasons for this but the most likely is that the
 	// debit account doesn't have enough available funds to move.<br>
+	// CREATED MoveStatusCreated
+	// MOVING MoveStatusMoving
+	// SUCCESSFUL MoveStatusSuccessful
+	// FAILED MoveStatusFailed
 	Status Status `json:"status"`
 }
 
@@ -1480,10 +1613,6 @@ type PostLimitOrderRequest struct {
 	BaseAccountId int64 `json:"base_account_id" url:"base_account_id"`
 
 	// Client order ID.
-	// May only contain alphanumeric (0-9, a-z, or A-Z) and special characters (_ ; , . -). Maximum length: 255.
-	// It will be available in read endpoints, so you can use it to reconcile Luno with your internal system.
-	// Values must be unique across all your successful order creation endpoint calls; trying to create an order
-	// with the same `client_order_id` as one of your past orders will result in a HTTP 409 Conflict response.
 	ClientOrderId string `json:"client_order_id" url:"client_order_id"`
 
 	// The counter currency Account to use in the trade.
@@ -1568,10 +1697,6 @@ type PostMarketOrderRequest struct {
 	BaseVolume decimal.Decimal `json:"base_volume" url:"base_volume"`
 
 	// Client order ID.
-	// May only contain alphanumeric (0-9, a-z, or A-Z) and special characters (_ ; , . -). Maximum length: 255.
-	// It will be available in read endpoints, so you can use it to reconcile Luno with your internal system.
-	// Values must be unique across all your successful order creation endpoint calls; trying to create an order
-	// with the same `client_order_id` as one of your past orders will result in a HTTP 409 Conflict response.
 	ClientOrderId string `json:"client_order_id" url:"client_order_id"`
 
 	// The counter currency account to use in the trade.
@@ -1671,6 +1796,9 @@ type SendRequest struct {
 	// Message to send to the recipient.
 	// This is only relevant when sending to an email address.
 	Message string `json:"message" url:"message"`
+
+	// The blockchain network to use for the transaction. If none is provided the default network is used
+	Network int64 `json:"network" url:"network"`
 }
 
 // SendResponse is the response struct for Send.
@@ -1738,6 +1866,33 @@ type SendFeeResponse struct {
 func (cl *Client) SendFee(ctx context.Context, req *SendFeeRequest) (*SendFeeResponse, error) {
 	var res SendFeeResponse
 	err := cl.do(ctx, "GET", "/api/1/send_fee", req, &res, true)
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+// SendNetworksRequest is the request struct for SendNetworks.
+type SendNetworksRequest struct {
+	// Currency to send
+	//
+	// required: true
+	Currency string `json:"currency" url:"currency"`
+}
+
+// SendNetworksResponse is the response struct for SendNetworks.
+type SendNetworksResponse struct {
+	Networks []SendNetwork `json:"networks"`
+}
+
+// SendNetworks makes a call to GET /api/1/send/networks.
+//
+// Returns a list of supported send networks for the user and currency. The network identifiers are to be used in the `POST /api/1/send` call.
+//
+// Permissions required: <code>MP_None</code>
+func (cl *Client) SendNetworks(ctx context.Context, req *SendNetworksRequest) (*SendNetworksResponse, error) {
+	var res SendNetworksResponse
+	err := cl.do(ctx, "GET", "/api/1/send/networks", req, &res, true)
 	if err != nil {
 		return nil, err
 	}
