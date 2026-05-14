@@ -104,6 +104,10 @@ type FundsMove struct {
 	// balance.<br>
 	// <code>FAILED</code> The move has failed. There could be many reasons for this but the most likely is that the
 	// debit account doesn't have enough available funds to move.<br>
+	// CREATED StatusCreated
+	// MOVING StatusMoving
+	// SUCCESSFUL StatusSuccessful
+	// FAILED StatusFailed
 	Status Status `json:"status"`
 
 	// Unix time the move was last updated, in milliseconds
@@ -118,6 +122,21 @@ const (
 	KindInterest Kind = "INTEREST"
 	KindTransfer Kind = "TRANSFER"
 )
+
+type LinkedUser struct {
+	// Time of the linked user provided permission (Unix milliseconds)
+	CreatedAt int64 `json:"created_at"`
+
+	// A reference to the linked user.
+	Label string `json:"label"`
+
+	// Permissions A list of permissions granted to the API client over the linked user.
+	// These permissions are enforced when acting on behalf of the linked user.
+	Permissions []string `json:"permissions"`
+
+	// The user ID the API client can act on behalf of
+	UserId string `json:"user_id"`
+}
 
 type MarketInfo struct {
 	// Base currency code
@@ -158,6 +177,10 @@ type MarketInfo struct {
 	// post-only.<br>
 	// <code>Unknown</code> Trading status is unknown. This could indicate a temporary error
 	// on the market and should resolve shortly.
+	// POST_ONLY TradingStatusPost_only
+	// ACTIVE TradingStatusActive
+	// SUSPENDED TradingStatusSuspended
+	// UNKNOWN TradingStatusUnknown
 	TradingStatus TradingStatus `json:"trading_status"`
 
 	// Volume decimal places
@@ -303,6 +326,8 @@ type OrderV2 struct {
 	// The intention of the order, whether to buy or sell funds in the market.
 	//
 	// You can use this to determine the flow of funds in the order.
+	// BUY SideBuy
+	// SELL SideSell
 	Side Side `json:"side"`
 
 	// The current state of the order
@@ -313,9 +338,14 @@ type OrderV2 struct {
 	// have taken place but the order is not filled yet.<br>
 	// <code>COMPLETE</code> The order is no longer in the order book. It has
 	// been settled/filled or has been cancelled.
+	// AWAITING StatusAwaiting
+	// PENDING StatusPending
+	// COMPLETE StatusComplete
 	Status Status `json:"status"`
 
 	// Direction to trigger the order
+	// ABOVE StopDirectionAbove
+	// BELOW StopDirectionBelow
 	StopDirection StopDirection `json:"stop_direction"`
 
 	// Price to trigger the order
@@ -330,6 +360,9 @@ type OrderV2 struct {
 	TimeInForce string `json:"time_in_force"`
 
 	// The order type
+	// LIMIT TypeLimit
+	// MARKET TypeMarket
+	// STOP_LIMIT TypeStop_limit
 	Type Type `json:"type"`
 }
 
@@ -348,6 +381,16 @@ type PublicTrade struct {
 
 	// Amount of assets traded
 	Volume decimal.Decimal `json:"volume"`
+}
+
+type SendNetwork struct {
+	Id int64 `json:"id"`
+
+	// The network name
+	Name string `json:"name"`
+
+	// The native currency for the network
+	NativeCurrency string `json:"native_currency"`
 }
 
 type Side string
@@ -484,20 +527,12 @@ const (
 )
 
 type Transaction struct {
-	AccountId string `json:"account_id"`
-
-	// Amount available
-	Available decimal.Decimal `json:"available"`
-
-	// Change in amount available
+	AccountId      string          `json:"account_id"`
+	Available      decimal.Decimal `json:"available"`
 	AvailableDelta decimal.Decimal `json:"available_delta"`
-
-	// Account balance
-	Balance decimal.Decimal `json:"balance"`
-
-	// Change in balance
-	BalanceDelta decimal.Decimal `json:"balance_delta"`
-	Currency     string          `json:"currency"`
+	Balance        decimal.Decimal `json:"balance"`
+	BalanceDelta   decimal.Decimal `json:"balance_delta"`
+	Currency       string          `json:"currency"`
 
 	// Human-readable description of the transaction.
 	Description  string       `json:"description"`
@@ -511,7 +546,12 @@ type Transaction struct {
 	// Kinds explained:<br>
 	// <code>FEE</code> when transaction is towards Luno fees<br>
 	// <code>TRANSFER</code> when the transaction is a one way flow of funds, e.g. a deposit or crypto send<br>
-	// <code>EXCHANGE</code> when the transaction is part of a two way exchange, e.g. a trade or instant buy
+	// <code>EXCHANGE</code> when the transaction is part of a two way exchange, e.g. a trade or instant buy<br>
+	// <code>INTEREST</code> when the transaction is an interest payment
+	// FEE KindFee
+	// TRANSFER KindTransfer
+	// EXCHANGE KindExchange
+	// INTEREST KindInterest
 	Kind Kind `json:"kind"`
 
 	// A unique reference for the transaction this statement entry relates to.
