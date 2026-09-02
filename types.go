@@ -6,6 +6,9 @@ type AccountBalance struct {
 	// ID of the account.
 	AccountId string `json:"account_id"`
 
+	// The type for account
+	AccountType WalletAccountType `json:"account_type"`
+
 	// Currency code for the asset held in this account.
 	Asset string `json:"asset"`
 
@@ -596,6 +599,20 @@ const (
 	TypeLimit      Type = "LIMIT"
 	TypeMarket     Type = "MARKET"
 	TypeStop_limit Type = "STOP_LIMIT"
+)
+
+type WalletAccountType string
+
+const (
+	WalletAccountTypeTransactional      WalletAccountType = "TRANSACTIONAL"
+	WalletAccountTypeSpot               WalletAccountType = "SPOT"
+	WalletAccountTypeSpotMargin         WalletAccountType = "SPOT_MARGIN"
+	WalletAccountTypeSavings            WalletAccountType = "SAVINGS"
+	WalletAccountTypeBundle             WalletAccountType = "BUNDLE"
+	WalletAccountTypeStaking            WalletAccountType = "STAKING"
+	WalletAccountTypeEarn               WalletAccountType = "EARN"
+	WalletAccountTypePrediction         WalletAccountType = "PREDICTION"
+	WalletAccountTypeExternalTokenising WalletAccountType = "EXTERNAL_TOKENISING"
 )
 
 type Withdrawal struct {

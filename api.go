@@ -135,6 +135,10 @@ type CreateAccountRequest struct {
 	//
 	// required: true
 	Name string `json:"name" url:"name"`
+
+	// The type to use for this account (if not provided, defaults to
+	// TRANSACTIONAL).
+	AccountType WalletAccountType `json:"account_type" url:"account_type"`
 }
 
 // CreateAccountResponse is the response struct for CreateAccount.
@@ -352,6 +356,11 @@ func (cl *Client) DeleteBeneficiary(ctx context.Context, req *DeleteBeneficiaryR
 
 // GetBalancesRequest is the request struct for GetBalances.
 type GetBalancesRequest struct {
+	// Only return balances for wallets of these types (if not provided, all
+	// account types are returned). To filter by multiple types, pass the
+	// parameter multiple times, e.g. `account_type=SPOT&account_type=SPOT_MARGIN`.
+	AccountType []WalletAccountType `json:"account_type" url:"account_type"`
+
 	// Only return balances for wallets with these currencies (if not provided,
 	// all balances will be returned). To request balances for multiple currencies,
 	// pass the parameter multiple times,
